@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       {/* Navigation */}
-      <nav className="bg-background fixed w-full z-20 top-0 border-b border-divider min-w-xs">
+      <nav className="bg-background sticky w-full z-20 top-0 border-b border-divider min-w-xs">
         <div className="flex items-center justify-between p-4 md:py-0 md:px-8">
 
           <a href="/">
@@ -25,7 +25,8 @@ function App() {
         </div>
       </nav>
 
-      <div className="w-full mt-[67px] md:mt-[77px] min-w-xs relative">
+      {/* First Section - Hero Section */}
+      <section className="w-full min-w-xs relative">
         <div className="absolute inset-0 bg-size-[105px_105px] bg-[linear-gradient(90deg,rgba(0,0,0,.55)_1px,transparent_0),linear-gradient(180deg,rgba(0,0,0,.55)_1px,transparent_0)] opacity-10 z-5" />
 
         <div className="absolute inset-0 bg-[linear-gradient(0deg,#fff,transparent)] z-10" />
@@ -55,8 +56,16 @@ function App() {
             </a>
           </div>
         </div>
+      </section>
 
-      </div >
+      {/* Spacer */}
+      <div className="w-full h-26" />
+
+      {/* Second Section - Features Section */}
+      <section className="w-full h-screen mt-6 relative" >
+        <div className="absolute inset-0 bg-[url('/background/grid.svg')] bg-size-[160px_92px] bg-position-[80px_0px] z-5" />
+        <h2>Features</h2>
+      </section>
     </>
   )
 }

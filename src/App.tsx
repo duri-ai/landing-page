@@ -93,11 +93,11 @@ function App() {
       </section>
 
       {/* Spacer */}
-      <div className="w-full h-26" />
+      <div className="w-full h-6" />
 
       {/* Second Section - Built in Third Party Integration Section */}
       <section className="w-full mt-[26px] mb-[80px] flex flex-col items-center">
-        <h4 className="mb-[48px] text-on-background text-[16px] text-center max-w-2xs sm:max-w-xs md:max-w-md lg:max-w-none">Duri Offers Built-in Third Party Integrations</h4>
+        <h4 className="mb-[48px] text-on-background text-[16px] text-center max-w-2xs sm:max-w-xs md:max-w-md lg:max-w-none">Built-in Integrations with Your Favorite Tools</h4>
 
         <div className="grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-8 gap-2 min-[421px]:gap-4">
           {
@@ -111,6 +111,9 @@ function App() {
           }
         </div>
       </section>
+
+      {/* Spacer */}
+      <div className="w-full h-6" />
 
       {/* Third Section - Features Section */}
       <section className="w-full h-screen mt-[26px] relative">

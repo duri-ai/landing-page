@@ -99,7 +99,7 @@ function App() {
           </div>
 
           <div className="flex w-full px-[16px] md:flex-col mx-auto md:max-w-4xl xl:max-w-5xl">
-            <ul className="flex flex-col-reverse justify-between md:flex-row gap-[8px]">
+            <ul className="flex flex-col-reverse justify-between md:flex-row">
               {
                 features.map((feature) => {
                   return (

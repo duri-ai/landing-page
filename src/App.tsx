@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronRightIcon, PartyPopperIcon, PlayIcon } from "lucide-react";
 import { thirdPartyLogos, features } from "./utils";
 

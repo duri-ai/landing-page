@@ -98,22 +98,22 @@ function App() {
             <h2 className="text-on-background text-3xl sm:text-3xl md:text-4xl lg:text-6xl">Features</h2>
           </div>
 
-          <div className="flex w-full px-[16px]">
-            <ul className="flex flex-col-reverse gap-[16px]">
+          <div className="flex w-full px-[16px] md:flex-col">
+            <ul className="flex flex-col-reverse md:flex-row gap-[16px]">
               {
                 features.map((feature) => {
                   return (
                     <li className="" key={feature.id}>
-                      <button className="flex items-center flex-col rotate-180" onClick={() => setActiveFeature(feature.id)}>
+                      <button className="flex items-center flex-col md:flex-row rotate-180 md:rotate-0" onClick={() => setActiveFeature(feature.id)}>
 
-                        <span className={`box-border border border-on-background border-b-0 border-l-0 w-[50px] px-[16px] py-[12px] [writing-mode:vertical-rl] ${activeFeature === feature.id ? "bg-on-background text-on-brand" : "bg-divider text-on-background"}`}>
+                        <span className={`box-border border border-on-background border-b-0 border-l-0 md:border-l md:border-r-0 w-[50px] md:w-auto md:h-[50px] px-[16px] py-[12px] [writing-mode:vertical-rl] md:[writing-mode:horizontal-tb] ${activeFeature === feature.id ? "bg-on-background text-on-brand" : "bg-divider text-on-background"}`}>
                           {feature.title}
                         </span>
 
                         {
                           activeFeature === feature.id ?
-                            <img alt="triangle" loading="lazy" src="/misc_images/triangle.png" className="w-[50px] h-[50px] rotate-90" /> :
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 70 70" className="w-[50px] h-[50px] rotate-90">
+                            <img alt="triangle" loading="lazy" src="/misc_images/triangle.png" className="w-[50px] h-[50px] rotate-90 md:rotate-0" /> :
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 70 70" className="w-[50px] h-[50px] rotate-90 md:rotate-0">
                               <path className="fill-on-background-secondary-variant" stroke="#100D0D" d="M.5.5h.968l67.345 69H.5z"></path>
                             </svg>
                         }
@@ -123,7 +123,7 @@ function App() {
                 })
               }
             </ul>
-            <article className="box-border border border-on-background p-[16px] flex flex-col gap-6 w-full bg-background">
+            <article className="box-border border border-on-background p-[16px] md:p-[32px] flex flex-col gap-6 w-full bg-background">
               <div className="w-full py-[64px] flex justify-center items-center">
                 {React.createElement(features[activeFeature].logo, { className: "w-2/5 h-auto" })}
               </div>

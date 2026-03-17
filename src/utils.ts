@@ -1,4 +1,6 @@
-import { BotIcon, HeartHandshakeIcon, GlobeIcon } from "lucide-react";
+import no_code from "/misc_images/no_code.svg";
+import collaborative_workflow from "/misc_images/collab.svg";
+import web_scrape from "/misc_images/web_scrape.svg";
 
 export const thirdPartyLogos = [
   {
@@ -38,7 +40,7 @@ export const thirdPartyLogos = [
 export const features = [
   {
     id: 0,
-    logo: BotIcon,
+    logo: no_code,
     title: "No code AI agents",
     descriptions: [
       "Duri is a no-code agent that can be used to automate your business operations.",
@@ -48,7 +50,7 @@ export const features = [
   },
   {
     id: 1,
-    logo: HeartHandshakeIcon,
+    logo: collaborative_workflow,
     title: "Collaborative workflow builder",
     descriptions: [
       "Let Duri AI do the work and you only give directions to Duri.",
@@ -58,7 +60,7 @@ export const features = [
   },
   {
     id: 2,
-    logo: GlobeIcon,
+    logo: web_scrape,
     title: "Web scraping",
     descriptions: [
       "Duri AI can scrape the internet and extract data for you.",

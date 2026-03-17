@@ -104,7 +104,7 @@ function App() {
                 features.map((feature) => {
                   return (
                     <li key={feature.id}>
-                      <button className="flex items-center flex-col md:flex-row rotate-180 md:rotate-0" onClick={() => setActiveFeature(feature.id)}>
+                      <button className="flex items-center flex-col md:flex-row rotate-180 md:rotate-0 hover:cursor-pointer" onClick={() => setActiveFeature(feature.id)}>
 
                         <span className={`box-border border border-on-background border-b-0 border-l-0 md:border-l md:border-r-0 w-[50px] md:w-auto md:h-[50px] xl:h-[70px] px-[16px] py-[12px] [writing-mode:vertical-rl] md:[writing-mode:horizontal-tb] ${activeFeature === feature.id ? "bg-on-background text-on-brand" : "bg-divider text-on-background"} text-[18px] md:text-[16px] xl:text-[26px]`}>
                           {feature.title}
@@ -125,27 +125,28 @@ function App() {
             </ul>
             <article className="box-border border border-on-background p-[16px] md:p-[32px] xl:py-[56px] xl:pr-[113px] flex flex-col xl:flex-row gap-6 xl:gap-12 w-full bg-background">
               <div className="w-full py-[64px] flex justify-center items-center">
-                {React.createElement(features[activeFeature].logo, { className: "w-2/5 h-auto" })}
+                <img src={features[activeFeature].logo} alt={features[activeFeature].title} className="w-2/3 h-auto" />
               </div>
               <div className="flex flex-col gap-6">
                 <ul className="list-[square] pl-[16px] flex flex-col gap-[16px]">
                   {features[activeFeature].descriptions.map((description) => {
                     return (
-                      <li key={description} className="text-on-background-secondary text-[16px]">
+                      <li key={description} className="text-on-background-secondary text-[16px] md:text-[18px]">
                         {description}
                       </li>
                     )
                   })}
                 </ul>
-                <a className="mt-[32px] min-w-4xs max-w-2xs">
-                  <div className="box-border border border-on-background py-[16px] px-[24px]">
-                    <span>Request a Demo</span>
+                <a className="group mt-[32px] min-w-4xs max-w-2xs hover:cursor-pointer relative">
+                  <div className="relative box-border border border-on-background py-[16px] px-[24px] z-2 bg-background hover:translate-x-[10px] hover:translate-y-[-10px] transition-transform duration-300">
+                    <span className="text-[14px]">Request a Demo</span>
                     <div className="flex justify-end items-center">
-                      <span className="text-on-background box-border border-2 border-on-background p-[8px] w-[40px] h-[40px] flex justify-center items-center">
-                        <PlayIcon className="w-full h-full" strokeWidth={"3px"} />
+                      <span className="text-on-background box-border border-2 border-on-background p-[8px] w-[40px] h-[40px] flex justify-center items-center group-hover:bg-on-background">
+                        <PlayIcon className="w-full h-full group-hover:text-on-brand" strokeWidth={"3px"} />
                       </span>
                     </div>
                   </div>
+                  <div className="absolute inset-0 bg-on-background z-1 rounded-xs" />
                 </a>
               </div>
             </article>

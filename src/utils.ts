@@ -1,4 +1,4 @@
-import { GlassesIcon, HeartHandshakeIcon, RssIcon } from "lucide-react";
+import { BotIcon, HeartHandshakeIcon, RssIcon } from "lucide-react";
 
 export const thirdPartyLogos = [
   {
@@ -38,7 +38,7 @@ export const thirdPartyLogos = [
 export const features = [
   {
     id: 0,
-    logo: GlassesIcon,
+    logo: BotIcon,
     title: "No code AI agents",
     descriptions: [
       "Duri is a no-code agent that can be used to automate your business operations.",

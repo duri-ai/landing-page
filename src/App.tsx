@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronRightIcon, PartyPopperIcon } from "lucide-react";
+import { ChevronRightIcon, PartyPopperIcon, PlayIcon } from "lucide-react";
 import { thirdPartyLogos, features } from "./utils";
 
 function App() {
@@ -65,7 +65,7 @@ function App() {
       <div className="w-full h-6" />
 
       {/* Second Section - Built in Third Party Integration Section */}
-      <section className="w-full mt-[26px] mb-[80px] flex flex-col items-center">
+      <section className="w-full mt-[26px] mb-[80px] flex flex-col items-center min-w-xs">
         <h4 className="mb-[48px] text-on-background text-[16px] text-center max-w-2xs sm:max-w-xs md:max-w-md lg:max-w-none">Built-in Integrations with Your Favorite Tools</h4>
 
         <div className="grid grid-cols-2 md:grid-cols-4 2xl:grid-cols-8 gap-2 min-[421px]:gap-4">
@@ -85,7 +85,7 @@ function App() {
       <div className="w-full h-6" />
 
       {/* Third Section - Features Section */}
-      <section className="w-full h-screen mt-[26px] relative">
+      <section className="w-full h-screen mt-[26px] relative min-w-xs">
         <div className="absolute inset-0 bg-[url('/background/grid.svg')] bg-size-[160px_92px] bg-position-[80px_0px] z-5" />
 
         <div className="absolute inset-0 top-0 bg-[linear-gradient(180deg,#fff,transparent)] z-10 h-1/2" />
@@ -99,7 +99,7 @@ function App() {
           </div>
 
           <div className="flex w-full px-[16px]">
-            <ul className="flex flex-col-reverse">
+            <ul className="flex flex-col-reverse gap-[16px]">
               {
                 features.map((feature) => {
                   return (
@@ -130,12 +130,22 @@ function App() {
               <ul className="list-[square] pl-[16px] flex flex-col gap-[16px]">
                 {features[activeFeature].descriptions.map((description) => {
                   return (
-                    <li key={description}>
+                    <li key={description} className="text-on-background-secondary text-[16px]">
                       {description}
                     </li>
                   )
                 })}
               </ul>
+              <a className="mt-[32px] min-w-4xs max-w-2xs">
+                <div className="box-border border border-on-background py-[16px] px-[24px]">
+                  <span>Request a Demo</span>
+                  <div className="flex justify-end items-center">
+                    <span className="text-on-background box-border border-2 border-on-background p-[8px] w-[40px] h-[40px] flex justify-center items-center">
+                      <PlayIcon className="w-full h-full" strokeWidth={"3px"} />
+                    </span>
+                  </div>
+                </div>
+              </a>
             </article>
           </div>
         </div>

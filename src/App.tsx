@@ -85,7 +85,7 @@ function App() {
       <div className="w-full h-6" />
 
       {/* Third Section - Features Section */}
-      <section className="w-full h-screen mt-[26px] relative min-w-xs">
+      <section className="w-full mt-[26px] pb-[63px] relative min-w-xs">
         <div className="absolute inset-0 bg-[url('/background/grid.svg')] bg-size-[160px_92px] bg-position-[80px_0px] z-5" />
 
         <div className="absolute inset-0 top-0 bg-[linear-gradient(180deg,#fff,transparent)] z-10 h-1/2" />

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { ChevronRightIcon, PartyPopperIcon, PlayIcon } from "lucide-react";
-import { thirdPartyLogos, features } from "./utils";
+import { thirdPartyLogos, features } from "./utils/marketingContent";
 
 function App() {
   const [activeFeature, setActiveFeature] = useState<number>(0);
@@ -195,6 +195,8 @@ function App() {
             <div className="border-divider border-b-0 px-[24px] pt-[46px] pb-[30px] text-on-brand max-w-sm sm:max-w-md md:max-w-lg">
               <h3 className="font-bold mb-[8px] text-md">Request a Demo</h3>
               <p className="text-md">Enter your email below and we’ll reach out shortly to schedule a personalized demo tailored to your business.</p>
+              {/* <h3 className="font-bold mb-[8px] text-md">Thank you for your interest!</h3>
+              <p className="text-md">We’re reviewing your request and will reach out shortly to get your demo scheduled.</p> */}
             </div>
 
             <div className="px-[24px] pb-[46px] sm:pt-0 text-on-brand w-full max-w-sm sm:max-w-md md:max-w-lg">

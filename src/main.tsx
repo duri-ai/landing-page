@@ -13,7 +13,7 @@ if (redirectPath) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/Duri_Landing_Page">
       <App />
     </BrowserRouter>
   </StrictMode>,

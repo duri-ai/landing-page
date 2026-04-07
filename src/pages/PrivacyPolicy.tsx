@@ -5,7 +5,7 @@ function PrivacyPolicy() {
         <div className="min-h-screen bg-background text-on-background">
             <header className="w-full px-[14px] lg:px-[48px] py-[16px] border-b border-divider">
                 <Link to="/">
-                    <img src="/logos/duri.svg" className="h-[24px]" alt="Duri Logo" />
+                    <img src={`${import.meta.env.BASE_URL}logos/duri.svg`} className="h-[24px]" alt="Duri Logo" />
                 </Link>
             </header>
 

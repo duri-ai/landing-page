@@ -3,7 +3,7 @@ function Auth() {
         <div className="grid min-h-dvh w-full grid-cols-1 md:grid-cols-[1fr_1fr]">
             <div className="relative z-10 mx-auto flex w-full max-w-[500px] flex-col items-center justify-center bg-background px-8">
                 <header className="absolute top-9 left-9">
-                    <img alt="Duri Text Logo" loading="lazy" src="/logos/duri.svg" className="w-[50px] h-auto" />
+                    <img alt="Duri Text Logo" loading="lazy" src={`${import.meta.env.BASE_URL}logos/duri.svg`} className="w-[50px] h-auto" />
                 </header>
                 <div className="flex min-h-dvh w-full flex-col items-center bg-background">
                     <div className="flex h-full w-full flex-col items-center justify-center">
@@ -39,7 +39,7 @@ function Auth() {
                 </div>
             </div>
             <div className="z-0 hidden flex-col overflow-hidden md:flex">
-                <div className="relative flex flex-1 bg-cover bg-center bg-[url('/background/wave.jpg')]">
+                <div className="relative flex flex-1 bg-cover bg-center bg-[url('/Duri_Landing_Page/background/wave.jpg')]">
                     <div className="flex flex-1 flex-col items-start justify-end px-8 py-12 lg:px-12 max-w-[720px]">
                         <div className="flex flex-col gap-8 pb-10">
                             <div>
@@ -49,7 +49,7 @@ function Auth() {
                         </div>
                     </div>
                     <div className="absolute top-1/2 right-0 left-0 flex -translate-y-1/2 justify-start px-8 lg:px-12 max-w-[720px] mt-[-100px]">
-                        <img src="/logos/d.svg" alt="Duri Initial Logo" className="w-full max-w-[100px]" />
+                        <img src={`${import.meta.env.BASE_URL}logos/d.svg`} alt="Duri Initial Logo" className="w-full max-w-[100px]" />
                     </div>
                 </div>
             </div>

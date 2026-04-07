@@ -1,3 +1,5 @@
+const base = import.meta.env.BASE_URL;
+
 import no_code from "/misc_images/no_code.svg";
 import collaborative_workflow from "/misc_images/collab.svg";
 import web_scrape from "/misc_images/web_scrape.svg";
@@ -5,35 +7,35 @@ import web_scrape from "/misc_images/web_scrape.svg";
 export const thirdPartyLogos = [
   {
     name: "Shopify",
-    logo: "/logos/third_party/shopify.svg",
+    logo: `${base}logos/third_party/shopify.svg`,
   },
   {
     name: "Quickbooks",
-    logo: "/logos/third_party/quickbooks.svg",
+    logo: `${base}logos/third_party/quickbooks.svg`,
   },
   {
     name: "Gmail",
-    logo: "/logos/third_party/gmail.svg",
+    logo: `${base}logos/third_party/gmail.svg`,
   },
   {
     name: "Slack",
-    logo: "/logos/third_party/slack.svg",
+    logo: `${base}logos/third_party/slack.svg`,
   },
   {
     name: "Notion",
-    logo: "/logos/third_party/notion.svg",
+    logo: `${base}logos/third_party/notion.svg`,
   },
   {
     name: "Excel",
-    logo: "/logos/third_party/excel.svg",
+    logo: `${base}logos/third_party/excel.svg`,
   },
   {
     name: "Mailchimp",
-    logo: "/logos/third_party/mailchimp.svg",
+    logo: `${base}logos/third_party/mailchimp.svg`,
   },
   {
     name: "Jira",
-    logo: "/logos/third_party/jira.svg",
+    logo: `${base}logos/third_party/jira.svg`,
   },
 ];
 

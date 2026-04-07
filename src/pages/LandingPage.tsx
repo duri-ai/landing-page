@@ -53,7 +53,7 @@ function LandingPage() {
                 <div className="flex items-center justify-between p-4 md:py-0 md:px-8">
 
                     <a href="/">
-                        <img src="/logos/duri.svg" className="h-5" alt="Duri Text Logo" />
+                        <img src={`${import.meta.env.BASE_URL}logos/duri.svg`} className="h-5" alt="Duri Text Logo" />
                     </a >
 
                     <div className="inline-flex items-center gap-3 md:py-4">
@@ -91,7 +91,7 @@ function LandingPage() {
                         <span className="text-xl transition-colors duration-200 inline lg:hidden">Introducing Duri AI</span>
                         <ChevronRightIcon className="w-5 h-5 transition-colors duration-200" />
                     </div>
-                    <img src="/logos/d.svg" className="h-20" alt="Duri Initial Logo" />
+                    <img src={`${import.meta.env.BASE_URL}logos/d.svg`} className="h-20" alt="Duri Initial Logo" />
                     <h1 className="mt-5 text-4xl sm:text-4xl md:text-5xl lg:text-7xl text-on-background max-w-2xs sm:max-w-xs md:max-w-md lg:max-w-xl xl:max-w-none">We automate back-office tasks.</h1>
                     <p className="mt-3.75 text-lg sm:text-xl md:text-2xl text-on-background-secondary max-w-2xs sm:max-w-xs md:max-w-md lg:max-w-2xl xl:max-w-none">An AI business operator for small and medium businesses.</p>
                     <div className="mt-10 flex flex-col items-center lg:flex-row lg:items-start gap-6">
@@ -134,7 +134,7 @@ function LandingPage() {
 
             {/* Third Section - Features Section */}
             <section ref={featuresSectionRef} className="w-full mt-[26px] pb-[63px] md:pb-[100px] relative min-w-xs">
-                <div className="absolute inset-0 bg-[url('/background/grid.svg')] bg-size-[160px_92px] bg-position-[80px_0px] z-5" />
+                <div className="absolute inset-0 bg-[url('/Duri_Landing_Page/background/grid.svg')] bg-size-[160px_92px] bg-position-[80px_0px] z-5" />
 
                 <div className="absolute inset-0 top-0 bg-[linear-gradient(180deg,#fff,transparent)] z-10 h-1/2" />
 
@@ -160,7 +160,7 @@ function LandingPage() {
 
                                                 {
                                                     activeFeature === feature.id ?
-                                                        <img alt="triangle" loading="lazy" src="/misc_images/triangle.png" className="w-[50px] h-[50px] xl:w-[70px] xl:h-[70px] rotate-90 md:rotate-0" /> :
+                                                        <img alt="triangle" loading="lazy" src={`${import.meta.env.BASE_URL}misc_images/triangle.png`} className="w-[50px] h-[50px] xl:w-[70px] xl:h-[70px] rotate-90 md:rotate-0" /> :
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 70 70" className="w-[50px] h-[50px] xl:w-[70px] xl:h-[70px] rotate-90 md:rotate-0">
                                                             <path className="fill-on-background-secondary-variant" stroke="#100D0D" d="M.5.5h.968l67.345 69H.5z"></path>
                                                         </svg>
@@ -245,7 +245,7 @@ function LandingPage() {
                     </div>
 
                     <div className="px-[39px] pt-[30px] md:pt-[30px] flex justify-center border-t border-divider">
-                        <img src="/logos/duri_white.svg" className="w-auto h-full" alt="Duri Text Logo" />
+                        <img src={`${import.meta.env.BASE_URL}logos/duri_white.svg`} className="w-auto h-full" alt="Duri Text Logo" />
                     </div>
                 </div>
 

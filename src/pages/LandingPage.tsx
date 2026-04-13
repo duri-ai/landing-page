@@ -77,7 +77,7 @@ function LandingPage() {
                     <p className="mt-3.75 text-lg sm:text-xl md:text-2xl text-on-background-secondary max-w-2xs sm:max-w-xs md:max-w-md lg:max-w-2xl xl:max-w-none">An AI business operator for small and medium businesses.</p>
                     <div className="mt-10 flex flex-col items-center lg:flex-row lg:items-start gap-6">
                         <a
-                            href="https://duristorage.blob.core.windows.net/releases/desktop/latest/Duri-latest-mac.zip"
+                            href="https://duristorage.blob.core.windows.net/releases/desktop/latest/Duri-latest-mac.dmg"
                         >
                             <button type="button" className="text-on-brand bg-brand hover:bg-transparent hover:text-brand box-border border border-transparent hover:border-brand font-normal leading-5 rounded-xs text-2xl px-8 py-6 transition-colors duration-500 cursor-pointer min-w-2xs sm:min-w-xs md:min-w-md lg:min-w-0">Download for Mac</button>
                         </a>

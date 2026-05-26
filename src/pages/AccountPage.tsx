@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
@@ -17,6 +17,7 @@ type WorkspaceData = {
     admin: MemberInfo;
     members: MemberInfo[];
     token_balance: number;
+    subscription_status: string | null;
 };
 
 export default function AccountPage() {
@@ -34,8 +35,11 @@ export default function AccountPage() {
     const role = user?.user_metadata?.role as string | undefined;
     const workspaceId = user?.user_metadata?.workspace_id as string | undefined;
     const freeTokenBalanceId = user?.user_metadata?.token_balance_id as string | undefined;
+    const subscriptionStatus = workspace?.subscription_status ?? null;
+    const isSubscribed = subscriptionStatus === "active" || subscriptionStatus === "trialing";
 
     const [freeTokenBalance, setFreeTokenBalance] = useState<number | null>(null);
+    const [checkoutLoading, setCheckoutLoading] = useState<"subscription" | "refill" | null>(null);
 
     useEffect(() => {
         if (!workspaceId) return;
@@ -106,6 +110,25 @@ export default function AccountPage() {
             setInviteEmail("");
         }
         setInviteLoading(false);
+    }
+
+    async function handleCheckout(type: "subscription" | "refill") {
+        setCheckoutLoading(type);
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session?.access_token}`,
+                },
+                body: JSON.stringify({ type }),
+            },
+        );
+        const data = await res.json();
+        setCheckoutLoading(null);
+        if (data.url) window.location.href = data.url;
     }
 
     const roleLabel: Record<string, string> = {
@@ -227,25 +250,66 @@ export default function AccountPage() {
                         )}
 
                         <Section title="Subscription">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-on-background">
-                                        {roleLabel[role ?? "free"] ?? "Free"} plan
-                                    </p>
-                                    <p className="text-xs text-on-background-secondary mt-0.5">
-                                        {role === "free" && (
-                                            freeTokenBalance !== null
-                                                ? `${freeTokenBalance.toLocaleString()} tokens remaining.`
-                                                : "No tokens remaining."
-                                        )}
-                                        {role === "admin" && "Unlimited runs, all integrations."}
-                                        {role === "member" && "Member of a Team workspace."}
-                                    </p>
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm font-medium text-on-background">
+                                                {roleLabel[role ?? "free"] ?? "Free"} plan
+                                            </p>
+                                            {role === "admin" && (
+                                                <span className={`text-xs px-1.5 py-0.5 rounded-xs border font-medium ${
+                                                    isSubscribed
+                                                        ? "text-brand border-brand/30 bg-brand-soft"
+                                                        : "text-on-background-secondary border-divider"
+                                                }`}>
+                                                    {isSubscribed ? "Active" : "Inactive"}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-on-background-secondary mt-0.5">
+                                            {role === "free" && (
+                                                freeTokenBalance !== null
+                                                    ? `${freeTokenBalance.toLocaleString()} tokens remaining.`
+                                                    : "No tokens remaining."
+                                            )}
+                                            {role === "admin" && workspace && (
+                                                `${workspace.token_balance.toLocaleString()} tokens remaining.`
+                                            )}
+                                            {role === "member" && "Member of a Team workspace."}
+                                        </p>
+                                    </div>
+                                    {role === "free" && (
+                                        <Link to="/pricing" className="text-xs text-brand hover:underline">
+                                            Upgrade
+                                        </Link>
+                                    )}
                                 </div>
-                                {role !== "member" && (
-                                    <a href="/pricing" className="text-xs text-brand hover:underline">
-                                        {role === "free" ? "Upgrade" : "Manage"}
-                                    </a>
+
+                                {/* Billing actions — admin only */}
+                                {role === "admin" && (
+                                    <div className="flex flex-wrap gap-2">
+                                        {!isSubscribed && (
+                                            <button
+                                                type="button"
+                                                disabled={checkoutLoading !== null}
+                                                onClick={() => handleCheckout("subscription")}
+                                                className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                            >
+                                                {checkoutLoading === "subscription" ? "Redirecting…" : "Subscribe — $24.99/mo"}
+                                            </button>
+                                        )}
+                                        {isSubscribed && (
+                                            <button
+                                                type="button"
+                                                disabled={checkoutLoading !== null}
+                                                onClick={() => handleCheckout("refill")}
+                                                className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background text-xs font-medium hover:border-brand hover:text-brand transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                            >
+                                                {checkoutLoading === "refill" ? "Redirecting…" : "Get refill — $9.99"}
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </Section>

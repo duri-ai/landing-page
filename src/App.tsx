@@ -6,6 +6,8 @@ import LoginPage from "./pages/LoginPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
 import AccountPage from "./pages/AccountPage.tsx";
 import InviteAcceptPage from "./pages/InviteAcceptPage.tsx";
+import CheckoutPage from "./pages/CheckoutPage.tsx";
+import CheckoutReturnPage from "./pages/CheckoutReturnPage.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import Eula from "./pages/Eula.tsx";
 
@@ -19,6 +21,8 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/invite-accept" element={<InviteAcceptPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout-return" element={<CheckoutReturnPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/eula" element={<Eula />} />
         <Route path="/auth" element={<Navigate to="/" replace />} />

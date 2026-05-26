@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
 
@@ -15,6 +15,7 @@ const PLAN_TO_ROLE: Record<string, "free" | "admin"> = {
 
 export default function SignUpPage() {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const planParam = searchParams.get("plan");
     const plan = planParam ?? "free";
     const planLabel = PLAN_LABELS[plan] ?? plan;
@@ -27,12 +28,14 @@ export default function SignUpPage() {
     const [loading, setLoading] = useState(false);
     const [verifyPending, setVerifyPending] = useState(false);
 
+    const postSignupPath = role === "admin" ? "/checkout?type=subscription" : "/account";
+
     async function handleGoogleSignUp() {
         setError(null);
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: window.location.origin + "/",
+                redirectTo: window.location.origin + postSignupPath,
                 queryParams: { plan },
             },
         });
@@ -49,7 +52,7 @@ export default function SignUpPage() {
             password,
             options: {
                 data: { role, full_name: fullName, workspace_id: null },
-                emailRedirectTo: window.location.origin + "/",
+                emailRedirectTo: window.location.origin + postSignupPath,
             },
         });
 
@@ -62,6 +65,11 @@ export default function SignUpPage() {
         if (data.user?.identities?.length === 0) {
             setLoading(false);
             setError("An account with this email already exists. Try signing in instead.");
+            return;
+        }
+
+        if (data.session) {
+            navigate(postSignupPath);
             return;
         }
 

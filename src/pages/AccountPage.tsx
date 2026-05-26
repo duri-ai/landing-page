@@ -5,61 +5,89 @@ import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
 
-type MemberInfo = {
-    id: string;
-    email: string;
-    full_name: string | null;
+type OrgMember = {
+    user_id: string;
+    email?: string;
+    full_name?: string | null;
+    role: "admin" | "member";
 };
 
-type WorkspaceData = {
+type OrgData = {
     id: number;
     name: string;
-    admin: MemberInfo;
-    members: MemberInfo[];
-    token_balance: number;
+    balance_usd: number;
     subscription_status: string | null;
+    current_user_role: "admin" | "member";
+    members: OrgMember[];
+    seat_count: number;
+    token_balance_id: number;
 };
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
 
 export default function AccountPage() {
     const { user, signOut, loading } = useAuth();
     const navigate = useNavigate();
 
-    const [workspace, setWorkspace] = useState<WorkspaceData | null>(null);
-    const [workspaceLoading, setWorkspaceLoading] = useState(false);
+    const [org, setOrg] = useState<OrgData | null>(null);
+    const [orgLoading, setOrgLoading] = useState(false);
 
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteLoading, setInviteLoading] = useState(false);
     const [inviteError, setInviteError] = useState<string | null>(null);
     const [inviteSent, setInviteSent] = useState(false);
 
-    const role = user?.user_metadata?.role as string | undefined;
-    const workspaceId = user?.user_metadata?.workspace_id as string | undefined;
-    const freeTokenBalanceId = user?.user_metadata?.token_balance_id as string | undefined;
-    const subscriptionStatus = workspace?.subscription_status ?? null;
-    const isSubscribed = subscriptionStatus === "active" || subscriptionStatus === "trialing";
-
-    const [freeTokenBalance, setFreeTokenBalance] = useState<number | null>(null);
     const [checkoutLoading, setCheckoutLoading] = useState<"subscription" | "refill" | null>(null);
 
-    useEffect(() => {
-        if (!workspaceId) return;
-        setWorkspaceLoading(true);
-        supabase
-            .rpc("get_workspace_with_members", { p_workspace_id: parseInt(workspaceId) })
-            .then(({ data }) => {
-                setWorkspace(data as WorkspaceData);
-                setWorkspaceLoading(false);
-            });
-    }, [workspaceId]);
+    // Role from org fetch (fallback to user metadata while loading)
+    const metaRole = user?.user_metadata?.role as string | undefined;
+    const role = org?.current_user_role ?? (metaRole === "free" ? "free" : metaRole === "admin" ? "admin" : metaRole) ?? "admin";
+    const plan = metaRole === "free" ? "free" : "team";
+    const isAdmin = role === "admin";
+    const isSubscribed =
+        org?.subscription_status === "active" || org?.subscription_status === "trialing";
 
+    // Fetch org data
     useEffect(() => {
-        if (role !== "free" || !freeTokenBalanceId) return;
-        supabase
-            .rpc("get_token_balance", { p_token_balance_id: parseInt(freeTokenBalanceId) })
-            .then(({ data }) => {
-                if (data !== null) setFreeTokenBalance(data as number);
-            });
-    }, [role, freeTokenBalanceId]);
+        if (!user) return;
+        setOrgLoading(true);
+
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            fetch(`${BACKEND}/organizations/me`, {
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            })
+                .then((r) => r.json())
+                .then((data: OrgData) => {
+                    setOrg(data);
+                    setOrgLoading(false);
+                })
+                .catch(() => setOrgLoading(false));
+        });
+    }, [user]);
+
+    // Supabase Realtime — live balance updates
+    useEffect(() => {
+        if (!org?.token_balance_id) return;
+
+        const channel = supabase
+            .channel("balance")
+            .on(
+                "postgres_changes",
+                {
+                    event: "UPDATE",
+                    schema: "public",
+                    table: "token_balances",
+                    filter: `id=eq.${org.token_balance_id}`,
+                },
+                (payload) => {
+                    const newBalance = (payload.new as { balance: number }).balance;
+                    setOrg((prev) => prev ? { ...prev, balance_usd: newBalance } : prev);
+                },
+            )
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, [org?.token_balance_id]);
 
     if (loading) {
         return (
@@ -85,26 +113,24 @@ export default function AccountPage() {
 
     async function handleInvite(e: FormEvent) {
         e.preventDefault();
+        if (!org) return;
         setInviteError(null);
         setInviteSent(false);
         setInviteLoading(true);
 
         const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-member`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${session?.access_token}`,
-                },
-                body: JSON.stringify({ email: inviteEmail }),
+        const res = await fetch(`${BACKEND}/organizations/${org.id}/invitations`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session?.access_token}`,
             },
-        );
+            body: JSON.stringify({ email: inviteEmail }),
+        });
 
-        const result = await res.json();
         if (!res.ok) {
-            setInviteError(result.error ?? "Failed to send invite.");
+            const result = await res.json().catch(() => ({}));
+            setInviteError(result.detail ?? result.error ?? "Failed to send invite.");
         } else {
             setInviteSent(true);
             setInviteEmail("");
@@ -113,28 +139,31 @@ export default function AccountPage() {
     }
 
     async function handleCheckout(type: "subscription" | "refill") {
+        if (!org) return;
         setCheckoutLoading(type);
+
         const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`,
+            `${BACKEND}/stripe/checkout?organization_id=${org.id}${type === "refill" ? "&type=refill" : ""}`,
             {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${session?.access_token}`,
-                },
-                body: JSON.stringify({ type }),
+                headers: { Authorization: `Bearer ${session?.access_token}` },
             },
         );
-        const data = await res.json();
+
+        const data = await res.json().catch(() => null);
         setCheckoutLoading(null);
-        if (data.url) window.location.href = data.url;
+        if (data?.url) {
+            window.location.href = data.url;
+            return;
+        }
+        const location = res.headers.get("location");
+        if (location) window.location.href = location;
     }
 
-    const roleLabel: Record<string, string> = {
+    const planLabel: Record<string, string> = {
         free: "Free",
-        admin: "Team (Admin)",
-        member: "Team (Member)",
+        team: isAdmin ? "Team (Admin)" : "Team (Member)",
     };
 
     return (
@@ -156,108 +185,92 @@ export default function AccountPage() {
 
                     <div className="space-y-4">
 
-                        {/* Workspace section — admin and member only */}
-                        {(role === "admin" || role === "member") && (
-                            <Section title="Workspace">
-                                {!workspaceId ? (
-                                    <p className="text-sm text-on-background-secondary">
-                                        Workspace not found.{" "}
-                                        <a href="/pricing" className="text-brand hover:underline">Contact support</a>.
-                                    </p>
-                                ) : workspaceLoading ? (
-                                    <div className="flex items-center justify-center py-4">
-                                        <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+                        {/* Workspace section */}
+                        <Section title="Workspace">
+                            {orgLoading ? (
+                                <div className="flex items-center justify-center py-4">
+                                    <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+                                </div>
+                            ) : org ? (
+                                <div className="flex flex-col gap-5">
+                                    <div>
+                                        <p className="text-sm font-medium text-on-background">{org.name}</p>
+                                        <p className="text-xs text-on-background-secondary mt-0.5">
+                                            ${org.balance_usd.toFixed(2)} balance remaining
+                                        </p>
                                     </div>
-                                ) : workspace ? (
-                                    <div className="flex flex-col gap-5">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-on-background">{workspace.name}</p>
-                                                <p className="text-xs text-on-background-secondary mt-0.5">
-                                                    {workspace.token_balance.toLocaleString()} tokens remaining
-                                                </p>
-                                            </div>
-                                        </div>
 
+                                    <div>
+                                        <p className="text-xs font-medium text-on-background-secondary uppercase tracking-wider mb-3">
+                                            Members
+                                        </p>
+                                        <div className="flex flex-col gap-2">
+                                            {org.members.map((m) => (
+                                                <MemberRow
+                                                    key={m.user_id}
+                                                    userId={m.user_id}
+                                                    name={m.full_name}
+                                                    email={m.email}
+                                                    badge={m.role === "admin" ? "Admin" : "Member"}
+                                                />
+                                            ))}
+                                            {org.members.length === 0 && (
+                                                <p className="text-xs text-on-background-secondary italic">
+                                                    No members yet.
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {isAdmin && (
                                         <div>
                                             <p className="text-xs font-medium text-on-background-secondary uppercase tracking-wider mb-3">
-                                                Members
+                                                Invite member
                                             </p>
-                                            <div className="flex flex-col gap-2">
-                                                {/* Admin row */}
-                                                <MemberRow
-                                                    name={workspace.admin.full_name}
-                                                    email={workspace.admin.email}
-                                                    badge="Admin"
+                                            <form onSubmit={handleInvite} className="flex gap-2">
+                                                <input
+                                                    type="email"
+                                                    required
+                                                    placeholder="colleague@company.com"
+                                                    value={inviteEmail}
+                                                    onChange={(e) => setInviteEmail(e.target.value)}
+                                                    className="h-9 flex-1 rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
                                                 />
-                                                {/* Member rows */}
-                                                {workspace.members.map((m) => (
-                                                    <MemberRow
-                                                        key={m.id}
-                                                        name={m.full_name}
-                                                        email={m.email}
-                                                        badge="Member"
-                                                    />
-                                                ))}
-                                                {workspace.members.length === 0 && (
-                                                    <p className="text-xs text-on-background-secondary italic">
-                                                        No members yet.
-                                                    </p>
-                                                )}
-                                            </div>
+                                                <button
+                                                    type="submit"
+                                                    disabled={inviteLoading}
+                                                    className="h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+                                                >
+                                                    {inviteLoading ? "Sending…" : "Send invite"}
+                                                </button>
+                                            </form>
+                                            {inviteSent && (
+                                                <p className="mt-2 text-xs text-brand">Invite sent successfully.</p>
+                                            )}
+                                            {inviteError && (
+                                                <p className="mt-2 text-xs text-red-600">{inviteError}</p>
+                                            )}
                                         </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-on-background-secondary">
+                                    Could not load workspace.{" "}
+                                    <a href="/pricing" className="text-brand hover:underline">Contact support</a>.
+                                </p>
+                            )}
+                        </Section>
 
-                                        {/* Invite form — admin only */}
-                                        {role === "admin" && (
-                                            <div>
-                                                <p className="text-xs font-medium text-on-background-secondary uppercase tracking-wider mb-3">
-                                                    Invite member
-                                                </p>
-                                                <form onSubmit={handleInvite} className="flex gap-2">
-                                                    <input
-                                                        type="email"
-                                                        required
-                                                        placeholder="colleague@company.com"
-                                                        value={inviteEmail}
-                                                        onChange={(e) => setInviteEmail(e.target.value)}
-                                                        className="h-9 flex-1 rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
-                                                    />
-                                                    <button
-                                                        type="submit"
-                                                        disabled={inviteLoading}
-                                                        className="h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
-                                                    >
-                                                        {inviteLoading ? "Sending…" : "Send invite"}
-                                                    </button>
-                                                </form>
-                                                {inviteSent && (
-                                                    <p className="mt-2 text-xs text-brand">
-                                                        Invite sent successfully.
-                                                    </p>
-                                                )}
-                                                {inviteError && (
-                                                    <p className="mt-2 text-xs text-red-600">{inviteError}</p>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-on-background-secondary">
-                                        Could not load workspace.
-                                    </p>
-                                )}
-                            </Section>
-                        )}
-
+                        {/* Subscription section */}
                         <Section title="Subscription">
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <p className="text-sm font-medium text-on-background">
-                                                {roleLabel[role ?? "free"] ?? "Free"} plan
+                                                {planLabel[plan] ?? "Free"} plan
                                             </p>
-                                            {role === "admin" && (
+                                            {plan === "team" && (
                                                 <span className={`text-xs px-1.5 py-0.5 rounded-xs border font-medium ${
                                                     isSubscribed
                                                         ? "text-brand border-brand/30 bg-brand-soft"
@@ -268,26 +281,19 @@ export default function AccountPage() {
                                             )}
                                         </div>
                                         <p className="text-xs text-on-background-secondary mt-0.5">
-                                            {role === "free" && (
-                                                freeTokenBalance !== null
-                                                    ? `${freeTokenBalance.toLocaleString()} tokens remaining.`
-                                                    : "No tokens remaining."
-                                            )}
-                                            {role === "admin" && workspace && (
-                                                `${workspace.token_balance.toLocaleString()} tokens remaining.`
-                                            )}
-                                            {role === "member" && "Member of a Team workspace."}
+                                            {plan === "free" && "Upgrade to unlock more capacity."}
+                                            {plan === "team" && org && `${org.seat_count} seat${org.seat_count !== 1 ? "s" : ""} · $${org.balance_usd.toFixed(2)} remaining`}
                                         </p>
                                     </div>
-                                    {role === "free" && (
+                                    {plan === "free" && (
                                         <Link to="/pricing" className="text-xs text-brand hover:underline">
                                             Upgrade
                                         </Link>
                                     )}
                                 </div>
 
-                                {/* Billing actions — admin only */}
-                                {role === "admin" && (
+                                {/* Billing actions — team admin only */}
+                                {plan === "team" && isAdmin && (
                                     <div className="flex flex-wrap gap-2">
                                         {!isSubscribed && (
                                             <button
@@ -338,8 +344,9 @@ export default function AccountPage() {
     );
 }
 
-function MemberRow({ name, email, badge }: { name: string | null; email: string; badge: string }) {
-    const initial = (name ?? email).charAt(0).toUpperCase();
+function MemberRow({ name, email, userId, badge }: { name?: string | null; email?: string; userId: string; badge: string }) {
+    const display = name ?? email ?? userId.slice(0, 8);
+    const initial = display.charAt(0).toUpperCase();
     return (
         <div className="flex items-center gap-3">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand text-xs font-medium select-none">
@@ -347,7 +354,7 @@ function MemberRow({ name, email, badge }: { name: string | null; email: string;
             </div>
             <div className="flex-1 min-w-0">
                 {name && <p className="text-sm text-on-background truncate">{name}</p>}
-                <p className="text-xs text-on-background-secondary truncate">{email}</p>
+                <p className="text-xs text-on-background-secondary truncate">{email ?? userId}</p>
             </div>
             <span className="text-xs text-on-background-secondary border border-divider rounded-xs px-2 py-0.5 shrink-0">
                 {badge}

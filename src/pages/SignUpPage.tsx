@@ -21,21 +21,20 @@ export default function SignUpPage() {
     const planLabel = PLAN_LABELS[plan] ?? plan;
     const role = PLAN_TO_ROLE[plan] ?? "free";
 
-    const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [verifyPending, setVerifyPending] = useState(false);
 
-    const postSignupPath = role === "admin" ? "/checkout?type=subscription" : "/account";
+    const onboardingPath = `/onboarding?plan=${plan}`;
 
     async function handleGoogleSignUp() {
         setError(null);
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: window.location.origin + postSignupPath,
+                redirectTo: window.location.origin + onboardingPath,
                 queryParams: { plan },
             },
         });
@@ -51,8 +50,8 @@ export default function SignUpPage() {
             email,
             password,
             options: {
-                data: { role, full_name: fullName, workspace_id: null },
-                emailRedirectTo: window.location.origin + postSignupPath,
+                data: { role },
+                emailRedirectTo: window.location.origin + onboardingPath,
             },
         });
 
@@ -69,7 +68,7 @@ export default function SignUpPage() {
         }
 
         if (data.session) {
-            navigate(postSignupPath);
+            navigate(onboardingPath);
             return;
         }
 
@@ -149,22 +148,6 @@ export default function SignUpPage() {
                     </div>
 
                     <form onSubmit={handleEmailSignUp} className="flex flex-col gap-4">
-                        <div className="flex flex-col gap-1.5">
-                            <label htmlFor="fullName" className="text-sm text-on-background">
-                                Full name
-                            </label>
-                            <input
-                                id="fullName"
-                                type="text"
-                                required
-                                autoComplete="name"
-                                placeholder="Your name"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
-                            />
-                        </div>
-
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="email" className="text-sm text-on-background">
                                 Email

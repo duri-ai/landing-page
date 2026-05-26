@@ -1,17 +1,21 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
+
 type InviteData = {
     email: string;
-    workspace_id: number;
+    organization_id: number;
 };
 
 export default function InviteAcceptPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
+    const { user } = useAuth();
 
     const [invite, setInvite] = useState<InviteData | null>(null);
     const [status, setStatus] = useState<"loading" | "form" | "submitting" | "invalid">("loading");
@@ -19,21 +23,26 @@ export default function InviteAcceptPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
 
+    // User already has a session (arrived via Supabase invite magic link)
+    const hasSession = !!user;
+
     useEffect(() => {
         if (!token) {
             setStatus("invalid");
             return;
         }
-        supabase
-            .rpc("validate_invite_token", { p_token: token })
-            .then(({ data }) => {
-                if (!data) {
-                    setStatus("invalid");
-                    return;
-                }
+
+        fetch(`${BACKEND}/invitations/${token}`)
+            .then((r) => {
+                if (!r.ok) { setStatus("invalid"); return; }
+                return r.json();
+            })
+            .then((data) => {
+                if (!data) return;
                 setInvite(data as InviteData);
                 setStatus("form");
-            });
+            })
+            .catch(() => setStatus("invalid"));
     }, [token]);
 
     async function handleSubmit(e: FormEvent) {
@@ -42,48 +51,67 @@ export default function InviteAcceptPage() {
         setError(null);
         setStatus("submitting");
 
-        const { data, error: signUpError } = await supabase.auth.signUp({
-            email: invite.email,
-            password,
-            options: {
-                data: {
-                    role: "member",
-                    workspace_id: invite.workspace_id.toString(),
-                    full_name: fullName,
-                    invite_token: token,
+        let accessToken: string | null = null;
+
+        if (hasSession) {
+            // User arrived via Supabase invite email — already has a session.
+            // Just update their display name.
+            if (fullName) {
+                await supabase.auth.updateUser({ data: { full_name: fullName } });
+            }
+            const { data: { session } } = await supabase.auth.getSession();
+            accessToken = session?.access_token ?? null;
+        } else {
+            // No session — user opened the invite link directly. Sign them up.
+            const { data, error: signUpError } = await supabase.auth.signUp({
+                email: invite.email,
+                password,
+                options: {
+                    data: { role: "member", full_name: fullName },
+                    emailRedirectTo: window.location.origin + "/account",
                 },
-                emailRedirectTo: window.location.origin + "/account",
-            },
-        });
-
-        if (signUpError) {
-            setError(signUpError.message);
-            setStatus("form");
-            return;
-        }
-
-        if (data.user?.identities?.length === 0) {
-            setError("An account with this email already exists. Try signing in instead.");
-            setStatus("form");
-            return;
-        }
-
-        // If email confirmation is disabled, session is available immediately
-        if (data.session && data.user) {
-            const { error: acceptError } = await supabase.rpc("accept_invite_for_member", {
-                p_token: token,
-                p_user_id: data.user.id,
             });
-            if (acceptError) {
-                setError(acceptError.message);
+
+            if (signUpError) {
+                setError(signUpError.message);
                 setStatus("form");
                 return;
             }
-            navigate("/account", { replace: true });
-        } else {
-            // Email confirmation is on — trigger handles workspace join after confirmation
-            navigate("/invite-pending", { replace: true });
+
+            if (data.user?.identities?.length === 0) {
+                setError("An account with this email already exists. Sign in first, then use the invite link.");
+                setStatus("form");
+                return;
+            }
+
+            if (!data.session) {
+                // Email verification required — unlikely for invite flow but possible
+                navigate("/invite-pending", { replace: true });
+                return;
+            }
+
+            accessToken = data.session.access_token;
         }
+
+        if (!accessToken) {
+            setError("Could not get session. Please try again.");
+            setStatus("form");
+            return;
+        }
+
+        const res = await fetch(`${BACKEND}/invitations/${token}/accept`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!res.ok) {
+            const result = await res.json().catch(() => ({}));
+            setError(result.detail ?? result.error ?? "Failed to accept invitation.");
+            setStatus("form");
+            return;
+        }
+
+        navigate("/account", { replace: true });
     }
 
     if (status === "loading") {
@@ -152,22 +180,24 @@ export default function InviteAcceptPage() {
                             />
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                            <label htmlFor="password" className="text-sm text-on-background">
-                                Create a password
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                required
-                                autoComplete="new-password"
-                                minLength={8}
-                                placeholder="At least 8 characters"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
-                            />
-                        </div>
+                        {!hasSession && (
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="password" className="text-sm text-on-background">
+                                    Create a password
+                                </label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    required
+                                    autoComplete="new-password"
+                                    minLength={8}
+                                    placeholder="At least 8 characters"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
+                                />
+                            </div>
+                        )}
 
                         {error && (
                             <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xs px-3 py-2">

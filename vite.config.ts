@@ -8,5 +8,12 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 3010,
+    proxy: {
+      "/api": {
+        target: "https://api.duri-ai.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 });

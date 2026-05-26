@@ -1,4 +1,6 @@
-import { ArrowRightIcon } from "lucide-react";
+// import { ArrowRightIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import HeroProductWindow from "./HeroProductWindow";
 
 type HeroProps = {
@@ -6,6 +8,9 @@ type HeroProps = {
 };
 
 export default function Hero({ onDemoClick }: HeroProps) {
+    const navigate = useNavigate();
+    const { user } = useAuth();
+
     return (
         <section className="relative w-full min-w-xs overflow-hidden">
             <div className="absolute inset-0 duri-grid-bg opacity-[0.55] pointer-events-none" aria-hidden />
@@ -26,19 +31,22 @@ export default function Hero({ onDemoClick }: HeroProps) {
                                 <button
                                     type="button"
                                     onClick={onDemoClick}
-                                    className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-on-brand bg-brand hover:bg-brand-variant border border-brand hover:border-brand-variant rounded-xs text-base px-6 py-3.5 transition-colors duration-200 cursor-pointer"
-                                >
-                                    Get a demo
-                                    <ArrowRightIcon className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={onDemoClick}
                                     className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-base px-6 py-3.5 transition-colors duration-200 cursor-pointer"
                                 >
-                                    Get started
-                                    <ArrowRightIcon className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                                    Get a demo
+                                    {/* <ArrowRightIcon className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" /> */}
                                 </button>
+
+                                {!user && (
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate("/pricing")}
+                                        className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-base px-6 py-3.5 transition-colors duration-200 cursor-pointer"
+                                    >
+                                        Get started
+                                        {/* <ArrowRightIcon className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" /> */}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -33,6 +33,9 @@ export default function AccountPage() {
 
     const role = user?.user_metadata?.role as string | undefined;
     const workspaceId = user?.user_metadata?.workspace_id as string | undefined;
+    const freeTokenBalanceId = user?.user_metadata?.token_balance_id as string | undefined;
+
+    const [freeTokenBalance, setFreeTokenBalance] = useState<number | null>(null);
 
     useEffect(() => {
         if (!workspaceId) return;
@@ -44,6 +47,15 @@ export default function AccountPage() {
                 setWorkspaceLoading(false);
             });
     }, [workspaceId]);
+
+    useEffect(() => {
+        if (role !== "free" || !freeTokenBalanceId) return;
+        supabase
+            .rpc("get_token_balance", { p_token_balance_id: parseInt(freeTokenBalanceId) })
+            .then(({ data }) => {
+                if (data !== null) setFreeTokenBalance(data as number);
+            });
+    }, [role, freeTokenBalanceId]);
 
     if (loading) {
         return (
@@ -221,7 +233,11 @@ export default function AccountPage() {
                                         {roleLabel[role ?? "free"] ?? "Free"} plan
                                     </p>
                                     <p className="text-xs text-on-background-secondary mt-0.5">
-                                        {role === "free" && "5 automation runs per month."}
+                                        {role === "free" && (
+                                            freeTokenBalance !== null
+                                                ? `${freeTokenBalance.toLocaleString()} tokens remaining.`
+                                                : "No tokens remaining."
+                                        )}
                                         {role === "admin" && "Unlimited runs, all integrations."}
                                         {role === "member" && "Member of a Team workspace."}
                                     </p>

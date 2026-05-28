@@ -1,18 +1,39 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import LandingPage from "./pages/LandingPage.tsx";
+import PricingPage from "./pages/PricingPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
+import SignUpPage from "./pages/SignUpPage.tsx";
+import AccountPage from "./pages/AccountPage.tsx";
+import InviteAcceptPage from "./pages/InviteAcceptPage.tsx";
+import InvitePendingPage from "./pages/InvitePendingPage.tsx";
+import CheckoutPage from "./pages/CheckoutPage.tsx";
+import CheckoutReturnPage from "./pages/CheckoutReturnPage.tsx";
+import OnboardingPage from "./pages/OnboardingPage.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import Eula from "./pages/Eula.tsx";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/auth" element={<Navigate to="/" replace />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/eula" element={<Eula />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/account" element={<AccountPage />} />
+        <Route path="/invite-accept" element={<InviteAcceptPage />} />
+        <Route path="/invite-pending" element={<InvitePendingPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout-return" element={<CheckoutReturnPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/eula" element={<Eula />} />
+        <Route path="/auth" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 
-export default App
+export default App;

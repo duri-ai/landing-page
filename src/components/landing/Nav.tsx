@@ -42,7 +42,7 @@ export default function Nav() {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => navigate("/pricing")}
+                                    onClick={() => navigate("/signup")}
                                     className="text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer"
                                 >
                                     Sign up

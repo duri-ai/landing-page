@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
@@ -7,8 +7,6 @@ import Nav from "../components/landing/Nav";
 export default function OnboardingPage() {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const plan = searchParams.get("plan") ?? "free";
 
     const [fullName, setFullName] = useState("");
     const [companyName, setCompanyName] = useState("");
@@ -16,7 +14,16 @@ export default function OnboardingPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!loading && !user) navigate("/login");
+        if (loading) return;
+        if (!user) {
+            navigate("/login");
+            return;
+        }
+        // If user already completed onboarding (e.g. returning Google OAuth user),
+        // skip straight to the account page.
+        if (user.user_metadata?.organization_id) {
+            navigate("/account");
+        }
     }, [user, loading, navigate]);
 
     if (loading || !user) {
@@ -34,45 +41,18 @@ export default function OnboardingPage() {
         setSubmitting(true);
 
         try {
-            const role = plan === "team" ? "admin" : "free";
-
-            // Single RPC call — SECURITY DEFINER, creates token_balance + org + member atomically
+            // SECURITY DEFINER RPC — creates token_balance + org + member atomically
             const { data: result, error: rpcError } = await supabase
                 .rpc("create_organization", { org_name: companyName });
             if (rpcError || !result) throw rpcError ?? new Error("Failed to create organization");
 
             const { organization_id, token_balance_id } = result as { organization_id: number; token_balance_id: number };
 
-            // Store display name + org context in user metadata
             await supabase.auth.updateUser({
-                data: { full_name: fullName, organization_id, token_balance_id, role },
+                data: { full_name: fullName, organization_id, token_balance_id, role: "admin" },
             });
 
-            // Redirect
-            if (plan === "team") {
-                const { data: { session } } = await supabase.auth.getSession();
-                const res = await fetch(
-                    `${import.meta.env.VITE_BACKEND_URL}/stripe/checkout?organization_id=${organization_id}`,
-                    {
-                        method: "POST",
-                        headers: { Authorization: `Bearer ${session?.access_token}` },
-                    },
-                );
-                const data = await res.json().catch(() => null);
-                if (data?.url) {
-                    window.location.href = data.url;
-                    return;
-                }
-                // If backend returns a redirect location header
-                const location = res.headers.get("location");
-                if (location) {
-                    window.location.href = location;
-                    return;
-                }
-                throw new Error("Could not start checkout");
-            } else {
-                navigate("/account");
-            }
+            navigate("/account");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Something went wrong");
             setSubmitting(false);
@@ -137,9 +117,7 @@ export default function OnboardingPage() {
                             disabled={submitting}
                             className="mt-1 h-11 w-full rounded-xs border border-on-background bg-on-background text-on-brand text-sm font-medium hover:opacity-90 transition-opacity duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {submitting
-                                ? plan === "team" ? "Setting up…" : "Saving…"
-                                : plan === "team" ? "Continue to payment" : "Get started"}
+                            {submitting ? "Setting up…" : "Get started"}
                         </button>
                     </form>
                 </div>

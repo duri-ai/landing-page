@@ -1,25 +1,10 @@
 import { useState, type FormEvent } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
 
-const PLAN_LABELS: Record<string, string> = {
-    free: "Free",
-    team: "Team",
-};
-
-const PLAN_TO_ROLE: Record<string, "free" | "admin"> = {
-    free: "free",
-    team: "admin",
-};
-
 export default function SignUpPage() {
-    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const planParam = searchParams.get("plan");
-    const plan = planParam ?? "free";
-    const planLabel = PLAN_LABELS[plan] ?? plan;
-    const role = PLAN_TO_ROLE[plan] ?? "free";
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -27,15 +12,12 @@ export default function SignUpPage() {
     const [loading, setLoading] = useState(false);
     const [verifyPending, setVerifyPending] = useState(false);
 
-    const onboardingPath = `/onboarding?plan=${plan}`;
-
     async function handleGoogleSignUp() {
         setError(null);
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: window.location.origin + onboardingPath,
-                queryParams: { plan },
+                redirectTo: window.location.origin + "/onboarding",
             },
         });
         if (error) setError(error.message);
@@ -50,8 +32,7 @@ export default function SignUpPage() {
             email,
             password,
             options: {
-                data: { role },
-                emailRedirectTo: window.location.origin + onboardingPath,
+                emailRedirectTo: window.location.origin + "/onboarding",
             },
         });
 
@@ -68,7 +49,7 @@ export default function SignUpPage() {
         }
 
         if (data.session) {
-            navigate(onboardingPath);
+            navigate("/onboarding");
             return;
         }
 
@@ -93,10 +74,7 @@ export default function SignUpPage() {
                             <span className="text-on-background font-medium">{email}</span>.
                             Click it to activate your account.
                         </p>
-                        <a
-                            href="/"
-                            className="mt-6 inline-block text-sm text-brand hover:underline"
-                        >
+                        <a href="/" className="mt-6 inline-block text-sm text-brand hover:underline">
                             Back to home
                         </a>
                     </div>
@@ -117,20 +95,6 @@ export default function SignUpPage() {
                     <p className="mt-2 text-sm text-on-background-secondary">
                         Get started with Duri.
                     </p>
-
-                    {planParam && (
-                        <div className="mt-4 inline-flex items-center gap-2 rounded-xs border border-brand-soft bg-brand-soft px-3 py-1.5">
-                            <span className="text-xs text-brand font-medium">
-                                {planLabel} plan selected
-                            </span>
-                            <Link
-                                to="/pricing"
-                                className="text-xs text-on-background-secondary hover:text-brand transition-colors duration-150"
-                            >
-                                Change
-                            </Link>
-                        </div>
-                    )}
 
                     <button
                         type="button"

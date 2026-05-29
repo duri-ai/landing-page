@@ -40,7 +40,7 @@ export default function Hero({ onDemoClick }: HeroProps) {
                                 {!user && (
                                     <button
                                         type="button"
-                                        onClick={() => navigate("/pricing")}
+                                        onClick={() => navigate("/signup")}
                                         className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-base px-6 py-3.5 transition-colors duration-200 cursor-pointer"
                                     >
                                         Get started

@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import LandingPage from "./pages/LandingPage.tsx";
-import PricingPage from "./pages/PricingPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
 import AccountPage from "./pages/AccountPage.tsx";
@@ -18,7 +17,7 @@ function App() {
     <AuthProvider>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/pricing" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/account" element={<AccountPage />} />

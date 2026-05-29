@@ -46,7 +46,7 @@ export default function CheckoutReturnPage() {
                     </div>
                     <h1 className="text-xl font-semibold text-on-background">Payment successful</h1>
                     <p className="mt-2 text-sm text-on-background-secondary">
-                        Your tokens have been added. Redirecting to your account in {countdown}…
+                        Your credit has been added. Redirecting to your account in {countdown}…
                     </p>
                     <button
                         type="button"

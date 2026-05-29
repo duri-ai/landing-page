@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
@@ -16,7 +16,9 @@ type OrgData = {
     id: number;
     name: string;
     balance_usd: number;
-    subscription_status: string | null;
+    monthly_balance: number;
+    paid_balance: number;
+    auto_recharge_active: boolean;
     current_user_role: "admin" | "member";
     members: OrgMember[];
     seat_count: number;
@@ -37,15 +39,10 @@ export default function AccountPage() {
     const [inviteError, setInviteError] = useState<string | null>(null);
     const [inviteSent, setInviteSent] = useState(false);
 
-    const [checkoutLoading, setCheckoutLoading] = useState<"subscription" | "refill" | null>(null);
+    const [checkoutLoading, setCheckoutLoading] = useState<"recharge" | "auto_recharge" | null>(null);
+    const [cancelLoading, setCancelLoading] = useState(false);
 
-    // Role from org fetch (fallback to user metadata while loading)
-    const metaRole = user?.user_metadata?.role as string | undefined;
-    const role = org?.current_user_role ?? (metaRole === "free" ? "free" : metaRole === "admin" ? "admin" : metaRole) ?? "admin";
-    const plan = metaRole === "free" ? "free" : "team";
-    const isAdmin = role === "admin";
-    const isSubscribed =
-        org?.subscription_status === "active" || org?.subscription_status === "trialing";
+    const isAdmin = org?.current_user_role === "admin";
 
     // Fetch org data
     useEffect(() => {
@@ -80,8 +77,17 @@ export default function AccountPage() {
                     filter: `id=eq.${org.token_balance_id}`,
                 },
                 (payload) => {
-                    const newBalance = (payload.new as { balance: number }).balance;
-                    setOrg((prev) => prev ? { ...prev, balance_usd: newBalance } : prev);
+                    const p = payload.new as { monthly_balance: number; paid_balance: number };
+                    setOrg((prev) =>
+                        prev
+                            ? {
+                                  ...prev,
+                                  monthly_balance: p.monthly_balance,
+                                  paid_balance: p.paid_balance,
+                                  balance_usd: p.monthly_balance + p.paid_balance,
+                              }
+                            : prev,
+                    );
                 },
             )
             .subscribe();
@@ -138,13 +144,13 @@ export default function AccountPage() {
         setInviteLoading(false);
     }
 
-    async function handleCheckout(type: "subscription" | "refill") {
+    async function handleCheckout(type: "recharge" | "auto_recharge") {
         if (!org) return;
         setCheckoutLoading(type);
 
         const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch(
-            `${BACKEND}/stripe/checkout?organization_id=${org.id}${type === "refill" ? "&type=refill" : ""}`,
+            `${BACKEND}/stripe/checkout?organization_id=${org.id}&type=${type}`,
             {
                 method: "POST",
                 headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -155,16 +161,27 @@ export default function AccountPage() {
         setCheckoutLoading(null);
         if (data?.url) {
             window.location.href = data.url;
-            return;
         }
-        const location = res.headers.get("location");
-        if (location) window.location.href = location;
     }
 
-    const planLabel: Record<string, string> = {
-        free: "Free",
-        team: isAdmin ? "Team (Admin)" : "Team (Member)",
-    };
+    async function handleCancelAutoRecharge() {
+        if (!org) return;
+        setCancelLoading(true);
+
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+            `${BACKEND}/stripe/auto-recharge?organization_id=${org.id}`,
+            {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            },
+        );
+
+        if (res.ok) {
+            setOrg((prev) => prev ? { ...prev, auto_recharge_active: false } : prev);
+        }
+        setCancelLoading(false);
+    }
 
     return (
         <>
@@ -185,8 +202,8 @@ export default function AccountPage() {
 
                     <div className="space-y-4">
 
-                        {/* Workspace section */}
-                        <Section title="Workspace">
+                        {/* Pay as you go section */}
+                        <Section title="Pay as you go">
                             {orgLoading ? (
                                 <div className="flex items-center justify-center py-4">
                                     <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
@@ -194,11 +211,71 @@ export default function AccountPage() {
                             ) : org ? (
                                 <div className="flex flex-col gap-5">
                                     <div>
-                                        <p className="text-sm font-medium text-on-background">{org.name}</p>
-                                        <p className="text-xs text-on-background-secondary mt-0.5">
-                                            ${org.balance_usd.toFixed(2)} balance remaining
+                                        <p className="text-2xl font-semibold text-on-background">
+                                            ${org.balance_usd.toFixed(2)}
+                                        </p>
+                                        <p className="text-xs text-on-background-secondary mt-1">
+                                            ${org.monthly_balance.toFixed(2)} monthly credit
+                                            {" · "}
+                                            ${org.paid_balance.toFixed(2)} paid credit
                                         </p>
                                     </div>
+
+                                    {isAdmin && (
+                                        <div className="flex flex-wrap gap-2">
+                                            <button
+                                                type="button"
+                                                disabled={checkoutLoading !== null}
+                                                onClick={() => handleCheckout("recharge")}
+                                                className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                            >
+                                                {checkoutLoading === "recharge" ? "Redirecting…" : "Recharge tokens"}
+                                            </button>
+
+                                            {!org.auto_recharge_active ? (
+                                                <button
+                                                    type="button"
+                                                    disabled={checkoutLoading !== null}
+                                                    onClick={() => handleCheckout("auto_recharge")}
+                                                    className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background text-xs font-medium hover:border-brand hover:text-brand transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                                >
+                                                    {checkoutLoading === "auto_recharge" ? "Redirecting…" : "Set up auto-recharge"}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    disabled={cancelLoading}
+                                                    onClick={handleCancelAutoRecharge}
+                                                    className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background-secondary text-xs font-medium hover:border-red-400 hover:text-red-600 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                                >
+                                                    {cancelLoading ? "Cancelling…" : "Cancel auto-recharge"}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {org.auto_recharge_active && (
+                                        <p className="text-xs text-brand">
+                                            Auto-recharge is active — your balance will top up automatically each month.
+                                        </p>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-on-background-secondary">
+                                    Could not load balance. <a href="/account" className="text-brand hover:underline">Refresh</a>.
+                                </p>
+                            )}
+                        </Section>
+
+                        {/* Organization section */}
+                        <Section title="Organization">
+                            {orgLoading ? (
+                                <div className="flex items-center justify-center py-4">
+                                    <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+                                </div>
+                            ) : org ? (
+                                <div className="flex flex-col gap-5">
+                                    <p className="text-sm font-medium text-on-background">{org.name}</p>
 
                                     <div>
                                         <p className="text-xs font-medium text-on-background-secondary uppercase tracking-wider mb-3">
@@ -255,69 +332,9 @@ export default function AccountPage() {
                                 </div>
                             ) : (
                                 <p className="text-sm text-on-background-secondary">
-                                    Could not load workspace.{" "}
-                                    <a href="/pricing" className="text-brand hover:underline">Contact support</a>.
+                                    Could not load organization. <a href="/account" className="text-brand hover:underline">Refresh</a>.
                                 </p>
                             )}
-                        </Section>
-
-                        {/* Subscription section */}
-                        <Section title="Subscription">
-                            <div className="flex flex-col gap-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-sm font-medium text-on-background">
-                                                {planLabel[plan] ?? "Free"} plan
-                                            </p>
-                                            {plan === "team" && (
-                                                <span className={`text-xs px-1.5 py-0.5 rounded-xs border font-medium ${
-                                                    isSubscribed
-                                                        ? "text-brand border-brand/30 bg-brand-soft"
-                                                        : "text-on-background-secondary border-divider"
-                                                }`}>
-                                                    {isSubscribed ? "Active" : "Inactive"}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-on-background-secondary mt-0.5">
-                                            {plan === "free" && "Upgrade to unlock more capacity."}
-                                            {plan === "team" && org && `${org.seat_count} seat${org.seat_count !== 1 ? "s" : ""} · $${org.balance_usd.toFixed(2)} remaining`}
-                                        </p>
-                                    </div>
-                                    {plan === "free" && (
-                                        <Link to="/pricing" className="text-xs text-brand hover:underline">
-                                            Upgrade
-                                        </Link>
-                                    )}
-                                </div>
-
-                                {/* Billing actions — team admin only */}
-                                {plan === "team" && isAdmin && (
-                                    <div className="flex flex-wrap gap-2">
-                                        {!isSubscribed && (
-                                            <button
-                                                type="button"
-                                                disabled={checkoutLoading !== null}
-                                                onClick={() => handleCheckout("subscription")}
-                                                className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                                            >
-                                                {checkoutLoading === "subscription" ? "Redirecting…" : "Subscribe — $24.99/mo"}
-                                            </button>
-                                        )}
-                                        {isSubscribed && (
-                                            <button
-                                                type="button"
-                                                disabled={checkoutLoading !== null}
-                                                onClick={() => handleCheckout("refill")}
-                                                className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background text-xs font-medium hover:border-brand hover:text-brand transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                                            >
-                                                {checkoutLoading === "refill" ? "Redirecting…" : "Get refill — $9.99"}
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
                         </Section>
 
                         <Section title="Account">

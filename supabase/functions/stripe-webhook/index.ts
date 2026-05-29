@@ -1,8 +1,7 @@
 import Stripe from "https://esm.sh/stripe@14?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const TOKENS_PER_SUBSCRIPTION = parseInt(Deno.env.get("TOKENS_PER_SUBSCRIPTION") ?? "500");
-const TOKENS_PER_REFILL = parseInt(Deno.env.get("TOKENS_PER_REFILL") ?? "200");
+const TOKENS_PER_RECHARGE = parseInt(Deno.env.get("TOKENS_PER_RECHARGE") ?? "200");
 
 Deno.serve(async (req) => {
   const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
@@ -30,25 +29,23 @@ Deno.serve(async (req) => {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const meta = session.metadata ?? {};
-        const workspaceId = meta.workspace_id ? parseInt(meta.workspace_id) : null;
-        const checkoutType = meta.checkout_type;
+        const orgId = meta.organization_id ? parseInt(meta.organization_id) : null;
+        const checkoutType = meta.type; // "recharge" | "auto_recharge"
 
-        if (!workspaceId) break;
+        if (!orgId) break;
 
-        if (checkoutType === "subscription") {
+        if (checkoutType === "auto_recharge") {
+          // Record subscription ID; token grant comes on invoice.payment_succeeded
           const subscriptionId = session.subscription as string;
           await supabase
-            .from("workspaces")
+            .from("organizations")
             .update({ stripe_subscription_id: subscriptionId, subscription_status: "active" })
-            .eq("id", workspaceId);
+            .eq("id", orgId);
+        } else if (checkoutType === "recharge") {
+          // One-time recharge — credit paid_balance immediately
           await supabase.rpc("add_tokens_to_workspace", {
-            p_workspace_id: workspaceId,
-            p_amount: TOKENS_PER_SUBSCRIPTION,
-          });
-        } else if (checkoutType === "refill") {
-          await supabase.rpc("add_tokens_to_workspace", {
-            p_workspace_id: workspaceId,
-            p_amount: TOKENS_PER_REFILL,
+            p_workspace_id: orgId,
+            p_amount: TOKENS_PER_RECHARGE,
           });
         }
         break;
@@ -58,16 +55,19 @@ Deno.serve(async (req) => {
         const invoice = event.data.object as Stripe.Invoice;
         if (invoice.billing_reason !== "subscription_cycle") break;
 
-        const customerId = invoice.customer as string;
-        const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
-        const workspaceId = customer.metadata.workspace_id
-          ? parseInt(customer.metadata.workspace_id)
-          : null;
+        // Look up org by stripe_subscription_id — more reliable than customer metadata
+        const subscriptionId = invoice.subscription as string;
+        const { data: orgs } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("stripe_subscription_id", subscriptionId)
+          .limit(1);
 
-        if (workspaceId) {
+        const orgId = orgs?.[0]?.id;
+        if (orgId) {
           await supabase.rpc("add_tokens_to_workspace", {
-            p_workspace_id: workspaceId,
-            p_amount: TOKENS_PER_SUBSCRIPTION,
+            p_workspace_id: orgId,
+            p_amount: TOKENS_PER_RECHARGE,
           });
         }
         break;
@@ -75,34 +75,36 @@ Deno.serve(async (req) => {
 
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;
-        const customerId = sub.customer as string;
-        const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
-        const workspaceId = customer.metadata.workspace_id
-          ? parseInt(customer.metadata.workspace_id)
-          : null;
+        const { data: orgs } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("stripe_subscription_id", sub.id)
+          .limit(1);
 
-        if (workspaceId) {
+        const orgId = orgs?.[0]?.id;
+        if (orgId) {
           await supabase
-            .from("workspaces")
+            .from("organizations")
             .update({ subscription_status: sub.status })
-            .eq("id", workspaceId);
+            .eq("id", orgId);
         }
         break;
       }
 
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
-        const customerId = sub.customer as string;
-        const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
-        const workspaceId = customer.metadata.workspace_id
-          ? parseInt(customer.metadata.workspace_id)
-          : null;
+        const { data: orgs } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("stripe_subscription_id", sub.id)
+          .limit(1);
 
-        if (workspaceId) {
+        const orgId = orgs?.[0]?.id;
+        if (orgId) {
           await supabase
-            .from("workspaces")
-            .update({ stripe_subscription_id: null, subscription_status: "canceled" })
-            .eq("id", workspaceId);
+            .from("organizations")
+            .update({ stripe_subscription_id: null, subscription_status: null })
+            .eq("id", orgId);
         }
         break;
       }

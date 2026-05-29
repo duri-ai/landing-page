@@ -11,6 +11,21 @@ type InviteData = {
     organization_id: number;
 };
 
+type CurrentOrg = {
+    id: number;
+    name: string;
+    auto_recharge_active: boolean;
+    seat_count: number;
+};
+
+type Status =
+    | "loading"
+    | "form"
+    | "needs_confirmation"
+    | "cannot_accept"
+    | "submitting"
+    | "invalid";
+
 export default function InviteAcceptPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -18,12 +33,12 @@ export default function InviteAcceptPage() {
     const { user } = useAuth();
 
     const [invite, setInvite] = useState<InviteData | null>(null);
-    const [status, setStatus] = useState<"loading" | "form" | "submitting" | "invalid">("loading");
+    const [currentOrg, setCurrentOrg] = useState<CurrentOrg | null>(null);
+    const [status, setStatus] = useState<Status>("loading");
     const [fullName, setFullName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
 
-    // User already has a session (arrived via Supabase invite magic link)
     const hasSession = !!user;
 
     useEffect(() => {
@@ -34,16 +49,61 @@ export default function InviteAcceptPage() {
 
         fetch(`${BACKEND}/invitations/${token}`)
             .then((r) => {
-                if (!r.ok) { setStatus("invalid"); return; }
+                if (!r.ok) { setStatus("invalid"); return null; }
                 return r.json();
             })
-            .then((data) => {
+            .then(async (data) => {
                 if (!data) return;
                 setInvite(data as InviteData);
+
+                // If user already has a session, check whether they belong to an org
+                if (user) {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session?.access_token) {
+                        const orgRes = await fetch(`${BACKEND}/organizations/me`, {
+                            headers: { Authorization: `Bearer ${session.access_token}` },
+                        });
+                        if (orgRes.ok) {
+                            const orgData = await orgRes.json();
+                            if (orgData.id !== (data as InviteData).organization_id) {
+                                setCurrentOrg({
+                                    id: orgData.id,
+                                    name: orgData.name,
+                                    auto_recharge_active: orgData.auto_recharge_active ?? false,
+                                    seat_count: orgData.seat_count,
+                                });
+                                if (orgData.seat_count > 1) {
+                                    setStatus("cannot_accept");
+                                    return;
+                                }
+                                setStatus("needs_confirmation");
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 setStatus("form");
             })
             .catch(() => setStatus("invalid"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
+
+    async function submitAccept(accessToken: string) {
+        const res = await fetch(`${BACKEND}/invitations/${token}/accept`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!res.ok) {
+            const result = await res.json().catch(() => ({}));
+            setError(result.detail ?? result.error ?? "Failed to accept invitation.");
+            setStatus("form");
+            return;
+        }
+
+        navigate("/account", { replace: true });
+    }
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -54,15 +114,12 @@ export default function InviteAcceptPage() {
         let accessToken: string | null = null;
 
         if (hasSession) {
-            // User arrived via Supabase invite email — already has a session.
-            // Just update their display name.
             if (fullName) {
                 await supabase.auth.updateUser({ data: { full_name: fullName } });
             }
             const { data: { session } } = await supabase.auth.getSession();
             accessToken = session?.access_token ?? null;
         } else {
-            // No session — user opened the invite link directly. Sign them up.
             const { data, error: signUpError } = await supabase.auth.signUp({
                 email: invite.email,
                 password,
@@ -85,7 +142,6 @@ export default function InviteAcceptPage() {
             }
 
             if (!data.session) {
-                // Email verification required — unlikely for invite flow but possible
                 navigate("/invite-pending", { replace: true });
                 return;
             }
@@ -99,19 +155,19 @@ export default function InviteAcceptPage() {
             return;
         }
 
-        const res = await fetch(`${BACKEND}/invitations/${token}/accept`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        await submitAccept(accessToken);
+    }
 
-        if (!res.ok) {
-            const result = await res.json().catch(() => ({}));
-            setError(result.detail ?? result.error ?? "Failed to accept invitation.");
-            setStatus("form");
+    async function handleConfirmAndJoin() {
+        setStatus("submitting");
+        setError(null);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+            setError("Could not get session. Please try again.");
+            setStatus("needs_confirmation");
             return;
         }
-
-        navigate("/account", { replace: true });
+        await submitAccept(session.access_token);
     }
 
     if (status === "loading") {
@@ -138,6 +194,69 @@ export default function InviteAcceptPage() {
                         <a href="/" className="mt-6 inline-block text-sm text-brand hover:underline">
                             Back to home
                         </a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (status === "cannot_accept") {
+        return (
+            <div className="min-h-dvh bg-background flex flex-col">
+                <Nav />
+                <div className="flex-1 flex items-center justify-center px-4">
+                    <div className="text-center max-w-sm">
+                        <p className="text-sm font-medium text-on-background mb-2">Can't accept this invite</p>
+                        <p className="text-xs text-on-background-secondary leading-relaxed">
+                            You are the admin of <strong>{currentOrg?.name}</strong>, which has other members.
+                            Transfer admin to another member before accepting this invite.
+                        </p>
+                        <a href="/account" className="mt-6 inline-block text-sm text-brand hover:underline">
+                            Go to account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (status === "needs_confirmation" || status === "submitting" && currentOrg) {
+        return (
+            <div className="min-h-dvh bg-background flex flex-col">
+                <Nav />
+                <div className="flex-1 flex items-center justify-center px-4">
+                    <div className="w-full max-w-[480px]">
+                        <div className="rounded-xs border border-divider bg-background p-6">
+                            <p className="text-base font-semibold text-on-background mb-2">Delete your existing organization?</p>
+                            <p className="text-sm text-on-background-secondary leading-relaxed mb-4">
+                                Accepting this invite will permanently delete your organization{" "}
+                                <strong className="text-on-background">{currentOrg?.name}</strong>
+                                {currentOrg?.auto_recharge_active && " and cancel your auto-recharge subscription"}.
+                                This cannot be undone.
+                            </p>
+                            {error && (
+                                <p className="mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xs px-3 py-2">
+                                    {error}
+                                </p>
+                            )}
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/")}
+                                    className="flex-1 h-10 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={status === "submitting"}
+                                    onClick={handleConfirmAndJoin}
+                                    className="flex-1 h-10 rounded-xs border border-on-background bg-on-background text-on-brand text-sm font-medium hover:opacity-90 transition-opacity duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {status === "submitting" ? "Joining…" : "Confirm & join"}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

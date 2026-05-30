@@ -9,9 +9,9 @@ type CtaBandProps = {
 };
 
 const MAC_DOWNLOAD =
-    "https://duristorage.blob.core.windows.net/releases/desktop/latest/Duri-latest-mac.dmg";
+    "https://duri-releases-prod.s3.us-west-2.amazonaws.com/desktop/latest/Duri-latest-mac.dmg";
 const WIN_DOWNLOAD =
-    "https://duristorage.blob.core.windows.net/releases/desktop/latest/Duri-latest-win.exe";
+    "https://duri-releases-prod.s3.us-west-2.amazonaws.com/desktop/latest/Duri-latest-win.exe";
 
 export default function CtaBand({ refCallback }: CtaBandProps) {
     const [email, setEmail] = useState("");

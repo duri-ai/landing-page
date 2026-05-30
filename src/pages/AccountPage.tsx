@@ -18,14 +18,15 @@ type OrgData = {
     balance_usd: number;
     monthly_balance: number;
     paid_balance: number;
-    auto_recharge_active: boolean;
+    pro_plan_active: boolean;
+    subscription_cancel_at: string | null;
     current_user_role: "admin" | "member";
     members: OrgMember[];
     seat_count: number;
     token_balance_id: number;
 };
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
+const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
 
 export default function AccountPage() {
     const { user, signOut, loading } = useAuth();
@@ -42,7 +43,23 @@ export default function AccountPage() {
     const [checkoutLoading, setCheckoutLoading] = useState<"recharge" | "auto_recharge" | null>(null);
     const [cancelLoading, setCancelLoading] = useState(false);
 
+    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+    const [leaveLoading, setLeaveLoading] = useState(false);
+    const [leaveError, setLeaveError] = useState<string | null>(null);
+
     const isAdmin = org?.current_user_role === "admin";
+    const isMember = org?.current_user_role === "member";
+
+    async function refetchOrg() {
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(`${BACKEND}/organizations/me`, {
+            headers: { Authorization: `Bearer ${session?.access_token}` },
+        });
+        if (res.ok) {
+            const data = (await res.json()) as OrgData;
+            setOrg(data);
+        }
+    }
 
     // Fetch org data
     useEffect(() => {
@@ -53,14 +70,23 @@ export default function AccountPage() {
             fetch(`${BACKEND}/organizations/me`, {
                 headers: { Authorization: `Bearer ${session?.access_token}` },
             })
-                .then((r) => r.json())
-                .then((data: OrgData) => {
+                .then(async (r) => {
+                    if (r.status === 404) {
+                        // No org yet — funnel through onboarding instead of crashing
+                        navigate("/onboarding");
+                        return;
+                    }
+                    if (!r.ok) {
+                        setOrgLoading(false);
+                        return;
+                    }
+                    const data = (await r.json()) as OrgData;
                     setOrg(data);
                     setOrgLoading(false);
                 })
                 .catch(() => setOrgLoading(false));
         });
-    }, [user]);
+    }, [user, navigate]);
 
     // Supabase Realtime — live balance updates
     useEffect(() => {
@@ -178,9 +204,35 @@ export default function AccountPage() {
         );
 
         if (res.ok) {
-            setOrg((prev) => prev ? { ...prev, auto_recharge_active: false } : prev);
+            // Re-fetch so subscription_cancel_at populates from the server response
+            await refetchOrg();
         }
         setCancelLoading(false);
+    }
+
+    async function handleLeaveOrganization() {
+        if (!org) return;
+        setLeaveLoading(true);
+        setLeaveError(null);
+
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+            `${BACKEND}/organizations/${org.id}/members/me`,
+            {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            },
+        );
+
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            setLeaveError(body.detail ?? body.error ?? "Failed to leave organization.");
+            setLeaveLoading(false);
+            return;
+        }
+
+        // No org anymore — funnel into onboarding to set up a new one
+        navigate("/onboarding");
     }
 
     return (
@@ -202,67 +254,24 @@ export default function AccountPage() {
 
                     <div className="space-y-4">
 
-                        {/* Pay as you go section */}
-                        <Section title="Pay as you go">
+                        {/* Plan section */}
+                        <Section title="Plan">
                             {orgLoading ? (
                                 <div className="flex items-center justify-center py-4">
                                     <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
                                 </div>
                             ) : org ? (
-                                <div className="flex flex-col gap-5">
-                                    <div>
-                                        <p className="text-2xl font-semibold text-on-background">
-                                            ${org.balance_usd.toFixed(2)}
-                                        </p>
-                                        <p className="text-xs text-on-background-secondary mt-1">
-                                            ${org.monthly_balance.toFixed(2)} monthly credit
-                                            {" · "}
-                                            ${org.paid_balance.toFixed(2)} paid credit
-                                        </p>
-                                    </div>
-
-                                    {isAdmin && (
-                                        <div className="flex flex-wrap gap-2">
-                                            <button
-                                                type="button"
-                                                disabled={checkoutLoading !== null}
-                                                onClick={() => handleCheckout("recharge")}
-                                                className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                                            >
-                                                {checkoutLoading === "recharge" ? "Redirecting…" : "Recharge tokens"}
-                                            </button>
-
-                                            {!org.auto_recharge_active ? (
-                                                <button
-                                                    type="button"
-                                                    disabled={checkoutLoading !== null}
-                                                    onClick={() => handleCheckout("auto_recharge")}
-                                                    className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background text-xs font-medium hover:border-brand hover:text-brand transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                                                >
-                                                    {checkoutLoading === "auto_recharge" ? "Redirecting…" : "Set up auto-recharge"}
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    disabled={cancelLoading}
-                                                    onClick={handleCancelAutoRecharge}
-                                                    className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background-secondary text-xs font-medium hover:border-red-400 hover:text-red-600 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                                                >
-                                                    {cancelLoading ? "Cancelling…" : "Cancel auto-recharge"}
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {org.auto_recharge_active && (
-                                        <p className="text-xs text-brand">
-                                            Auto-recharge is active — your balance will top up automatically each month.
-                                        </p>
-                                    )}
-                                </div>
+                                <PlanSection
+                                    org={org}
+                                    isAdmin={isAdmin}
+                                    checkoutLoading={checkoutLoading}
+                                    cancelLoading={cancelLoading}
+                                    onCheckout={handleCheckout}
+                                    onCancel={handleCancelAutoRecharge}
+                                />
                             ) : (
                                 <p className="text-sm text-on-background-secondary">
-                                    Could not load balance. <a href="/account" className="text-brand hover:underline">Refresh</a>.
+                                    Could not load plan. <a href="/account" className="text-brand hover:underline">Refresh</a>.
                                 </p>
                             )}
                         </Section>
@@ -345,19 +354,169 @@ export default function AccountPage() {
                         </Section>
 
                         <Section title="Danger zone">
-                            <button
-                                type="button"
-                                onClick={handleSignOut}
-                                className="text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer"
-                            >
-                                Sign out
-                            </button>
+                            <div className="flex flex-col gap-3">
+                                {isMember && (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setLeaveError(null); setShowLeaveConfirm(true); }}
+                                        className="text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer text-left"
+                                    >
+                                        Leave organization
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={handleSignOut}
+                                    className="text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer text-left"
+                                >
+                                    Sign out
+                                </button>
+                            </div>
                         </Section>
                     </div>
                 </div>
             </main>
+
+            {showLeaveConfirm && org && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                    <div className="w-full max-w-[440px] rounded-xs border border-divider bg-background p-6 shadow-lg">
+                        <p className="text-base font-semibold text-on-background mb-2">Leave organization?</p>
+                        <p className="text-sm text-on-background-secondary leading-relaxed mb-4">
+                            You'll lose access to <strong className="text-on-background">{org.name}</strong> and its balance.
+                            You can set up a new organization or accept another invite afterward.
+                        </p>
+                        {leaveError && (
+                            <p className="mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xs px-3 py-2">
+                                {leaveError}
+                            </p>
+                        )}
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                disabled={leaveLoading}
+                                onClick={() => setShowLeaveConfirm(false)}
+                                className="flex-1 h-10 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                disabled={leaveLoading}
+                                onClick={handleLeaveOrganization}
+                                className="flex-1 h-10 rounded-xs border border-red-600 bg-red-600 text-white text-sm font-medium hover:bg-red-700 hover:border-red-700 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {leaveLoading ? "Leaving…" : "Leave"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <Footer />
         </>
+    );
+}
+
+function PlanSection({
+    org,
+    isAdmin,
+    checkoutLoading,
+    cancelLoading,
+    onCheckout,
+    onCancel,
+}: {
+    org: OrgData;
+    isAdmin: boolean;
+    checkoutLoading: "recharge" | "auto_recharge" | null;
+    cancelLoading: boolean;
+    onCheckout: (type: "recharge" | "auto_recharge") => void;
+    onCancel: () => void;
+}) {
+    const isPro = org.pro_plan_active;
+    const isEnding = isPro && !!org.subscription_cancel_at;
+    const endsOn = org.subscription_cancel_at
+        ? new Date(org.subscription_cancel_at).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+          })
+        : null;
+
+    return (
+        <div className="flex flex-col gap-5">
+            <div>
+                <div className="flex items-center gap-2">
+                    <p className="text-2xl font-semibold text-on-background">
+                        ${org.balance_usd.toFixed(2)}
+                    </p>
+                    {isPro && (
+                        <span className="text-[10px] font-semibold tracking-wider uppercase text-brand bg-brand-soft border border-brand/30 rounded-xs px-1.5 py-0.5">
+                            {isEnding ? `Pro · ends ${endsOn}` : "Pro"}
+                        </span>
+                    )}
+                </div>
+                <p className="text-xs text-on-background-secondary mt-1">
+                    ${org.monthly_balance.toFixed(2)} monthly credit
+                    {org.paid_balance > 0 && (
+                        <>
+                            {" · "}
+                            ${org.paid_balance.toFixed(2)} paid credit
+                        </>
+                    )}
+                </p>
+            </div>
+
+            {!isPro && (
+                <p className="text-xs text-on-background-secondary leading-relaxed">
+                    Get unlimited recharges and automatic monthly top-ups with Pro.
+                </p>
+            )}
+            {isPro && !isEnding && (
+                <p className="text-xs text-brand">
+                    Pro plan active — your balance refills automatically each month.
+                </p>
+            )}
+            {isEnding && (
+                <p className="text-xs text-on-background-secondary">
+                    Pro plan ends {endsOn}. You'll keep Pro features until then.
+                </p>
+            )}
+
+            {isAdmin && (
+                <div className="flex flex-wrap gap-2">
+                    {!isPro ? (
+                        <button
+                            type="button"
+                            disabled={checkoutLoading !== null}
+                            onClick={() => onCheckout("auto_recharge")}
+                            className="h-9 px-5 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            {checkoutLoading === "auto_recharge" ? "Redirecting…" : "Upgrade to Pro"}
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                type="button"
+                                disabled={checkoutLoading !== null}
+                                onClick={() => onCheckout("recharge")}
+                                className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {checkoutLoading === "recharge" ? "Redirecting…" : "Recharge tokens"}
+                            </button>
+                            {!isEnding && (
+                                <button
+                                    type="button"
+                                    disabled={cancelLoading}
+                                    onClick={onCancel}
+                                    className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background-secondary text-xs font-medium hover:border-red-400 hover:text-red-600 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {cancelLoading ? "Cancelling…" : "Cancel Pro Plan"}
+                                </button>
+                            )}
+                        </>
+                    )}
+                </div>
+            )}
+        </div>
     );
 }
 

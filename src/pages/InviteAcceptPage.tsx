@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
+const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
 
 type InviteData = {
     email: string;
@@ -14,7 +14,7 @@ type InviteData = {
 type CurrentOrg = {
     id: number;
     name: string;
-    auto_recharge_active: boolean;
+    pro_plan_active: boolean;
     seat_count: number;
 };
 
@@ -69,7 +69,7 @@ export default function InviteAcceptPage() {
                                 setCurrentOrg({
                                     id: orgData.id,
                                     name: orgData.name,
-                                    auto_recharge_active: orgData.auto_recharge_active ?? false,
+                                    pro_plan_active: orgData.pro_plan_active ?? orgData.auto_recharge_active ?? false,
                                     seat_count: orgData.seat_count,
                                 });
                                 if (orgData.seat_count > 1) {
@@ -231,7 +231,7 @@ export default function InviteAcceptPage() {
                             <p className="text-sm text-on-background-secondary leading-relaxed mb-4">
                                 Accepting this invite will permanently delete your organization{" "}
                                 <strong className="text-on-background">{currentOrg?.name}</strong>
-                                {currentOrg?.auto_recharge_active && " and cancel your auto-recharge subscription"}.
+                                {currentOrg?.pro_plan_active && " and cancel your Pro plan"}.
                                 This cannot be undone.
                             </p>
                             {error && (

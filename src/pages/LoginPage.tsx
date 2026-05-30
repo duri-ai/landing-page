@@ -16,7 +16,7 @@ export default function LoginPage() {
         setError(null);
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
-            options: { redirectTo: window.location.origin + "/" },
+            options: { redirectTo: window.location.origin + "/onboarding" },
         });
         if (error) setError(error.message);
     }
@@ -189,7 +189,7 @@ export default function LoginPage() {
                     ) : (
                         <p className="mt-6 text-center text-sm text-on-background-secondary">
                             Don't have an account?{" "}
-                            <Link to="/pricing" className="text-brand hover:underline">
+                            <Link to="/signup" className="text-brand hover:underline">
                                 Create one
                             </Link>
                         </p>

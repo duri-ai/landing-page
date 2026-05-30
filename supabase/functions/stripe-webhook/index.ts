@@ -85,7 +85,12 @@ Deno.serve(async (req) => {
         if (orgId) {
           await supabase
             .from("organizations")
-            .update({ subscription_status: sub.status })
+            .update({
+              subscription_status: sub.status,
+              subscription_cancel_at: sub.cancel_at_period_end && sub.cancel_at
+                ? new Date(sub.cancel_at * 1000).toISOString()
+                : null,
+            })
             .eq("id", orgId);
         }
         break;
@@ -103,7 +108,11 @@ Deno.serve(async (req) => {
         if (orgId) {
           await supabase
             .from("organizations")
-            .update({ stripe_subscription_id: null, subscription_status: null })
+            .update({
+              stripe_subscription_id: null,
+              subscription_status: null,
+              subscription_cancel_at: null,
+            })
             .eq("id", orgId);
         }
         break;

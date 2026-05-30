@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
+const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
 
 export default function CheckoutPage() {
     const { user, loading } = useAuth();
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
             const location = res.headers.get("location");
             if (location) { window.location.href = location; return; }
 
-            navigate("/pricing");
+            navigate("/account");
         })();
     }, [user, loading, type, navigate]);
 

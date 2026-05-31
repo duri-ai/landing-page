@@ -231,7 +231,11 @@ export default function AccountPage() {
             return;
         }
 
-        // No org anymore — funnel into onboarding to set up a new one
+        // Refresh the JWT so the cleared user_metadata (organization_id,
+        // role) propagates immediately — otherwise OnboardingPage's stale
+        // metadata check bounces us back to /account in a loop.
+        await supabase.auth.refreshSession();
+
         navigate("/onboarding");
     }
 

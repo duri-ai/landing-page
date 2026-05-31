@@ -8,6 +8,9 @@ export default function OnboardingPage() {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
 
+    const existingFullName = (user?.user_metadata?.full_name as string | undefined) ?? "";
+    const hasFullName = existingFullName.length > 0;
+
     const [fullName, setFullName] = useState("");
     const [companyName, setCompanyName] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -48,9 +51,17 @@ export default function OnboardingPage() {
 
             const { organization_id, token_balance_id } = result as { organization_id: number; token_balance_id: number };
 
-            await supabase.auth.updateUser({
-                data: { full_name: fullName, organization_id, token_balance_id, role: "admin" },
-            });
+            // updateUser merges with existing user_metadata, so omitting
+            // full_name when it's already set preserves the prior value.
+            const metadata: Record<string, unknown> = {
+                organization_id,
+                token_balance_id,
+                role: "admin",
+            };
+            if (!hasFullName) {
+                metadata.full_name = fullName;
+            }
+            await supabase.auth.updateUser({ data: metadata });
 
             navigate("/account");
         } catch (err) {
@@ -66,29 +77,33 @@ export default function OnboardingPage() {
             <div className="flex-1 flex items-center justify-center px-4 py-16">
                 <div className="w-full max-w-[480px]">
                     <h1 className="text-2xl font-semibold text-on-background tracking-tight">
-                        Set up your profile
+                        {hasFullName ? "Create your organization" : "Set up your profile"}
                     </h1>
                     <p className="mt-2 text-sm text-on-background-secondary">
-                        Just a few details to get your workspace ready.
+                        {hasFullName
+                            ? "Name a new workspace to get started again."
+                            : "Just a few details to get your workspace ready."}
                     </p>
 
                     <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
-                        <div className="flex flex-col gap-1.5">
-                            <label htmlFor="fullName" className="text-sm text-on-background">
-                                Full name
-                            </label>
-                            <input
-                                id="fullName"
-                                type="text"
-                                required
-                                autoComplete="name"
-                                autoFocus
-                                placeholder="Your name"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
-                            />
-                        </div>
+                        {!hasFullName && (
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="fullName" className="text-sm text-on-background">
+                                    Full name
+                                </label>
+                                <input
+                                    id="fullName"
+                                    type="text"
+                                    required
+                                    autoComplete="name"
+                                    autoFocus
+                                    placeholder="Your name"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
+                                />
+                            </div>
+                        )}
 
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="companyName" className="text-sm text-on-background">
@@ -99,6 +114,7 @@ export default function OnboardingPage() {
                                 type="text"
                                 required
                                 autoComplete="organization"
+                                autoFocus={hasFullName}
                                 placeholder="Your company"
                                 value={companyName}
                                 onChange={(e) => setCompanyName(e.target.value)}

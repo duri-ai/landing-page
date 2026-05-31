@@ -101,6 +101,9 @@ export default function InviteAcceptPage() {
             setStatus("form");
             return;
         }
+        // Pull fresh user_metadata so the new organization_id + role land
+        // in the frontend's view of the session immediately.
+        await supabase.auth.refreshSession();
         navigate("/account", { replace: true });
     }
 

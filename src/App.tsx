@@ -8,6 +8,7 @@ import InviteAcceptPage from "./pages/InviteAcceptPage.tsx";
 import CheckoutPage from "./pages/CheckoutPage.tsx";
 import CheckoutReturnPage from "./pages/CheckoutReturnPage.tsx";
 import OnboardingPage from "./pages/OnboardingPage.tsx";
+import UpdatePasswordPage from "./pages/UpdatePasswordPage.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import Eula from "./pages/Eula.tsx";
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/account" element={<AccountPage />} />
         <Route path="/invite-accept" element={<InviteAcceptPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/update-password" element={<UpdatePasswordPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/checkout-return" element={<CheckoutReturnPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />

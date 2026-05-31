@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Manual re-deploy. Useful when the page content didn't change but
+  # a downstream asset did (e.g. the desktop installer at
+  # ``desktop/latest/Duri-latest-*`` got refreshed by a separate pipeline
+  # and we want to invalidate any browser caches).
+  workflow_dispatch:
 
 permissions:
   contents: read

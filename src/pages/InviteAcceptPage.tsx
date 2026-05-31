@@ -9,6 +9,7 @@ const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "")
 type InviteData = {
     email: string;
     organization_id: number;
+    organization_name: string | null;
 };
 
 type CurrentOrg = {
@@ -89,19 +90,45 @@ export default function InviteAcceptPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
-    async function submitAccept(accessToken: string) {
+    async function acceptAsExistingUser(accessToken: string) {
         const res = await fetch(`${BACKEND}/invitations/${token}/accept`, {
             method: "POST",
             headers: { Authorization: `Bearer ${accessToken}` },
         });
-
         if (!res.ok) {
             const result = await res.json().catch(() => ({}));
             setError(result.detail ?? result.error ?? "Failed to accept invitation.");
             setStatus("form");
             return;
         }
+        navigate("/account", { replace: true });
+    }
 
+    async function signupAndAccept() {
+        if (!invite || !token) return;
+        const res = await fetch(`${BACKEND}/invitations/${token}/signup`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ full_name: fullName, password }),
+        });
+
+        if (!res.ok) {
+            const result = await res.json().catch(() => ({}));
+            setError(result.detail ?? result.error ?? "Failed to create your account.");
+            setStatus("form");
+            return;
+        }
+
+        // Account exists + member row exists. Sign in to get a session.
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: invite.email,
+            password,
+        });
+        if (signInError) {
+            // Edge case: account created but sign-in failed. Send to login.
+            navigate("/login", { replace: true });
+            return;
+        }
         navigate("/account", { replace: true });
     }
 
@@ -111,51 +138,26 @@ export default function InviteAcceptPage() {
         setError(null);
         setStatus("submitting");
 
-        let accessToken: string | null = null;
-
         if (hasSession) {
+            // User happens to already be signed in (e.g. opened the invite
+            // link while logged in with the matching email). Reuse the
+            // existing /accept endpoint.
             if (fullName) {
                 await supabase.auth.updateUser({ data: { full_name: fullName } });
             }
             const { data: { session } } = await supabase.auth.getSession();
-            accessToken = session?.access_token ?? null;
-        } else {
-            const { data, error: signUpError } = await supabase.auth.signUp({
-                email: invite.email,
-                password,
-                options: {
-                    data: { role: "member", full_name: fullName },
-                    emailRedirectTo: window.location.origin + "/account",
-                },
-            });
-
-            if (signUpError) {
-                setError(signUpError.message);
+            const accessToken = session?.access_token ?? null;
+            if (!accessToken) {
+                setError("Could not get session. Please try again.");
                 setStatus("form");
                 return;
             }
-
-            if (data.user?.identities?.length === 0) {
-                setError("An account with this email already exists. Sign in first, then use the invite link.");
-                setStatus("form");
-                return;
-            }
-
-            if (!data.session) {
-                navigate("/invite-pending", { replace: true });
-                return;
-            }
-
-            accessToken = data.session.access_token;
-        }
-
-        if (!accessToken) {
-            setError("Could not get session. Please try again.");
-            setStatus("form");
+            await acceptAsExistingUser(accessToken);
             return;
         }
 
-        await submitAccept(accessToken);
+        // New-user path: backend creates the account, frontend signs in.
+        await signupAndAccept();
     }
 
     async function handleConfirmAndJoin() {
@@ -167,7 +169,7 @@ export default function InviteAcceptPage() {
             setStatus("needs_confirmation");
             return;
         }
-        await submitAccept(session.access_token);
+        await acceptAsExistingUser(session.access_token);
     }
 
     if (status === "loading") {
@@ -220,7 +222,7 @@ export default function InviteAcceptPage() {
         );
     }
 
-    if (status === "needs_confirmation" || status === "submitting" && currentOrg) {
+    if (status === "needs_confirmation" || (status === "submitting" && currentOrg)) {
         return (
             <div className="min-h-dvh bg-background flex flex-col">
                 <Nav />
@@ -273,15 +275,39 @@ export default function InviteAcceptPage() {
                         You've been invited
                     </h1>
                     <p className="mt-2 text-sm text-on-background-secondary">
-                        Set up your account to join the team.
+                        Set up your account to join{" "}
+                        <span className="font-medium text-on-background">
+                            {invite?.organization_name ?? "your team"}
+                        </span>.
                     </p>
 
-                    <div className="mt-5 inline-flex items-center gap-2 rounded-xs border border-divider bg-background-warm px-3 py-1.5">
-                        <span className="text-xs text-on-background-secondary">Joining as</span>
-                        <span className="text-xs font-medium text-on-background">{invite?.email}</span>
-                    </div>
-
                     <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
+                        <div className="flex flex-col gap-1.5">
+                            <label htmlFor="email" className="text-sm text-on-background">
+                                Email
+                            </label>
+                            <input
+                                id="email"
+                                type="email"
+                                readOnly
+                                value={invite?.email ?? ""}
+                                className="h-11 w-full rounded-xs border border-divider-strong bg-background-warm px-3 text-sm text-on-background-secondary cursor-not-allowed"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label htmlFor="company" className="text-sm text-on-background">
+                                Company
+                            </label>
+                            <input
+                                id="company"
+                                type="text"
+                                readOnly
+                                value={invite?.organization_name ?? ""}
+                                className="h-11 w-full rounded-xs border border-divider-strong bg-background-warm px-3 text-sm text-on-background-secondary cursor-not-allowed"
+                            />
+                        </div>
+
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="fullName" className="text-sm text-on-background">
                                 Full name
@@ -329,7 +355,7 @@ export default function InviteAcceptPage() {
                             disabled={status === "submitting"}
                             className="mt-1 h-11 w-full rounded-xs border border-on-background bg-on-background text-on-brand text-sm font-medium hover:opacity-90 transition-opacity duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {status === "submitting" ? "Setting up…" : "Join team"}
+                            {status === "submitting" ? "Setting up…" : "Create account & join"}
                         </button>
                     </form>
 

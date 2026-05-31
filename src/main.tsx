@@ -8,7 +8,7 @@ import App from './App.tsx'
 const params = new URLSearchParams(window.location.search);
 const redirectPath = params.get('p');
 if (redirectPath) {
-  window.history.replaceState(null, '', redirectPath);
+  window.history.replaceState(null, '', redirectPath + window.location.hash);
 }
 
 createRoot(document.getElementById('root')!).render(

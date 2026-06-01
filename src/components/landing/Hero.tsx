@@ -17,7 +17,7 @@ const WIN_DOWNLOAD =
 // supabase access + refresh tokens and the typed message in the URL
 // fragment so the web app can hydrate the session and prefill the
 // composer. See duri_desktop_app/src/web/README.md for cleanup.
-const WEB_APP_URL = "https://releases.duri-ai.com/web/test/index.html";
+const WEB_APP_URL = "https://duri-ai.com/app/";
 
 export default function Hero() {
     const { user } = useAuth();

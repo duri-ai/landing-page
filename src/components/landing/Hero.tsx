@@ -131,7 +131,7 @@ function WebHandoffComposer() {
                 </button>
             </div>
             <p className="mt-2 text-xs text-on-background-secondary">
-                Opens Duri in your browser. For the full experience, download the desktop app below.
+                Or
             </p>
         </form>
     );

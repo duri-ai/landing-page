@@ -41,7 +41,7 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                                     <button
                                         type="button"
                                         onClick={onDemoClick}
-                                        className="text-on-background-secondary hover:text-on-background text-sm leading-5 px-2 py-2 transition-colors duration-200 cursor-pointer"
+                                        className="text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
                                     >
                                         Book a demo
                                     </button>

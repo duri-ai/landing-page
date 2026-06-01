@@ -1,16 +1,14 @@
-// import { ArrowRightIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
 import HeroProductWindow from "./HeroProductWindow";
 
-type HeroProps = {
-    onDemoClick: () => void;
-};
+const APPLE_LOGO = `${import.meta.env.BASE_URL}misc_images/apple.png`;
+const WINDOWS_LOGO = `${import.meta.env.BASE_URL}misc_images/windows.png`;
 
-export default function Hero({ onDemoClick }: HeroProps) {
-    const navigate = useNavigate();
-    const { user } = useAuth();
+const MAC_DOWNLOAD =
+    "https://releases.duri-ai.com/desktop/latest/Duri-latest-mac.dmg";
+const WIN_DOWNLOAD =
+    "https://releases.duri-ai.com/desktop/latest/Duri-latest-win.exe";
 
+export default function Hero() {
     return (
         <section className="relative w-full min-w-xs overflow-hidden">
             <div className="absolute inset-0 duri-grid-bg opacity-[0.55] pointer-events-none" aria-hidden />
@@ -27,26 +25,31 @@ export default function Hero({ onDemoClick }: HeroProps) {
                         </h1>
 
                         <div className="mt-9 md:mt-12">
-                            <div className="flex items-center gap-3">
-                                <button
-                                    type="button"
-                                    onClick={onDemoClick}
-                                    className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-base px-6 py-3.5 transition-colors duration-200 cursor-pointer"
+                            <div className="flex flex-wrap items-center gap-3">
+                                <a
+                                    href={MAC_DOWNLOAD}
+                                    className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-base px-6 py-3.5 transition-colors duration-200"
                                 >
-                                    Get a demo
-                                    {/* <ArrowRightIcon className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" /> */}
-                                </button>
-
-                                {!user && (
-                                    <button
-                                        type="button"
-                                        onClick={() => navigate("/signup")}
-                                        className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-base px-6 py-3.5 transition-colors duration-200 cursor-pointer"
-                                    >
-                                        Get started
-                                        {/* <ArrowRightIcon className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" /> */}
-                                    </button>
-                                )}
+                                    <img
+                                        src={APPLE_LOGO}
+                                        alt=""
+                                        aria-hidden
+                                        className="w-4 h-4 object-contain transition-[filter] duration-200 invert group-hover:invert-0"
+                                    />
+                                    Download for Mac
+                                </a>
+                                <a
+                                    href={WIN_DOWNLOAD}
+                                    className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-base px-6 py-3.5 transition-colors duration-200"
+                                >
+                                    <img
+                                        src={WINDOWS_LOGO}
+                                        alt=""
+                                        aria-hidden
+                                        className="w-4 h-4 object-contain transition-[filter] duration-200 group-hover:invert"
+                                    />
+                                    Download for Windows
+                                </a>
                             </div>
                         </div>
                     </div>

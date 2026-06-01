@@ -1,17 +1,9 @@
 import { useState } from "react";
 import { ArrowRightIcon, CheckIcon } from "lucide-react";
 
-const APPLE_LOGO = `${import.meta.env.BASE_URL}misc_images/apple.png`;
-const WINDOWS_LOGO = `${import.meta.env.BASE_URL}misc_images/windows.png`;
-
 type CtaBandProps = {
     refCallback: (el: HTMLElement | null) => void;
 };
-
-const MAC_DOWNLOAD =
-    "https://releases.duri-ai.com/desktop/latest/Duri-latest-mac.dmg";
-const WIN_DOWNLOAD =
-    "https://releases.duri-ai.com/desktop/latest/Duri-latest-win.exe";
 
 export default function CtaBand({ refCallback }: CtaBandProps) {
     const [email, setEmail] = useState("");
@@ -25,7 +17,7 @@ export default function CtaBand({ refCallback }: CtaBandProps) {
 
     return (
         <section
-            id="download"
+            id="demo"
             ref={refCallback}
             className="relative w-full bg-brand text-on-brand min-w-xs overflow-hidden"
         >
@@ -90,39 +82,6 @@ export default function CtaBand({ refCallback }: CtaBandProps) {
                                 </button>
                             </form>
                         )}
-                    </div>
-
-                    {/* Quiet alternative: download the app */}
-                    <div className="mt-8 pt-6 border-t border-on-brand-secondary/30">
-                        <div className="text-[11px] uppercase tracking-wider text-on-brand-secondary text-center mb-3">
-                            Or get the desktop app
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <a
-                                href={MAC_DOWNLOAD}
-                                className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-on-background bg-background hover:bg-on-background hover:text-on-brand border border-on-background rounded-xs text-[14px] px-4 py-3 transition-colors duration-200"
-                            >
-                                <img
-                                    src={APPLE_LOGO}
-                                    alt=""
-                                    aria-hidden
-                                    className="w-4 h-4 object-contain transition-[filter] duration-200 group-hover:invert"
-                                />
-                                Download for Mac
-                            </a>
-                            <a
-                                href={WIN_DOWNLOAD}
-                                className="group inline-flex items-center justify-center gap-2 whitespace-nowrap text-on-background bg-background hover:bg-on-background hover:text-on-brand border border-on-background rounded-xs text-[14px] px-4 py-3 transition-colors duration-200"
-                            >
-                                <img
-                                    src={WINDOWS_LOGO}
-                                    alt=""
-                                    aria-hidden
-                                    className="w-4 h-4 object-contain transition-[filter] duration-200 group-hover:invert"
-                                />
-                                Download for Windows
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>

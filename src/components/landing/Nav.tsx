@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-export default function Nav() {
+type NavProps = {
+    onDemoClick?: () => void;
+};
+
+export default function Nav({ onDemoClick }: NavProps = {}) {
     const [scrolled, setScrolled] = useState(false);
     const { user, loading, signOut } = useAuth();
     const navigate = useNavigate();
@@ -33,6 +37,15 @@ export default function Nav() {
                         user
                             ? <ProfileButton user={user} onSignOut={async () => { await signOut(); navigate("/"); }} />
                             : <>
+                                {onDemoClick && (
+                                    <button
+                                        type="button"
+                                        onClick={onDemoClick}
+                                        className="text-on-background-secondary hover:text-on-background text-sm leading-5 px-2 py-2 transition-colors duration-200 cursor-pointer"
+                                    >
+                                        Book a demo
+                                    </button>
+                                )}
                                 <button
                                     type="button"
                                     onClick={() => navigate("/login")}

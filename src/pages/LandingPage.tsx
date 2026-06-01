@@ -16,9 +16,9 @@ export default function LandingPage() {
 
     return (
         <>
-            <Nav />
+            <Nav onDemoClick={scrollToDemo} />
             <main>
-                <Hero onDemoClick={scrollToDemo} />
+                <Hero />
                 <WorkflowBuilder />
                 <HowItWorks />
                 <Integrations />

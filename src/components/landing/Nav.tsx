@@ -33,6 +33,20 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                 </a>
 
                 <div className="inline-flex items-center gap-3">
+                    <a
+                        href="https://www.reddit.com/r/Duri/?screen_view_count=4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Duri on Reddit"
+                        className="inline-flex items-center gap-1.5 text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
+                    >
+                        <img
+                            src={`${import.meta.env.BASE_URL}logos/reddit.svg`}
+                            alt=""
+                            className="h-[18px] w-[18px]"
+                        />
+                        <span>/Duri</span>
+                    </a>
                     {!loading && (
                         user
                             ? <ProfileButton user={user} onSignOut={async () => { await signOut(); navigate("/"); }} />

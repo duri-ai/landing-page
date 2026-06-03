@@ -30,11 +30,6 @@ function PrivacyPolicy() {
                             why, who we share it with, and what you can do about it.
                         </p>
                         <p className="mt-[12px]">
-                            This policy covers the Duri desktop app, the web app at duri-ai.com, and our API.
-                            If you signed an enterprise agreement with us, that agreement controls wherever it
-                            disagrees with this page.
-                        </p>
-                        <p className="mt-[12px]">
                             "Duri", "we", "our", and "us" refer to Duri AI, Inc. "You" refers to the person
                             using Duri, whether that's an individual user or an employee acting for a company.
                         </p>
@@ -153,38 +148,6 @@ function PrivacyPolicy() {
                             <li>OpenAI — used for some sub-tasks and embeddings</li>
                             <li>Google (Gemini) — used as an alternate model</li>
                             <li>Amazon Bedrock — used for hosted alternates</li>
-                        </ul>
-
-                        <p className="mb-[8px]"><strong>Other operational vendors.</strong></p>
-                        <ul className="list-disc pl-[24px] space-y-[4px] mb-[12px]">
-                            <li>
-                                <strong>Stripe</strong> — payment processing. Receives your email and the
-                                checkout session; Stripe handles card data and PCI compliance directly.
-                            </li>
-                            <li>
-                                <strong>Resend</strong> — sends transactional email (sign-up confirmations,
-                                invites, password resets).
-                            </li>
-                            <li>
-                                <strong>Sentry</strong> — receives error stack traces, browser/OS information,
-                                and the URL where the error happened, so we can fix bugs.
-                            </li>
-                            <li>
-                                <strong>LangSmith</strong> — receives a sample of LLM prompts and responses for
-                                debugging and evaluation. You can opt out (see "Your choices").
-                            </li>
-                            <li>
-                                <strong>Tavily</strong> — runs web searches the agent requests. Receives the
-                                search query.
-                            </li>
-                            <li>
-                                <strong>Browserbase</strong> — runs the browser the agent drives. Receives the
-                                URLs the agent visits and the actions it takes on your behalf.
-                            </li>
-                            <li>
-                                <strong>Apify</strong> — runs web scraping when the agent needs structured data
-                                from a website.
-                            </li>
                         </ul>
 
                         <p>

@@ -29,5 +29,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# WEB_TEST: scratch dir for local web build smoke tests, never committed.
+# Local scratch — never committed.
 temp_tests/

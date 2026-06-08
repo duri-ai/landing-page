@@ -9,8 +9,6 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [forgotMode, setForgotMode] = useState(false);
-    const [forgotSent, setForgotSent] = useState(false);
 
     async function handleGoogleSignIn() {
         setError(null);
@@ -34,88 +32,35 @@ export default function LoginPage() {
         }
     }
 
-    async function handleForgotPassword(e: FormEvent) {
-        e.preventDefault();
-        setError(null);
-        setLoading(true);
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + "/update-password",
-        });
-        setLoading(false);
-        if (error) {
-            setError(error.message);
-        } else {
-            setForgotSent(true);
-        }
-    }
-
-    if (forgotSent) {
-        return (
-            <div className="min-h-dvh bg-background flex flex-col">
-                <Nav />
-                <div className="flex-1 flex items-center justify-center px-4 py-16">
-                    <div className="w-full max-w-[480px] text-center">
-                        <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-                                <path d="M4 11.5l5 5 9-9" stroke="#00a86b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        </div>
-                        <h2 className="text-xl font-medium text-on-background">Check your inbox</h2>
-                        <p className="mt-2 text-sm text-on-background-secondary">
-                            We sent a reset link to{" "}
-                            <span className="text-on-background font-medium">{email}</span>.
-                        </p>
-                        <button
-                            type="button"
-                            onClick={() => { setForgotMode(false); setForgotSent(false); }}
-                            className="mt-6 text-sm text-brand hover:underline cursor-pointer"
-                        >
-                            Back to sign in
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-dvh bg-background flex flex-col">
             <Nav />
 
             <div className="flex-1 flex items-center justify-center px-4 py-16">
-                <div className="w-full max-w-[480px]">
-                    <h1 className="text-2xl font-semibold text-on-background tracking-tight">
-                        {forgotMode ? "Reset your password" : "Sign in"}
+                <div className="w-full max-w-[420px]">
+                    <h1 className="text-2xl font-semibold text-on-background tracking-tight text-center">
+                        Sign in
                     </h1>
-                    <p className="mt-2 text-sm text-on-background-secondary">
-                        {forgotMode
-                            ? "Enter your email and we'll send you a reset link."
-                            : "Welcome back. Sign in to your account."}
+                    <p className="mt-2 text-sm text-on-background-secondary text-center">
+                        Welcome back. Sign in to your account.
                     </p>
 
-                    {!forgotMode && (
-                        <>
-                            <button
-                                type="button"
-                                onClick={handleGoogleSignIn}
-                                className="mt-7 w-full flex items-center justify-center gap-2.5 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium px-4 py-2.5 hover:bg-brand-soft transition-colors duration-200 cursor-pointer"
-                            >
-                                <GoogleIcon />
-                                Continue with Google
-                            </button>
-
-                            <div className="my-6 flex items-center gap-3">
-                                <div className="flex-1 h-px bg-divider" />
-                                <span className="text-xs text-on-background-secondary">or</span>
-                                <div className="flex-1 h-px bg-divider" />
-                            </div>
-                        </>
-                    )}
-
-                    <form
-                        onSubmit={forgotMode ? handleForgotPassword : handleEmailSignIn}
-                        className="flex flex-col gap-4"
+                    <button
+                        type="button"
+                        onClick={handleGoogleSignIn}
+                        className="mt-6 w-full flex items-center justify-center gap-2.5 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium h-10 px-4 hover:bg-brand-soft transition-colors duration-200 cursor-pointer"
                     >
+                        <GoogleIcon />
+                        Continue with Google
+                    </button>
+
+                    <div className="my-6 flex items-center gap-3">
+                        <div className="flex-1 h-px bg-divider" />
+                        <span className="text-xs text-on-background-secondary">or</span>
+                        <div className="flex-1 h-px bg-divider" />
+                    </div>
+
+                    <form onSubmit={handleEmailSignIn} className="flex flex-col gap-6">
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="email" className="text-sm text-on-background">
                                 Email
@@ -128,36 +73,33 @@ export default function LoginPage() {
                                 placeholder="you@company.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
+                                className="h-10 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
                             />
                         </div>
 
-                        {!forgotMode && (
-                            <div className="flex flex-col gap-1.5">
-                                <div className="flex items-center justify-between">
-                                    <label htmlFor="password" className="text-sm text-on-background">
-                                        Password
-                                    </label>
-                                    <button
-                                        type="button"
-                                        onClick={() => { setForgotMode(true); setError(null); }}
-                                        className="text-xs text-on-background-secondary hover:text-on-background transition-colors duration-150 cursor-pointer"
-                                    >
-                                        Forgot password?
-                                    </button>
-                                </div>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    required
-                                    autoComplete="current-password"
-                                    placeholder="Your password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
-                                />
+                        <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center justify-between">
+                                <label htmlFor="password" className="text-sm text-on-background">
+                                    Password
+                                </label>
+                                <Link
+                                    to="/forgot-password"
+                                    className="text-xs text-on-background-secondary hover:text-on-background transition-colors duration-150"
+                                >
+                                    Forgot password?
+                                </Link>
                             </div>
-                        )}
+                            <input
+                                id="password"
+                                type="password"
+                                required
+                                autoComplete="current-password"
+                                placeholder="Your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="h-10 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
+                            />
+                        </div>
 
                         {error && (
                             <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xs px-3 py-2">
@@ -168,32 +110,18 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="mt-1 h-11 w-full rounded-xs border border-on-background bg-on-background text-on-brand text-sm font-medium hover:opacity-90 transition-opacity duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="h-10 w-full rounded-xs border border-on-background bg-on-background text-on-brand text-sm font-medium hover:opacity-90 transition-opacity duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {loading
-                                ? (forgotMode ? "Sending..." : "Signing in...")
-                                : (forgotMode ? "Send reset link" : "Sign in")}
+                            {loading ? "Signing in..." : "Sign in"}
                         </button>
                     </form>
 
-                    {forgotMode ? (
-                        <p className="mt-6 text-center text-sm text-on-background-secondary">
-                            <button
-                                type="button"
-                                onClick={() => { setForgotMode(false); setError(null); }}
-                                className="text-brand hover:underline cursor-pointer"
-                            >
-                                Back to sign in
-                            </button>
-                        </p>
-                    ) : (
-                        <p className="mt-6 text-center text-sm text-on-background-secondary">
-                            Don't have an account?{" "}
-                            <Link to="/signup" className="text-brand hover:underline">
-                                Create one
-                            </Link>
-                        </p>
-                    )}
+                    <p className="mt-6 text-center text-sm text-on-background-secondary">
+                        Don't have an account?{" "}
+                        <Link to="/signup" className="text-brand hover:underline">
+                            Create one
+                        </Link>
+                    </p>
 
                     <p className="mt-6 text-center text-xs text-on-background-secondary leading-relaxed">
                         By signing in, you agree to our{" "}

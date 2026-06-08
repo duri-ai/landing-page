@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import LandingPage from "./pages/LandingPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
 import AccountPage from "./pages/AccountPage.tsx";
 import InviteAcceptPage from "./pages/InviteAcceptPage.tsx";
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/pricing" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/invite-accept" element={<InviteAcceptPage />} />

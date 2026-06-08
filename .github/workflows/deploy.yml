@@ -41,21 +41,6 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           VITE_BACKEND_URL: ${{ secrets.BACKEND_URL }}
 
-      # WEB_TEST: pull the desktop app's web bundle (built by the
-      # ``Publish Web Bundle`` workflow in duri-ai/fe-desktop) and
-      # extract into dist/app/ so GitHub Pages serves it under
-      # https://duri-ai.com/app/. Public S3 URL — no auth needed.
-      # Cleanup: delete this step (see duri_desktop_app/src/web/README.md).
-      - name: Fetch web bundle (Shopify-review temp surface)
-        run: |
-          set -euo pipefail
-          mkdir -p dist/app
-          curl --fail --silent --show-error --location \
-            https://releases.duri-ai.com/app/latest.tar.gz \
-            --output /tmp/web-bundle.tar.gz
-          tar -xzf /tmp/web-bundle.tar.gz -C dist/app
-          ls -la dist/app | head -20
-
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

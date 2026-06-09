@@ -35,12 +35,21 @@ Deno.serve(async (req) => {
         if (!orgId) break;
 
         if (checkoutType === "auto_recharge") {
-          // Record subscription ID; token grant comes on invoice.payment_succeeded
+          // Record subscription, then grant the first month's tokens
+          // here — Stripe's invoice.payment_succeeded for the first
+          // invoice uses billing_reason="subscription_create", and
+          // delivery order vs checkout.session.completed is not
+          // guaranteed. Renewals are handled by invoice.payment_succeeded
+          // (billing_reason="subscription_cycle") below.
           const subscriptionId = session.subscription as string;
           await supabase
             .from("organizations")
             .update({ stripe_subscription_id: subscriptionId, subscription_status: "active" })
             .eq("id", orgId);
+          await supabase.rpc("add_tokens_to_workspace", {
+            p_workspace_id: orgId,
+            p_amount: TOKENS_PER_RECHARGE,
+          });
         } else if (checkoutType === "recharge") {
           // One-time recharge — credit paid_balance immediately
           await supabase.rpc("add_tokens_to_workspace", {
@@ -53,9 +62,10 @@ Deno.serve(async (req) => {
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
+        // Renewals only — the first month is granted in
+        // checkout.session.completed above.
         if (invoice.billing_reason !== "subscription_cycle") break;
 
-        // Look up org by stripe_subscription_id — more reliable than customer metadata
         const subscriptionId = invoice.subscription as string;
         const { data: orgs } = await supabase
           .from("organizations")

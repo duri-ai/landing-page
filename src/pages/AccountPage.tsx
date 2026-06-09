@@ -12,18 +12,26 @@ type OrgMember = {
     role: "admin" | "member";
 };
 
+type AutoReload = {
+    enabled: boolean;
+    threshold: number | null;
+    amount: number | null;
+    monthly_cap: number | null;
+    spent_this_mo: number;
+};
+
 type OrgData = {
     id: number;
     name: string;
-    balance_usd: number;
-    monthly_balance: number;
-    paid_balance: number;
+    credit_id: number;
+    credit_usd: number;
     pro_plan_active: boolean;
     subscription_cancel_at: string | null;
+    has_payment_method: boolean;
+    auto_reload: AutoReload;
     current_user_role: "admin" | "member";
     members: OrgMember[];
     seat_count: number;
-    token_balance_id: number;
 };
 
 const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
@@ -40,8 +48,11 @@ export default function AccountPage() {
     const [inviteError, setInviteError] = useState<string | null>(null);
     const [inviteSent, setInviteSent] = useState(false);
 
-    const [checkoutLoading, setCheckoutLoading] = useState<"recharge" | "auto_recharge" | null>(null);
+    const [checkoutLoading, setCheckoutLoading] = useState<
+        "subscribe" | "recharge" | "setup_pm" | null
+    >(null);
     const [cancelLoading, setCancelLoading] = useState(false);
+    const [arSaving, setArSaving] = useState(false);
 
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
     const [leaveLoading, setLeaveLoading] = useState(false);
@@ -88,38 +99,29 @@ export default function AccountPage() {
         });
     }, [user, navigate]);
 
-    // Supabase Realtime — live balance updates
+    // Supabase Realtime — live credit updates
     useEffect(() => {
-        if (!org?.token_balance_id) return;
+        if (!org?.credit_id) return;
 
         const channel = supabase
-            .channel("balance")
+            .channel("credit")
             .on(
                 "postgres_changes",
                 {
                     event: "UPDATE",
                     schema: "public",
-                    table: "token_balances",
-                    filter: `id=eq.${org.token_balance_id}`,
+                    table: "credits",
+                    filter: `id=eq.${org.credit_id}`,
                 },
                 (payload) => {
-                    const p = payload.new as { monthly_balance: number; paid_balance: number };
-                    setOrg((prev) =>
-                        prev
-                            ? {
-                                  ...prev,
-                                  monthly_balance: p.monthly_balance,
-                                  paid_balance: p.paid_balance,
-                                  balance_usd: p.monthly_balance + p.paid_balance,
-                              }
-                            : prev,
-                    );
+                    const p = payload.new as { credit: number };
+                    setOrg((prev) => (prev ? { ...prev, credit_usd: p.credit } : prev));
                 },
             )
             .subscribe();
 
         return () => { supabase.removeChannel(channel); };
-    }, [org?.token_balance_id]);
+    }, [org?.credit_id]);
 
     if (loading) {
         return (
@@ -170,43 +172,85 @@ export default function AccountPage() {
         setInviteLoading(false);
     }
 
-    async function handleCheckout(type: "recharge" | "auto_recharge") {
+    async function handleSubscribe() {
         if (!org) return;
-        setCheckoutLoading(type);
-
+        setCheckoutLoading("subscribe");
         const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch(
-            `${BACKEND}/stripe/checkout?organization_id=${org.id}&type=${type}`,
-            {
-                method: "POST",
-                headers: { Authorization: `Bearer ${session?.access_token}` },
-            },
+            `${BACKEND}/stripe/subscribe?organization_id=${org.id}`,
+            { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } },
         );
-
         const data = await res.json().catch(() => null);
         setCheckoutLoading(null);
-        if (data?.url) {
-            window.location.href = data.url;
-        }
+        if (data?.url) window.location.href = data.url;
     }
 
-    async function handleCancelAutoRecharge() {
+    async function handleRecharge(amountUsd: number) {
         if (!org) return;
-        setCancelLoading(true);
-
+        setCheckoutLoading("recharge");
         const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch(
-            `${BACKEND}/stripe/auto-recharge?organization_id=${org.id}`,
+            `${BACKEND}/stripe/recharge?organization_id=${org.id}`,
             {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${session?.access_token}` },
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.access_token}`,
+                },
+                body: JSON.stringify({ amount_usd: amountUsd }),
             },
         );
+        const data = await res.json().catch(() => null);
+        setCheckoutLoading(null);
+        if (data?.url) window.location.href = data.url;
+    }
 
-        if (res.ok) {
-            // Re-fetch so subscription_cancel_at populates from the server response
-            await refetchOrg();
-        }
+    async function handleSetupPaymentMethod() {
+        if (!org) return;
+        setCheckoutLoading("setup_pm");
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+            `${BACKEND}/stripe/payment-method/setup?organization_id=${org.id}`,
+            { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } },
+        );
+        const data = await res.json().catch(() => null);
+        setCheckoutLoading(null);
+        if (data?.url) window.location.href = data.url;
+    }
+
+    async function handleSaveAutoReload(patch: {
+        enabled: boolean;
+        threshold?: number | null;
+        amount?: number | null;
+        monthly_cap?: number | null;
+    }) {
+        if (!org) return;
+        setArSaving(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+            `${BACKEND}/organizations/${org.id}/auto-reload`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.access_token}`,
+                },
+                body: JSON.stringify(patch),
+            },
+        );
+        if (res.ok) await refetchOrg();
+        setArSaving(false);
+    }
+
+    async function handleCancelSubscription() {
+        if (!org) return;
+        setCancelLoading(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+            `${BACKEND}/stripe/subscription?organization_id=${org.id}`,
+            { method: "DELETE", headers: { Authorization: `Bearer ${session?.access_token}` } },
+        );
+        if (res.ok) await refetchOrg();
         setCancelLoading(false);
     }
 
@@ -265,13 +309,17 @@ export default function AccountPage() {
                                     <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
                                 </div>
                             ) : org ? (
-                                <PlanSection
+                                <PlanAndTopUp
                                     org={org}
                                     isAdmin={isAdmin}
                                     checkoutLoading={checkoutLoading}
                                     cancelLoading={cancelLoading}
-                                    onCheckout={handleCheckout}
-                                    onCancel={handleCancelAutoRecharge}
+                                    arSaving={arSaving}
+                                    onSubscribe={handleSubscribe}
+                                    onCancel={handleCancelSubscription}
+                                    onRecharge={handleRecharge}
+                                    onSetupPaymentMethod={handleSetupPaymentMethod}
+                                    onSaveAutoReload={handleSaveAutoReload}
                                 />
                             ) : (
                                 <p className="text-sm text-on-background-secondary">
@@ -386,7 +434,7 @@ export default function AccountPage() {
                     <div className="w-full max-w-[440px] rounded-xs border border-divider bg-background p-6 shadow-lg">
                         <p className="text-base font-semibold text-on-background mb-2">Leave organization?</p>
                         <p className="text-sm text-on-background-secondary leading-relaxed mb-4">
-                            You'll lose access to <strong className="text-on-background">{org.name}</strong> and its balance.
+                            You'll lose access to <strong className="text-on-background">{org.name}</strong> and its credit.
                             You can set up a new organization or accept another invite afterward.
                         </p>
                         {leaveError && (
@@ -420,105 +468,204 @@ export default function AccountPage() {
     );
 }
 
-function PlanSection({
+type CheckoutKind = "subscribe" | "recharge" | "setup_pm" | null;
+
+const AR_DEFAULTS = { threshold: 5, amount: 20, monthly_cap: 100 };
+
+function PlanAndTopUp({
     org,
     isAdmin,
     checkoutLoading,
     cancelLoading,
-    onCheckout,
+    arSaving,
+    onSubscribe,
     onCancel,
+    onRecharge,
+    onSetupPaymentMethod,
+    onSaveAutoReload,
 }: {
     org: OrgData;
     isAdmin: boolean;
-    checkoutLoading: "recharge" | "auto_recharge" | null;
+    checkoutLoading: CheckoutKind;
     cancelLoading: boolean;
-    onCheckout: (type: "recharge" | "auto_recharge") => void;
+    arSaving: boolean;
+    onSubscribe: () => void;
     onCancel: () => void;
+    onRecharge: (amountUsd: number) => void;
+    onSetupPaymentMethod: () => void;
+    onSaveAutoReload: (patch: {
+        enabled: boolean;
+        threshold?: number | null;
+        amount?: number | null;
+        monthly_cap?: number | null;
+    }) => void;
 }) {
     const isPro = org.pro_plan_active;
     const isEnding = isPro && !!org.subscription_cancel_at;
     const endsOn = org.subscription_cancel_at
         ? new Date(org.subscription_cancel_at).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
+              month: "short", day: "numeric", year: "numeric",
           })
         : null;
 
+    const [rechargeUsd, setRechargeUsd] = useState<string>("20");
+    const rechargeNum = Number(rechargeUsd);
+    const rechargeValid = rechargeNum >= 5 && rechargeNum <= 500;
+
+    const ar = org.auto_reload;
+    const [arEnabled, setArEnabled] = useState(ar.enabled);
+    const [arThreshold, setArThreshold] = useState<string>(
+        String(ar.threshold ?? AR_DEFAULTS.threshold),
+    );
+    const [arAmount, setArAmount] = useState<string>(
+        String(ar.amount ?? AR_DEFAULTS.amount),
+    );
+    const [arCap, setArCap] = useState<string>(
+        String(ar.monthly_cap ?? AR_DEFAULTS.monthly_cap),
+    );
+    useEffect(() => {
+        setArEnabled(ar.enabled);
+        setArThreshold(String(ar.threshold ?? AR_DEFAULTS.threshold));
+        setArAmount(String(ar.amount ?? AR_DEFAULTS.amount));
+        setArCap(String(ar.monthly_cap ?? AR_DEFAULTS.monthly_cap));
+    }, [ar.enabled, ar.threshold, ar.amount, ar.monthly_cap]);
+    const arDirty =
+        arEnabled !== ar.enabled ||
+        Number(arThreshold) !== (ar.threshold ?? AR_DEFAULTS.threshold) ||
+        Number(arAmount) !== (ar.amount ?? AR_DEFAULTS.amount) ||
+        Number(arCap) !== (ar.monthly_cap ?? AR_DEFAULTS.monthly_cap);
+
     return (
-        <div className="flex flex-col gap-5">
-            <div>
-                <div className="flex items-center gap-2">
-                    <p className="text-2xl font-semibold text-on-background">
-                        ${org.balance_usd.toFixed(2)}
-                    </p>
-                    {isPro && (
-                        <span className="text-[10px] font-semibold tracking-wider uppercase text-brand bg-brand-soft border border-brand/30 rounded-xs px-1.5 py-0.5">
-                            {isEnding ? `Pro · ends ${endsOn}` : "Pro"}
-                        </span>
-                    )}
-                </div>
-                <p className="text-xs text-on-background-secondary mt-1">
-                    ${org.monthly_balance.toFixed(2)} monthly credit
-                    {org.paid_balance > 0 && (
-                        <>
-                            {" · "}
-                            ${org.paid_balance.toFixed(2)} paid credit
-                        </>
-                    )}
+        <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-2">
+                <p className="text-2xl font-semibold text-on-background">
+                    ${org.credit_usd.toFixed(2)}
                 </p>
+                {isPro && (
+                    <span className="text-[10px] font-semibold tracking-wider uppercase text-brand bg-brand-soft border border-brand/30 rounded-xs px-1.5 py-0.5">
+                        {isEnding ? `Pro · ends ${endsOn}` : "Pro"}
+                    </span>
+                )}
             </div>
 
-            {!isPro && (
-                <p className="text-xs text-on-background-secondary leading-relaxed">
-                    Get unlimited recharges and automatic monthly top-ups with Pro.
-                </p>
-            )}
-            {isPro && !isEnding && (
-                <p className="text-xs text-brand">
-                    Pro plan active — your balance refills automatically each month.
-                </p>
-            )}
-            {isEnding && (
-                <p className="text-xs text-on-background-secondary">
-                    Pro plan ends {endsOn}. You'll keep Pro features until then.
-                </p>
-            )}
-
             {isAdmin && (
-                <div className="flex flex-wrap gap-2">
-                    {!isPro ? (
-                        <button
-                            type="button"
-                            disabled={checkoutLoading !== null}
-                            onClick={() => onCheckout("auto_recharge")}
-                            className="h-9 px-5 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                            {checkoutLoading === "auto_recharge" ? "Redirecting…" : "Upgrade to Pro"}
-                        </button>
-                    ) : (
-                        <>
+                <>
+                    <div className="flex flex-wrap items-center gap-2">
+                        {!isPro && (
                             <button
                                 type="button"
                                 disabled={checkoutLoading !== null}
-                                onClick={() => onCheckout("recharge")}
+                                onClick={onSubscribe}
                                 className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-                                {checkoutLoading === "recharge" ? "Redirecting…" : "Recharge tokens"}
+                                {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $20/mo"}
                             </button>
-                            {!isEnding && (
+                        )}
+                        {isPro && !isEnding && (
+                            <button
+                                type="button"
+                                disabled={cancelLoading}
+                                onClick={onCancel}
+                                className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background-secondary text-xs font-medium hover:border-red-400 hover:text-red-600 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {cancelLoading ? "Cancelling…" : "Cancel Pro"}
+                            </button>
+                        )}
+                    </div>
+
+                    <hr className="border-divider" />
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-on-background-secondary">Add credit</span>
+                        <span className="text-xs text-on-background-secondary">$</span>
+                        <input
+                            type="number"
+                            min={5}
+                            max={500}
+                            step={1}
+                            value={rechargeUsd}
+                            onChange={(e) => setRechargeUsd(e.target.value)}
+                            className="h-8 w-20 rounded-xs border border-divider-strong bg-background px-2 text-sm text-on-background focus:border-brand transition-colors"
+                        />
+                        <button
+                            type="button"
+                            disabled={!rechargeValid || checkoutLoading !== null}
+                            onClick={() => onRecharge(rechargeNum)}
+                            className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            {checkoutLoading === "recharge" ? "Redirecting…" : "Charge"}
+                        </button>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <label className="flex items-center gap-2 text-xs text-on-background">
+                            <input
+                                type="checkbox"
+                                checked={arEnabled}
+                                onChange={(e) => setArEnabled(e.target.checked)}
+                                disabled={!org.has_payment_method}
+                            />
+                            Auto-reload
+                            {!org.has_payment_method && (
+                                <span className="text-on-background-secondary">— add a card first</span>
+                            )}
+                        </label>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-on-background-secondary">
+                            below $
+                            <input
+                                type="number" min={1} step={1}
+                                value={arThreshold}
+                                onChange={(e) => setArThreshold(e.target.value)}
+                                disabled={!arEnabled}
+                                className="h-7 w-16 rounded-xs border border-divider-strong bg-background px-2 disabled:opacity-50"
+                            />
+                            add $
+                            <input
+                                type="number" min={1} step={1}
+                                value={arAmount}
+                                onChange={(e) => setArAmount(e.target.value)}
+                                disabled={!arEnabled}
+                                className="h-7 w-16 rounded-xs border border-divider-strong bg-background px-2 disabled:opacity-50"
+                            />
+                            cap $
+                            <input
+                                type="number" min={1} step={1}
+                                value={arCap}
+                                onChange={(e) => setArCap(e.target.value)}
+                                disabled={!arEnabled}
+                                className="h-7 w-16 rounded-xs border border-divider-strong bg-background px-2 disabled:opacity-50"
+                            />
+                            /mo
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                disabled={checkoutLoading !== null}
+                                onClick={onSetupPaymentMethod}
+                                className="h-7 px-3 rounded-xs border border-divider-strong bg-background text-on-background text-xs font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer disabled:opacity-60"
+                            >
+                                {checkoutLoading === "setup_pm"
+                                    ? "Redirecting…"
+                                    : org.has_payment_method ? "Change card" : "Add card"}
+                            </button>
+                            {arDirty && (
                                 <button
                                     type="button"
-                                    disabled={cancelLoading}
-                                    onClick={onCancel}
-                                    className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background-secondary text-xs font-medium hover:border-red-400 hover:text-red-600 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    disabled={arSaving}
+                                    onClick={() => onSaveAutoReload({
+                                        enabled: arEnabled,
+                                        threshold: arEnabled ? Number(arThreshold) : null,
+                                        amount: arEnabled ? Number(arAmount) : null,
+                                        monthly_cap: arEnabled ? Number(arCap) : null,
+                                    })}
+                                    className="h-7 px-3 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60"
                                 >
-                                    {cancelLoading ? "Cancelling…" : "Cancel Pro Plan"}
+                                    {arSaving ? "Saving…" : "Save"}
                                 </button>
                             )}
-                        </>
-                    )}
-                </div>
+                        </div>
+                    </div>
+                </>
             )}
         </div>
     );

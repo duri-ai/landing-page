@@ -33,6 +33,8 @@
   --color-divider: var(--divider);
   --color-divider-strong: var(--divider-strong);
   --color-highlight: var(--highlight);
+  --radius-xs: 5px;
+  --radius-sm: 5px;
 }
 
 :root {
@@ -208,7 +210,6 @@
     color: color-mix(in oklch, var(--on-background) 50%, transparent);
   }
 
-  .duri-strike::before,
   .duri-strike::after {
     content: "";
     position: absolute;
@@ -219,14 +220,7 @@
     background-color: #d23a3a;
     border-radius: 999px;
     pointer-events: none;
-  }
-
-  .duri-strike::before {
-    transform: translateY(-50%) rotate(-2.5deg);
-  }
-
-  .duri-strike::after {
-    transform: translateY(-50%) rotate(2.5deg);
+    transform: translateY(-50%);
   }
 }
 
@@ -374,7 +368,7 @@
 
 @keyframes duri-logo-marquee {
   from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(-25%, 0, 0); }
 }
 
 .duri-logo-marquee {

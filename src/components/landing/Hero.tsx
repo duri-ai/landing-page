@@ -17,12 +17,21 @@ export default function Hero() {
             <div className="relative mx-auto max-w-[1280px] px-4 md:px-8 pt-12 md:pt-16 pb-20 md:pb-24">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-10 items-center">
                     <div className="lg:col-span-7">
+                        <div className="inline-flex items-center gap-2 border border-brand rounded-full px-3 py-1 bg-brand-soft mb-6">
+                            <span className="block w-1.5 h-1.5 rounded-full bg-brand animate-pulse flex-none" aria-hidden />
+                            <span className="text-[12px] text-brand font-medium">Mac & Windows desktop app · No code required</span>
+                        </div>
+
                         <h1 className="duri-monument">
-                            <span className="block">Automate your business</span>
+                            <span className="block">Stop copy-pasting.</span>
                             <span className="block">
-                                in <span className="text-brand">plain language</span>.
+                                Let AI <span className="text-brand">do the busywork</span>.
                             </span>
                         </h1>
+
+                        <p className="mt-5 text-[16px] md:text-[18px] text-on-background-secondary max-w-[520px] leading-relaxed">
+                            Duri is a desktop app that connects to Shopify, QuickBooks, Google & M365 and handles your repetitive tasks automatically. No IT team needed.
+                        </p>
 
                         <div className="mt-9 md:mt-12">
                             <div className="flex flex-wrap items-center gap-3">

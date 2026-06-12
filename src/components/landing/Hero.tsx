@@ -63,7 +63,7 @@ export default function Hero() {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-5">
+                    <div className="lg:col-span-5 lg:mt-12">
                         <HeroProductWindow />
                     </div>
                 </div>

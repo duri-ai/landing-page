@@ -44,7 +44,7 @@ export default function CtaBand({ refCallback }: CtaBandProps) {
                                 You've seen what it does.
                             </h2>
                             <p className="mt-4 text-[15px] text-on-brand/75 leading-relaxed max-w-sm">
-                                Install Duri and connect your first tool in under 5 minutes.
+                                Install Duri and connect your first tool.
                             </p>
                         </div>
 
@@ -72,10 +72,6 @@ export default function CtaBand({ refCallback }: CtaBandProps) {
                                 </div>
                             </a>
                         </div>
-
-                        <p className="text-[12.5px] text-on-brand/45">
-                            Free to start · No credit card · Your data stays private
-                        </p>
                     </div>
 
                     {/* Divider */}
@@ -88,7 +84,7 @@ export default function CtaBand({ refCallback }: CtaBandProps) {
                                 Not ready to download?
                             </h3>
                             <p className="mt-3 text-[14.5px] text-on-brand/70 leading-relaxed max-w-sm">
-                                See it live with your own data. We'll walk you through a 20-min demo tailored to your workflow.
+                                We'll walk you through a 20-min demo.
                             </p>
                         </div>
 

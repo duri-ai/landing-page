@@ -281,7 +281,7 @@ export default function AccountPage() {
                 <div className="mx-auto max-w-[640px] px-4 md:px-8 py-14 md:py-20">
                     {/* Profile header */}
                     <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-on-brand text-xl font-medium select-none">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand text-on-brand text-lg font-medium select-none">
                             {initial}
                         </div>
                         <div className="min-w-0">
@@ -503,7 +503,7 @@ function BillingPanel({
                     <p className="text-xs text-on-background-secondary">Current plan</p>
                     <div className="mt-1.5">
                         <span
-                            className={`inline-block text-[10px] font-semibold tracking-wider uppercase rounded-xs px-1.5 py-0.5 border ${
+                            className={`inline-block text-xs font-semibold tracking-wider uppercase rounded-xs px-2 py-1 border ${
                                 isPro
                                     ? "text-brand bg-brand-soft border-brand/30"
                                     : "text-on-background-secondary bg-background border-divider"

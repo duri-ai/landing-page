@@ -49,7 +49,7 @@ export default function AccountPage() {
     const [inviteSent, setInviteSent] = useState(false);
 
     const [checkoutLoading, setCheckoutLoading] = useState<
-        "subscribe" | "recharge" | "setup_pm" | null
+        "subscribe" | "recharge" | null
     >(null);
     const [cancelLoading, setCancelLoading] = useState(false);
     const [arSaving, setArSaving] = useState(false);
@@ -208,19 +208,6 @@ export default function AccountPage() {
         if (data?.url) window.location.href = data.url;
     }
 
-    async function handleSetupPaymentMethod() {
-        if (!org) return;
-        setCheckoutLoading("setup_pm");
-        const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(
-            `${BACKEND}/stripe/payment-method/setup?organization_id=${org.id}`,
-            { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } },
-        );
-        const data = await res.json().catch(() => null);
-        setCheckoutLoading(null);
-        if (data?.url) window.location.href = data.url;
-    }
-
     async function handleSaveAutoReload(patch: {
         enabled: boolean;
         threshold?: number | null;
@@ -319,7 +306,6 @@ export default function AccountPage() {
                                 onCancel={handleCancelSubscription}
                                 onOpenRecharge={() => setShowRecharge(true)}
                                 onOpenAutoReload={() => setShowAutoReload(true)}
-                                onSetupPaymentMethod={handleSetupPaymentMethod}
                             />
                         ) : (
                             <LoadError what="billing" />
@@ -387,16 +373,8 @@ export default function AccountPage() {
                         )}
                     </Section>
 
-                    {/* Account */}
-                    <Section title="Account">
-                        <div className="flex flex-col gap-3">
-                            <Row label="Email" value={email} />
-                            {displayName && <Row label="Name" value={displayName} />}
-                        </div>
-                    </Section>
-
                     {/* Plain destructive actions — no boxed "danger zone" */}
-                    <div className="mt-10 flex flex-col items-start gap-3">
+                    <div className="mt-10 flex flex-col items-start gap-3 border-t border-divider pt-8">
                         {isMember && (
                             <button
                                 type="button"
@@ -429,13 +407,11 @@ export default function AccountPage() {
                 <AutoReloadModal
                     org={org}
                     saving={arSaving}
-                    setupLoading={checkoutLoading === "setup_pm"}
                     onClose={() => setShowAutoReload(false)}
                     onSave={async (patch) => {
                         const ok = await handleSaveAutoReload(patch);
                         if (ok) setShowAutoReload(false);
                     }}
-                    onSetupPaymentMethod={handleSetupPaymentMethod}
                 />
             )}
 
@@ -477,7 +453,7 @@ export default function AccountPage() {
 
 const AR_DEFAULTS = { threshold: 5, amount: 20, monthly_cap: 100 };
 
-type CheckoutKind = "subscribe" | "recharge" | "setup_pm" | null;
+type CheckoutKind = "subscribe" | "recharge" | null;
 
 function BillingPanel({
     org,
@@ -488,7 +464,6 @@ function BillingPanel({
     onCancel,
     onOpenRecharge,
     onOpenAutoReload,
-    onSetupPaymentMethod,
 }: {
     org: OrgData;
     isAdmin: boolean;
@@ -498,7 +473,6 @@ function BillingPanel({
     onCancel: () => void;
     onOpenRecharge: () => void;
     onOpenAutoReload: () => void;
-    onSetupPaymentMethod: () => void;
 }) {
     const isPro = org.pro_plan_active;
     const isEnding = isPro && !!org.subscription_cancel_at;
@@ -510,29 +484,35 @@ function BillingPanel({
 
     const ar = org.auto_reload;
     const arStatus = ar.enabled
-        ? `On · below $${ar.threshold ?? AR_DEFAULTS.threshold}, add $${ar.amount ?? AR_DEFAULTS.amount}`
+        ? `On · below ${ar.threshold ?? AR_DEFAULTS.threshold}, add ${ar.amount ?? AR_DEFAULTS.amount}`
         : "Off";
 
     return (
-        <div className="flex flex-col gap-6">
-            {/* Balance */}
-            <div>
-                <p className="text-xs text-on-background-secondary">Available credit</p>
-                <div className="mt-1 flex items-center gap-2.5">
-                    <span className="text-3xl font-semibold text-on-background tracking-tight">
-                        ${org.credit_usd.toFixed(2)}
-                    </span>
-                    <span
-                        className={`text-[10px] font-semibold tracking-wider uppercase rounded-xs px-1.5 py-0.5 border ${
-                            isPro
-                                ? "text-brand bg-brand-soft border-brand/30"
-                                : "text-on-background-secondary bg-background border-divider"
-                        }`}
-                    >
-                        {isPro ? (isEnding ? `Pro · ends ${endsOn}` : "Pro") : "Free"}
-                    </span>
+        <div className="flex flex-col gap-7">
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-12">
+                {/* Current plan */}
+                <div>
+                    <p className="text-xs text-on-background-secondary">Current plan</p>
+                    <div className="mt-1.5">
+                        <span
+                            className={`inline-block text-[10px] font-semibold tracking-wider uppercase rounded-xs px-1.5 py-0.5 border ${
+                                isPro
+                                    ? "text-brand bg-brand-soft border-brand/30"
+                                    : "text-on-background-secondary bg-background border-divider"
+                            }`}
+                        >
+                            {isPro ? (isEnding ? `Pro · ends ${endsOn}` : "Pro") : "Free"}
+                        </span>
+                    </div>
                 </div>
-                <p className="mt-1.5 text-xs text-on-background-secondary">1 credit = $1 · shared across your organization</p>
+
+                {/* Available credit */}
+                <div>
+                    <p className="text-xs text-on-background-secondary">Available credit</p>
+                    <p className="mt-1 text-3xl font-semibold text-on-background tracking-tight">
+                        {org.credit_usd.toFixed(2)}
+                    </p>
+                </div>
             </div>
 
             {/* Free → upgrade pitch */}
@@ -540,8 +520,7 @@ function BillingPanel({
                 <div className="rounded-md border border-brand/30 bg-brand-soft p-4">
                     <p className="text-sm font-medium text-on-background">Upgrade to Pro</p>
                     <p className="mt-1 text-sm text-on-background-secondary leading-relaxed">
-                        Get $20.00 in credits every month ($15.00 plus a $5.00 bonus), recharge
-                        anytime, and turn on auto-reload so your team never runs out mid-task.
+                        Get 15.00 plus a 5.00 bonus credit every month.
                     </p>
                     <button
                         type="button"
@@ -559,7 +538,7 @@ function BillingPanel({
                 <p className="text-sm text-on-background-secondary">
                     {isEnding
                         ? `Your Pro plan ends on ${endsOn}. You'll keep any remaining credit.`
-                        : "Your Pro plan renews monthly with $20.00 in credits."}
+                        : "Your Pro plan renews monthly."}
                     {!isEnding && (
                         <button
                             type="button"
@@ -573,8 +552,8 @@ function BillingPanel({
                 </p>
             )}
 
-            {/* Admin billing controls */}
-            {isAdmin && (
+            {/* Pro-only billing controls (Stripe collects/manages the card) */}
+            {isAdmin && isPro && (
                 <div className="flex flex-col divide-y divide-divider border-t border-divider">
                     <SettingRow label="Add credit" description="Top up your balance anytime.">
                         <SecondaryButton onClick={onOpenRecharge}>Add credit</SecondaryButton>
@@ -582,19 +561,6 @@ function BillingPanel({
                     <SettingRow label="Auto-reload" description={arStatus}>
                         <SecondaryButton onClick={onOpenAutoReload}>
                             {ar.enabled ? "Edit" : "Set up"}
-                        </SecondaryButton>
-                    </SettingRow>
-                    <SettingRow
-                        label="Payment method"
-                        description={org.has_payment_method ? "A card is on file." : "No card on file."}
-                    >
-                        <SecondaryButton
-                            onClick={onSetupPaymentMethod}
-                            disabled={checkoutLoading !== null}
-                        >
-                            {checkoutLoading === "setup_pm"
-                                ? "Redirecting…"
-                                : org.has_payment_method ? "Change" : "Add card"}
                         </SecondaryButton>
                     </SettingRow>
                 </div>
@@ -619,10 +585,9 @@ function RechargeModal({
     return (
         <Modal title="Add credit" onClose={onClose}>
             <p className="text-sm text-on-background-secondary mb-4">
-                Top up your balance. 1 credit = $1. Minimum $5, maximum $500.
+                Choose how much credit to add. Minimum 5, maximum 500.
             </p>
             <div className="flex items-center gap-2 rounded-xs border border-divider-strong focus-within:border-brand transition-colors px-3 h-11">
-                <span className="text-on-background-secondary text-sm">$</span>
                 <input
                     type="number"
                     min={5}
@@ -633,6 +598,7 @@ function RechargeModal({
                     onChange={(e) => setAmount(e.target.value)}
                     className="flex-1 bg-transparent text-sm text-on-background focus:outline-none"
                 />
+                <span className="text-on-background-secondary text-sm">credits</span>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
                 {[10, 20, 50, 100].map((v) => (
@@ -646,7 +612,7 @@ function RechargeModal({
                                 : "border-divider-strong bg-background text-on-background-secondary hover:text-on-background"
                         }`}
                     >
-                        ${v}
+                        {v}
                     </button>
                 ))}
             </div>
@@ -664,7 +630,7 @@ function RechargeModal({
                     onClick={() => onCharge(num)}
                     className="flex-1 h-10 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                    {loading ? "Redirecting…" : valid ? `Add $${num.toFixed(0)}` : "Add credit"}
+                    {loading ? "Redirecting…" : valid ? `Add ${num.toFixed(0)} credits` : "Add credit"}
                 </button>
             </div>
         </Modal>
@@ -674,14 +640,11 @@ function RechargeModal({
 function AutoReloadModal({
     org,
     saving,
-    setupLoading,
     onClose,
     onSave,
-    onSetupPaymentMethod,
 }: {
     org: OrgData;
     saving: boolean;
-    setupLoading: boolean;
     onClose: () => void;
     onSave: (patch: {
         enabled: boolean;
@@ -689,15 +652,12 @@ function AutoReloadModal({
         amount?: number | null;
         monthly_cap?: number | null;
     }) => void;
-    onSetupPaymentMethod: () => void;
 }) {
     const ar = org.auto_reload;
     const [enabled, setEnabled] = useState(ar.enabled);
     const [threshold, setThreshold] = useState(String(ar.threshold ?? AR_DEFAULTS.threshold));
     const [amount, setAmount] = useState(String(ar.amount ?? AR_DEFAULTS.amount));
     const [cap, setCap] = useState(String(ar.monthly_cap ?? AR_DEFAULTS.monthly_cap));
-
-    const needsCard = enabled && !org.has_payment_method;
 
     return (
         <Modal title="Auto-reload" onClose={onClose}>
@@ -718,34 +678,20 @@ function AutoReloadModal({
             <div className={`mt-5 flex flex-col gap-4 ${enabled ? "" : "opacity-50 pointer-events-none"}`}>
                 <ModalField
                     label="When credit drops below"
-                    prefix="$"
                     value={threshold}
                     onChange={setThreshold}
                 />
                 <ModalField
                     label="Add this much credit"
-                    prefix="$"
                     value={amount}
                     onChange={setAmount}
                 />
                 <ModalField
                     label="Don't spend more than (per month)"
-                    prefix="$"
                     value={cap}
                     onChange={setCap}
                 />
             </div>
-
-            {needsCard && (
-                <div className="mt-5 rounded-xs border border-divider bg-background p-3">
-                    <p className="text-xs text-on-background-secondary mb-2">
-                        Add a card to turn on auto-reload.
-                    </p>
-                    <SecondaryButton onClick={onSetupPaymentMethod} disabled={setupLoading}>
-                        {setupLoading ? "Redirecting…" : "Add card"}
-                    </SecondaryButton>
-                </div>
-            )}
 
             <div className="mt-6 flex gap-3">
                 <button
@@ -757,7 +703,7 @@ function AutoReloadModal({
                 </button>
                 <button
                     type="button"
-                    disabled={saving || needsCard}
+                    disabled={saving}
                     onClick={() => onSave({
                         enabled,
                         threshold: enabled ? Number(threshold) : null,
@@ -775,12 +721,10 @@ function AutoReloadModal({
 
 function ModalField({
     label,
-    prefix,
     value,
     onChange,
 }: {
     label: string;
-    prefix?: string;
     value: string;
     onChange: (v: string) => void;
 }) {
@@ -788,7 +732,6 @@ function ModalField({
         <label className="flex items-center justify-between gap-4">
             <span className="text-sm text-on-background-secondary">{label}</span>
             <div className="flex items-center gap-1 rounded-xs border border-divider-strong focus-within:border-brand transition-colors px-2.5 h-9 w-28">
-                {prefix && <span className="text-on-background-secondary text-sm">{prefix}</span>}
                 <input
                     type="number"
                     min={1}
@@ -877,15 +820,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
             <h2 className="text-sm font-semibold text-on-background mb-5">{title}</h2>
             {children}
         </section>
-    );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex items-center justify-between">
-            <span className="text-sm text-on-background-secondary">{label}</span>
-            <span className="text-sm text-on-background">{value}</span>
-        </div>
     );
 }
 

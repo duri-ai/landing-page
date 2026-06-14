@@ -81,7 +81,7 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                                         onClick={onDemoClick}
                                         className="hidden sm:inline-flex text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
                                     >
-                                        Book a demo
+                                        Contact us
                                     </button>
                                 )}
                                 <button

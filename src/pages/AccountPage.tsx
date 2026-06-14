@@ -54,6 +54,9 @@ export default function AccountPage() {
     const [cancelLoading, setCancelLoading] = useState(false);
     const [arSaving, setArSaving] = useState(false);
 
+    const [showRecharge, setShowRecharge] = useState(false);
+    const [showAutoReload, setShowAutoReload] = useState(false);
+
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
     const [leaveLoading, setLeaveLoading] = useState(false);
     const [leaveError, setLeaveError] = useState<string | null>(null);
@@ -223,8 +226,8 @@ export default function AccountPage() {
         threshold?: number | null;
         amount?: number | null;
         monthly_cap?: number | null;
-    }) {
-        if (!org) return;
+    }): Promise<boolean> {
+        if (!org) return false;
         setArSaving(true);
         const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch(
@@ -240,6 +243,7 @@ export default function AccountPage() {
         );
         if (res.ok) await refetchOrg();
         setArSaving(false);
+        return res.ok;
     }
 
     async function handleCancelSubscription() {
@@ -287,218 +291,214 @@ export default function AccountPage() {
         <>
             <Nav />
             <main className="min-h-[calc(100dvh-60px)] bg-background">
-                <div className="mx-auto max-w-[720px] px-4 md:px-8 py-14 md:py-20">
-                    <div className="flex items-center gap-4 mb-10">
+                <div className="mx-auto max-w-[640px] px-4 md:px-8 py-14 md:py-20">
+                    {/* Profile header */}
+                    <div className="flex items-center gap-4">
                         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-on-brand text-xl font-medium select-none">
                             {initial}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                             {displayName && (
-                                <p className="text-lg font-medium text-on-background">{displayName}</p>
+                                <p className="text-lg font-medium text-on-background truncate">{displayName}</p>
                             )}
-                            <p className="text-sm text-on-background-secondary">{email}</p>
+                            <p className="text-sm text-on-background-secondary truncate">{email}</p>
                         </div>
                     </div>
 
-                    <div className="space-y-4">
+                    {/* Billing & credit */}
+                    <Section title="Billing">
+                        {orgLoading ? (
+                            <Spinner />
+                        ) : org ? (
+                            <BillingPanel
+                                org={org}
+                                isAdmin={isAdmin}
+                                checkoutLoading={checkoutLoading}
+                                cancelLoading={cancelLoading}
+                                onSubscribe={handleSubscribe}
+                                onCancel={handleCancelSubscription}
+                                onOpenRecharge={() => setShowRecharge(true)}
+                                onOpenAutoReload={() => setShowAutoReload(true)}
+                                onSetupPaymentMethod={handleSetupPaymentMethod}
+                            />
+                        ) : (
+                            <LoadError what="billing" />
+                        )}
+                    </Section>
 
-                        {/* Plan section */}
-                        <Section title="Plan">
-                            {orgLoading ? (
-                                <div className="flex items-center justify-center py-4">
-                                    <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+                    {/* Organization */}
+                    <Section title="Organization">
+                        {orgLoading ? (
+                            <Spinner />
+                        ) : org ? (
+                            <div className="flex flex-col gap-6">
+                                <div>
+                                    <p className="text-xs text-on-background-secondary">Name</p>
+                                    <p className="mt-0.5 text-base font-medium text-on-background">{org.name}</p>
                                 </div>
-                            ) : org ? (
-                                <PlanAndTopUp
-                                    org={org}
-                                    isAdmin={isAdmin}
-                                    checkoutLoading={checkoutLoading}
-                                    cancelLoading={cancelLoading}
-                                    arSaving={arSaving}
-                                    onSubscribe={handleSubscribe}
-                                    onCancel={handleCancelSubscription}
-                                    onRecharge={handleRecharge}
-                                    onSetupPaymentMethod={handleSetupPaymentMethod}
-                                    onSaveAutoReload={handleSaveAutoReload}
-                                />
-                            ) : (
-                                <p className="text-sm text-on-background-secondary">
-                                    Could not load plan. <a href="/account" className="text-brand hover:underline">Refresh</a>.
-                                </p>
-                            )}
-                        </Section>
 
-                        {/* Organization section */}
-                        <Section title="Organization">
-                            {orgLoading ? (
-                                <div className="flex items-center justify-center py-4">
-                                    <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
-                                </div>
-                            ) : org ? (
-                                <div className="flex flex-col gap-5">
-                                    <p className="text-sm font-medium text-on-background">{org.name}</p>
-
-                                    <div>
-                                        <p className="text-xs font-medium text-on-background-secondary uppercase tracking-wider mb-3">
-                                            Members
-                                        </p>
-                                        <div className="flex flex-col gap-2">
-                                            {org.members.map((m) => (
-                                                <MemberRow
-                                                    key={m.user_id}
-                                                    userId={m.user_id}
-                                                    name={m.full_name}
-                                                    email={m.email}
-                                                    badge={m.role === "admin" ? "Admin" : "Member"}
-                                                />
-                                            ))}
-                                            {org.members.length === 0 && (
-                                                <p className="text-xs text-on-background-secondary italic">
-                                                    No members yet.
-                                                </p>
-                                            )}
-                                        </div>
+                                <div>
+                                    <p className="text-xs text-on-background-secondary mb-3">
+                                        {org.members.length} {org.members.length === 1 ? "member" : "members"}
+                                    </p>
+                                    <div className="flex flex-col">
+                                        {org.members.map((m) => (
+                                            <MemberRow
+                                                key={m.user_id}
+                                                userId={m.user_id}
+                                                name={m.full_name}
+                                                email={m.email}
+                                                badge={m.role === "admin" ? "Admin" : "Member"}
+                                            />
+                                        ))}
+                                        {org.members.length === 0 && (
+                                            <p className="text-sm text-on-background-secondary italic">No members yet.</p>
+                                        )}
                                     </div>
-
-                                    {isAdmin && (
-                                        <div>
-                                            <p className="text-xs font-medium text-on-background-secondary uppercase tracking-wider mb-3">
-                                                Invite member
-                                            </p>
-                                            <form onSubmit={handleInvite} className="flex gap-2">
-                                                <input
-                                                    type="email"
-                                                    required
-                                                    placeholder="colleague@company.com"
-                                                    value={inviteEmail}
-                                                    onChange={(e) => setInviteEmail(e.target.value)}
-                                                    className="h-9 flex-1 rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
-                                                />
-                                                <button
-                                                    type="submit"
-                                                    disabled={inviteLoading}
-                                                    className="h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
-                                                >
-                                                    {inviteLoading ? "Sending…" : "Send invite"}
-                                                </button>
-                                            </form>
-                                            {inviteSent && (
-                                                <p className="mt-2 text-xs text-brand">Invite sent successfully.</p>
-                                            )}
-                                            {inviteError && (
-                                                <p className="mt-2 text-xs text-red-600">{inviteError}</p>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
-                            ) : (
-                                <p className="text-sm text-on-background-secondary">
-                                    Could not load organization. <a href="/account" className="text-brand hover:underline">Refresh</a>.
-                                </p>
-                            )}
-                        </Section>
 
-                        <Section title="Account">
-                            <div className="flex flex-col gap-3">
-                                <Row label="Email" value={email} />
-                                {displayName && <Row label="Name" value={displayName} />}
-                            </div>
-                        </Section>
-
-                        <Section title="Danger zone">
-                            <div className="flex flex-col gap-3">
-                                {isMember && (
-                                    <button
-                                        type="button"
-                                        onClick={() => { setLeaveError(null); setShowLeaveConfirm(true); }}
-                                        className="text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer text-left"
-                                    >
-                                        Leave organization
-                                    </button>
+                                {isAdmin && (
+                                    <form onSubmit={handleInvite} className="flex flex-col gap-2">
+                                        <p className="text-xs text-on-background-secondary">Invite a teammate</p>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="email"
+                                                required
+                                                placeholder="colleague@company.com"
+                                                value={inviteEmail}
+                                                onChange={(e) => setInviteEmail(e.target.value)}
+                                                className="h-10 flex-1 rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
+                                            />
+                                            <button
+                                                type="submit"
+                                                disabled={inviteLoading}
+                                                className="h-10 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+                                            >
+                                                {inviteLoading ? "Sending…" : "Send invite"}
+                                            </button>
+                                        </div>
+                                        {inviteSent && <p className="text-xs text-brand">Invite sent.</p>}
+                                        {inviteError && <p className="text-xs text-red-600">{inviteError}</p>}
+                                    </form>
                                 )}
-                                <button
-                                    type="button"
-                                    onClick={handleSignOut}
-                                    className="text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer text-left"
-                                >
-                                    Sign out
-                                </button>
                             </div>
-                        </Section>
+                        ) : (
+                            <LoadError what="organization" />
+                        )}
+                    </Section>
+
+                    {/* Account */}
+                    <Section title="Account">
+                        <div className="flex flex-col gap-3">
+                            <Row label="Email" value={email} />
+                            {displayName && <Row label="Name" value={displayName} />}
+                        </div>
+                    </Section>
+
+                    {/* Plain destructive actions — no boxed "danger zone" */}
+                    <div className="mt-10 flex flex-col items-start gap-3">
+                        {isMember && (
+                            <button
+                                type="button"
+                                onClick={() => { setLeaveError(null); setShowLeaveConfirm(true); }}
+                                className="text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer"
+                            >
+                                Leave organization
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            onClick={handleSignOut}
+                            className="text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer"
+                        >
+                            Sign out
+                        </button>
                     </div>
                 </div>
             </main>
 
+            {showRecharge && org && (
+                <RechargeModal
+                    loading={checkoutLoading === "recharge"}
+                    onClose={() => setShowRecharge(false)}
+                    onCharge={handleRecharge}
+                />
+            )}
+
+            {showAutoReload && org && (
+                <AutoReloadModal
+                    org={org}
+                    saving={arSaving}
+                    setupLoading={checkoutLoading === "setup_pm"}
+                    onClose={() => setShowAutoReload(false)}
+                    onSave={async (patch) => {
+                        const ok = await handleSaveAutoReload(patch);
+                        if (ok) setShowAutoReload(false);
+                    }}
+                    onSetupPaymentMethod={handleSetupPaymentMethod}
+                />
+            )}
+
             {showLeaveConfirm && org && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-                    <div className="w-full max-w-[440px] rounded-xs border border-divider bg-background p-6 shadow-lg">
-                        <p className="text-base font-semibold text-on-background mb-2">Leave organization?</p>
-                        <p className="text-sm text-on-background-secondary leading-relaxed mb-4">
-                            You'll lose access to <strong className="text-on-background">{org.name}</strong> and its credit.
-                            You can set up a new organization or accept another invite afterward.
+                <Modal title="Leave organization?" onClose={() => setShowLeaveConfirm(false)}>
+                    <p className="text-sm text-on-background-secondary leading-relaxed mb-4">
+                        You'll lose access to <strong className="text-on-background">{org.name}</strong> and its credit.
+                        You can set up a new organization or accept another invite afterward.
+                    </p>
+                    {leaveError && (
+                        <p className="mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xs px-3 py-2">
+                            {leaveError}
                         </p>
-                        {leaveError && (
-                            <p className="mb-4 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xs px-3 py-2">
-                                {leaveError}
-                            </p>
-                        )}
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                disabled={leaveLoading}
-                                onClick={() => setShowLeaveConfirm(false)}
-                                className="flex-1 h-10 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                disabled={leaveLoading}
-                                onClick={handleLeaveOrganization}
-                                className="flex-1 h-10 rounded-xs border border-red-600 bg-red-600 text-white text-sm font-medium hover:bg-red-700 hover:border-red-700 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {leaveLoading ? "Leaving…" : "Leave"}
-                            </button>
-                        </div>
+                    )}
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            disabled={leaveLoading}
+                            onClick={() => setShowLeaveConfirm(false)}
+                            className="flex-1 h-10 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            disabled={leaveLoading}
+                            onClick={handleLeaveOrganization}
+                            className="flex-1 h-10 rounded-xs border border-red-600 bg-red-600 text-white text-sm font-medium hover:bg-red-700 hover:border-red-700 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            {leaveLoading ? "Leaving…" : "Leave"}
+                        </button>
                     </div>
-                </div>
+                </Modal>
             )}
             <Footer />
         </>
     );
 }
 
-type CheckoutKind = "subscribe" | "recharge" | "setup_pm" | null;
-
 const AR_DEFAULTS = { threshold: 5, amount: 20, monthly_cap: 100 };
 
-function PlanAndTopUp({
+type CheckoutKind = "subscribe" | "recharge" | "setup_pm" | null;
+
+function BillingPanel({
     org,
     isAdmin,
     checkoutLoading,
     cancelLoading,
-    arSaving,
     onSubscribe,
     onCancel,
-    onRecharge,
+    onOpenRecharge,
+    onOpenAutoReload,
     onSetupPaymentMethod,
-    onSaveAutoReload,
 }: {
     org: OrgData;
     isAdmin: boolean;
     checkoutLoading: CheckoutKind;
     cancelLoading: boolean;
-    arSaving: boolean;
     onSubscribe: () => void;
     onCancel: () => void;
-    onRecharge: (amountUsd: number) => void;
+    onOpenRecharge: () => void;
+    onOpenAutoReload: () => void;
     onSetupPaymentMethod: () => void;
-    onSaveAutoReload: (patch: {
-        enabled: boolean;
-        threshold?: number | null;
-        amount?: number | null;
-        monthly_cap?: number | null;
-    }) => void;
 }) {
     const isPro = org.pro_plan_active;
     const isEnding = isPro && !!org.subscription_cancel_at;
@@ -508,166 +508,347 @@ function PlanAndTopUp({
           })
         : null;
 
-    const [rechargeUsd, setRechargeUsd] = useState<string>("20");
-    const rechargeNum = Number(rechargeUsd);
-    const rechargeValid = rechargeNum >= 5 && rechargeNum <= 500;
-
     const ar = org.auto_reload;
-    const [arEnabled, setArEnabled] = useState(ar.enabled);
-    const [arThreshold, setArThreshold] = useState<string>(
-        String(ar.threshold ?? AR_DEFAULTS.threshold),
-    );
-    const [arAmount, setArAmount] = useState<string>(
-        String(ar.amount ?? AR_DEFAULTS.amount),
-    );
-    const [arCap, setArCap] = useState<string>(
-        String(ar.monthly_cap ?? AR_DEFAULTS.monthly_cap),
-    );
-    useEffect(() => {
-        setArEnabled(ar.enabled);
-        setArThreshold(String(ar.threshold ?? AR_DEFAULTS.threshold));
-        setArAmount(String(ar.amount ?? AR_DEFAULTS.amount));
-        setArCap(String(ar.monthly_cap ?? AR_DEFAULTS.monthly_cap));
-    }, [ar.enabled, ar.threshold, ar.amount, ar.monthly_cap]);
-    const arDirty =
-        arEnabled !== ar.enabled ||
-        Number(arThreshold) !== (ar.threshold ?? AR_DEFAULTS.threshold) ||
-        Number(arAmount) !== (ar.amount ?? AR_DEFAULTS.amount) ||
-        Number(arCap) !== (ar.monthly_cap ?? AR_DEFAULTS.monthly_cap);
+    const arStatus = ar.enabled
+        ? `On · below $${ar.threshold ?? AR_DEFAULTS.threshold}, add $${ar.amount ?? AR_DEFAULTS.amount}`
+        : "Off";
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-2">
-                <p className="text-2xl font-semibold text-on-background">
-                    ${org.credit_usd.toFixed(2)}
-                </p>
-                {isPro && (
-                    <span className="text-[10px] font-semibold tracking-wider uppercase text-brand bg-brand-soft border border-brand/30 rounded-xs px-1.5 py-0.5">
-                        {isEnding ? `Pro · ends ${endsOn}` : "Pro"}
+            {/* Balance */}
+            <div>
+                <p className="text-xs text-on-background-secondary">Available credit</p>
+                <div className="mt-1 flex items-center gap-2.5">
+                    <span className="text-3xl font-semibold text-on-background tracking-tight">
+                        ${org.credit_usd.toFixed(2)}
                     </span>
-                )}
+                    <span
+                        className={`text-[10px] font-semibold tracking-wider uppercase rounded-xs px-1.5 py-0.5 border ${
+                            isPro
+                                ? "text-brand bg-brand-soft border-brand/30"
+                                : "text-on-background-secondary bg-background border-divider"
+                        }`}
+                    >
+                        {isPro ? (isEnding ? `Pro · ends ${endsOn}` : "Pro") : "Free"}
+                    </span>
+                </div>
+                <p className="mt-1.5 text-xs text-on-background-secondary">1 credit = $1 · shared across your organization</p>
             </div>
 
-            {isAdmin && (
-                <>
-                    <div className="flex flex-wrap items-center gap-2">
-                        {!isPro && (
-                            <button
-                                type="button"
-                                disabled={checkoutLoading !== null}
-                                onClick={onSubscribe}
-                                className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $20/mo"}
-                            </button>
-                        )}
-                        {isPro && !isEnding && (
-                            <button
-                                type="button"
-                                disabled={cancelLoading}
-                                onClick={onCancel}
-                                className="h-8 px-4 rounded-xs border border-divider-strong bg-background text-on-background-secondary text-xs font-medium hover:border-red-400 hover:text-red-600 transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {cancelLoading ? "Cancelling…" : "Cancel Pro"}
-                            </button>
-                        )}
-                    </div>
+            {/* Free → upgrade pitch */}
+            {isAdmin && !isPro && (
+                <div className="rounded-md border border-brand/30 bg-brand-soft p-4">
+                    <p className="text-sm font-medium text-on-background">Upgrade to Pro</p>
+                    <p className="mt-1 text-sm text-on-background-secondary leading-relaxed">
+                        Get $20.00 in credits every month ($15.00 plus a $5.00 bonus), recharge
+                        anytime, and turn on auto-reload so your team never runs out mid-task.
+                    </p>
+                    <button
+                        type="button"
+                        disabled={checkoutLoading !== null}
+                        onClick={onSubscribe}
+                        className="mt-4 h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $15/mo"}
+                    </button>
+                </div>
+            )}
 
-                    <hr className="border-divider" />
-
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs text-on-background-secondary">Add credit</span>
-                        <span className="text-xs text-on-background-secondary">$</span>
-                        <input
-                            type="number"
-                            min={5}
-                            max={500}
-                            step={1}
-                            value={rechargeUsd}
-                            onChange={(e) => setRechargeUsd(e.target.value)}
-                            className="h-8 w-20 rounded-xs border border-divider-strong bg-background px-2 text-sm text-on-background focus:border-brand transition-colors"
-                        />
+            {/* Pro → status + cancel */}
+            {isAdmin && isPro && (
+                <p className="text-sm text-on-background-secondary">
+                    {isEnding
+                        ? `Your Pro plan ends on ${endsOn}. You'll keep any remaining credit.`
+                        : "Your Pro plan renews monthly with $20.00 in credits."}
+                    {!isEnding && (
                         <button
                             type="button"
-                            disabled={!rechargeValid || checkoutLoading !== null}
-                            onClick={() => onRecharge(rechargeNum)}
-                            className="h-8 px-4 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            disabled={cancelLoading}
+                            onClick={onCancel}
+                            className="ml-2 text-red-600 hover:text-red-700 transition-colors cursor-pointer disabled:opacity-60"
                         >
-                            {checkoutLoading === "recharge" ? "Redirecting…" : "Charge"}
+                            {cancelLoading ? "Cancelling…" : "Cancel"}
                         </button>
-                    </div>
+                    )}
+                </p>
+            )}
 
-                    <div className="flex flex-col gap-3">
-                        <label className="flex items-center gap-2 text-xs text-on-background">
-                            <input
-                                type="checkbox"
-                                checked={arEnabled}
-                                onChange={(e) => setArEnabled(e.target.checked)}
-                                disabled={!org.has_payment_method}
-                            />
-                            Auto-reload
-                            {!org.has_payment_method && (
-                                <span className="text-on-background-secondary">— add a card first</span>
-                            )}
-                        </label>
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-on-background-secondary">
-                            below $
-                            <input
-                                type="number" min={1} step={1}
-                                value={arThreshold}
-                                onChange={(e) => setArThreshold(e.target.value)}
-                                disabled={!arEnabled}
-                                className="h-7 w-16 rounded-xs border border-divider-strong bg-background px-2 disabled:opacity-50"
-                            />
-                            add $
-                            <input
-                                type="number" min={1} step={1}
-                                value={arAmount}
-                                onChange={(e) => setArAmount(e.target.value)}
-                                disabled={!arEnabled}
-                                className="h-7 w-16 rounded-xs border border-divider-strong bg-background px-2 disabled:opacity-50"
-                            />
-                            cap $
-                            <input
-                                type="number" min={1} step={1}
-                                value={arCap}
-                                onChange={(e) => setArCap(e.target.value)}
-                                disabled={!arEnabled}
-                                className="h-7 w-16 rounded-xs border border-divider-strong bg-background px-2 disabled:opacity-50"
-                            />
-                            /mo
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <button
-                                type="button"
-                                disabled={checkoutLoading !== null}
-                                onClick={onSetupPaymentMethod}
-                                className="h-7 px-3 rounded-xs border border-divider-strong bg-background text-on-background text-xs font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer disabled:opacity-60"
-                            >
-                                {checkoutLoading === "setup_pm"
-                                    ? "Redirecting…"
-                                    : org.has_payment_method ? "Change card" : "Add card"}
-                            </button>
-                            {arDirty && (
-                                <button
-                                    type="button"
-                                    disabled={arSaving}
-                                    onClick={() => onSaveAutoReload({
-                                        enabled: arEnabled,
-                                        threshold: arEnabled ? Number(arThreshold) : null,
-                                        amount: arEnabled ? Number(arAmount) : null,
-                                        monthly_cap: arEnabled ? Number(arCap) : null,
-                                    })}
-                                    className="h-7 px-3 rounded-xs border border-brand bg-brand text-on-brand text-xs font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60"
-                                >
-                                    {arSaving ? "Saving…" : "Save"}
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </>
+            {/* Admin billing controls */}
+            {isAdmin && (
+                <div className="flex flex-col divide-y divide-divider border-t border-divider">
+                    <SettingRow label="Add credit" description="Top up your balance anytime.">
+                        <SecondaryButton onClick={onOpenRecharge}>Add credit</SecondaryButton>
+                    </SettingRow>
+                    <SettingRow label="Auto-reload" description={arStatus}>
+                        <SecondaryButton onClick={onOpenAutoReload}>
+                            {ar.enabled ? "Edit" : "Set up"}
+                        </SecondaryButton>
+                    </SettingRow>
+                    <SettingRow
+                        label="Payment method"
+                        description={org.has_payment_method ? "A card is on file." : "No card on file."}
+                    >
+                        <SecondaryButton
+                            onClick={onSetupPaymentMethod}
+                            disabled={checkoutLoading !== null}
+                        >
+                            {checkoutLoading === "setup_pm"
+                                ? "Redirecting…"
+                                : org.has_payment_method ? "Change" : "Add card"}
+                        </SecondaryButton>
+                    </SettingRow>
+                </div>
             )}
         </div>
+    );
+}
+
+function RechargeModal({
+    loading,
+    onClose,
+    onCharge,
+}: {
+    loading: boolean;
+    onClose: () => void;
+    onCharge: (amountUsd: number) => void;
+}) {
+    const [amount, setAmount] = useState("20");
+    const num = Number(amount);
+    const valid = Number.isFinite(num) && num >= 5 && num <= 500;
+
+    return (
+        <Modal title="Add credit" onClose={onClose}>
+            <p className="text-sm text-on-background-secondary mb-4">
+                Top up your balance. 1 credit = $1. Minimum $5, maximum $500.
+            </p>
+            <div className="flex items-center gap-2 rounded-xs border border-divider-strong focus-within:border-brand transition-colors px-3 h-11">
+                <span className="text-on-background-secondary text-sm">$</span>
+                <input
+                    type="number"
+                    min={5}
+                    max={500}
+                    step={1}
+                    autoFocus
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="flex-1 bg-transparent text-sm text-on-background focus:outline-none"
+                />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+                {[10, 20, 50, 100].map((v) => (
+                    <button
+                        key={v}
+                        type="button"
+                        onClick={() => setAmount(String(v))}
+                        className={`h-8 px-3 rounded-xs border text-xs font-medium transition-colors cursor-pointer ${
+                            num === v
+                                ? "border-brand bg-brand-soft text-brand"
+                                : "border-divider-strong bg-background text-on-background-secondary hover:text-on-background"
+                        }`}
+                    >
+                        ${v}
+                    </button>
+                ))}
+            </div>
+            <div className="mt-6 flex gap-3">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 h-10 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    disabled={!valid || loading}
+                    onClick={() => onCharge(num)}
+                    className="flex-1 h-10 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                    {loading ? "Redirecting…" : valid ? `Add $${num.toFixed(0)}` : "Add credit"}
+                </button>
+            </div>
+        </Modal>
+    );
+}
+
+function AutoReloadModal({
+    org,
+    saving,
+    setupLoading,
+    onClose,
+    onSave,
+    onSetupPaymentMethod,
+}: {
+    org: OrgData;
+    saving: boolean;
+    setupLoading: boolean;
+    onClose: () => void;
+    onSave: (patch: {
+        enabled: boolean;
+        threshold?: number | null;
+        amount?: number | null;
+        monthly_cap?: number | null;
+    }) => void;
+    onSetupPaymentMethod: () => void;
+}) {
+    const ar = org.auto_reload;
+    const [enabled, setEnabled] = useState(ar.enabled);
+    const [threshold, setThreshold] = useState(String(ar.threshold ?? AR_DEFAULTS.threshold));
+    const [amount, setAmount] = useState(String(ar.amount ?? AR_DEFAULTS.amount));
+    const [cap, setCap] = useState(String(ar.monthly_cap ?? AR_DEFAULTS.monthly_cap));
+
+    const needsCard = enabled && !org.has_payment_method;
+
+    return (
+        <Modal title="Auto-reload" onClose={onClose}>
+            <p className="text-sm text-on-background-secondary mb-5">
+                Automatically top up when your credit runs low, so work never stops mid-task.
+            </p>
+
+            <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-sm text-on-background">Enable auto-reload</span>
+                <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={(e) => setEnabled(e.target.checked)}
+                    className="h-4 w-4 accent-brand cursor-pointer"
+                />
+            </label>
+
+            <div className={`mt-5 flex flex-col gap-4 ${enabled ? "" : "opacity-50 pointer-events-none"}`}>
+                <ModalField
+                    label="When credit drops below"
+                    prefix="$"
+                    value={threshold}
+                    onChange={setThreshold}
+                />
+                <ModalField
+                    label="Add this much credit"
+                    prefix="$"
+                    value={amount}
+                    onChange={setAmount}
+                />
+                <ModalField
+                    label="Don't spend more than (per month)"
+                    prefix="$"
+                    value={cap}
+                    onChange={setCap}
+                />
+            </div>
+
+            {needsCard && (
+                <div className="mt-5 rounded-xs border border-divider bg-background p-3">
+                    <p className="text-xs text-on-background-secondary mb-2">
+                        Add a card to turn on auto-reload.
+                    </p>
+                    <SecondaryButton onClick={onSetupPaymentMethod} disabled={setupLoading}>
+                        {setupLoading ? "Redirecting…" : "Add card"}
+                    </SecondaryButton>
+                </div>
+            )}
+
+            <div className="mt-6 flex gap-3">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 h-10 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    disabled={saving || needsCard}
+                    onClick={() => onSave({
+                        enabled,
+                        threshold: enabled ? Number(threshold) : null,
+                        amount: enabled ? Number(amount) : null,
+                        monthly_cap: enabled ? Number(cap) : null,
+                    })}
+                    className="flex-1 h-10 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                    {saving ? "Saving…" : "Save"}
+                </button>
+            </div>
+        </Modal>
+    );
+}
+
+function ModalField({
+    label,
+    prefix,
+    value,
+    onChange,
+}: {
+    label: string;
+    prefix?: string;
+    value: string;
+    onChange: (v: string) => void;
+}) {
+    return (
+        <label className="flex items-center justify-between gap-4">
+            <span className="text-sm text-on-background-secondary">{label}</span>
+            <div className="flex items-center gap-1 rounded-xs border border-divider-strong focus-within:border-brand transition-colors px-2.5 h-9 w-28">
+                {prefix && <span className="text-on-background-secondary text-sm">{prefix}</span>}
+                <input
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className="w-full bg-transparent text-sm text-on-background focus:outline-none"
+                />
+            </div>
+        </label>
+    );
+}
+
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+    return (
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+            onClick={onClose}
+        >
+            <div
+                className="w-full max-w-[420px] rounded-md border border-divider bg-background p-6 shadow-lg"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <p className="text-base font-semibold text-on-background mb-4">{title}</p>
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function SettingRow({ label, description, children }: { label: string; description?: string; children: React.ReactNode }) {
+    return (
+        <div className="flex items-center justify-between gap-4 py-3.5">
+            <div className="min-w-0">
+                <p className="text-sm text-on-background">{label}</p>
+                {description && <p className="text-xs text-on-background-secondary mt-0.5 truncate">{description}</p>}
+            </div>
+            <div className="shrink-0">{children}</div>
+        </div>
+    );
+}
+
+function SecondaryButton({
+    onClick,
+    disabled,
+    children,
+}: {
+    onClick: () => void;
+    disabled?: boolean;
+    children: React.ReactNode;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className="h-9 px-4 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium hover:bg-brand-soft hover:border-brand transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+        >
+            {children}
+        </button>
     );
 }
 
@@ -675,7 +856,7 @@ function MemberRow({ name, email, userId, badge }: { name?: string | null; email
     const display = name ?? email ?? userId.slice(0, 8);
     const initial = display.charAt(0).toUpperCase();
     return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 py-2">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand text-xs font-medium select-none">
                 {initial}
             </div>
@@ -692,22 +873,34 @@ function MemberRow({ name, email, userId, badge }: { name?: string | null; email
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
-        <div className="rounded-xs border border-divider bg-background">
-            <div className="border-b border-divider px-5 py-3">
-                <p className="text-xs font-medium text-on-background-secondary uppercase tracking-wider">
-                    {title}
-                </p>
-            </div>
-            <div className="px-5 py-4">{children}</div>
-        </div>
+        <section className="border-t border-divider pt-7 mt-8">
+            <h2 className="text-sm font-semibold text-on-background mb-5">{title}</h2>
+            {children}
+        </section>
     );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-center justify-between">
-            <span className="text-xs text-on-background-secondary">{label}</span>
+            <span className="text-sm text-on-background-secondary">{label}</span>
             <span className="text-sm text-on-background">{value}</span>
         </div>
+    );
+}
+
+function Spinner() {
+    return (
+        <div className="flex items-center justify-center py-4">
+            <div className="h-4 w-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+        </div>
+    );
+}
+
+function LoadError({ what }: { what: string }) {
+    return (
+        <p className="text-sm text-on-background-secondary">
+            Could not load {what}. <a href="/account" className="text-brand hover:underline">Refresh</a>.
+        </p>
     );
 }

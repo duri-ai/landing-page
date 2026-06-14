@@ -20,15 +20,14 @@ const plans: Plan[] = [
         id: "free",
         name: "Free",
         price: "$5",
-        period: "in credits, on us",
-        tagline: "Spin up your organization and explore Duri together.",
+        period: "in credits",
+        tagline: "Spin up your org and see what Duri can automate for you.",
         features: [
             "$5.00 in credits to get you started",
-            "Invite your whole organization",
+            "Invite your team",
             "Credits shared across every member",
-            "1 credit = $1 of usage",
         ],
-        cta: "Get started",
+        cta: "Get started for free",
         highlighted: false,
     },
     {
@@ -40,9 +39,8 @@ const plans: Plan[] = [
         features: [
             "$20.00 in credits added every month",
             "Recharge anytime, or turn on auto-reload",
-            "Invite your whole organization",
+            "Invite your team",
             "Credits shared across every member",
-            "1 credit = $1 of usage",
         ],
         cta: "Upgrade to Pro",
         highlighted: true,
@@ -75,12 +73,12 @@ export default function PricingPage() {
                     <div className="relative mx-auto max-w-[1280px] px-4 md:px-8 pt-14 md:pt-20 pb-6 text-center">
                         <p className="duri-eyebrow mb-4">Pricing</p>
                         <h1 className="duri-monument max-w-2xl mx-auto">
-                            Two plans,<br />
-                            <span className="text-brand">one shared wallet.</span>
+                            One <span className="text-brand">shared wallet</span><br />
+                            for your whole team.
                         </h1>
                         <p className="duri-section-lede mt-5 mx-auto text-center">
-                            Pay only for what you use. Credits are pooled across your whole
-                            organization, and 1 credit is always worth $1.
+                            Pay only for what you use. Credits are pooled across your
+                            organization, and 1 credit is worth $1.
                         </p>
                     </div>
                 </div>
@@ -96,14 +94,6 @@ export default function PricingPage() {
                                         : "border-divider bg-background hover:border-divider-strong"
                                 }`}
                             >
-                                {plan.highlighted && (
-                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                        <span className="inline-block bg-on-background text-background text-xs font-medium px-3 py-1 rounded-xs">
-                                            Most popular
-                                        </span>
-                                    </div>
-                                )}
-
                                 <div className="flex-1">
                                     <p className={`text-sm font-medium uppercase tracking-widest ${plan.highlighted ? "text-on-brand/70" : "text-on-background-secondary"}`}>
                                         {plan.name}

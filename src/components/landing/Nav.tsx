@@ -24,26 +24,13 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                 }`}
         >
             <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-3 md:px-8 md:py-4">
-                <a href="/" aria-label="Duri home" className="inline-flex items-center">
-                    <img
-                        src={`${import.meta.env.BASE_URL}logos/duri.svg`}
-                        className="h-[18px]"
-                        alt="Duri"
-                    />
-                </a>
-
                 <div className="inline-flex items-center gap-1 sm:gap-2">
-                    <a
-                        href="/pricing"
-                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
-                    >
-                        Pricing
-                    </a>
-                    <a
-                        href="/privacy"
-                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
-                    >
-                        Privacy
+                    <a href="/" aria-label="Duri home" className="inline-flex items-center pr-1">
+                        <img
+                            src={`${import.meta.env.BASE_URL}logos/duri.svg`}
+                            className="h-[18px]"
+                            alt="Duri"
+                        />
                     </a>
 
                     <button
@@ -70,7 +57,24 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                             className="h-[18px] w-[18px]"
                         />
                     </a>
+                </div>
 
+                <div className="hidden sm:inline-flex items-center gap-1">
+                    <a
+                        href="/pricing"
+                        className="inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
+                    >
+                        Pricing
+                    </a>
+                    <a
+                        href="/privacy"
+                        className="inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
+                    >
+                        Privacy
+                    </a>
+                </div>
+
+                <div className="inline-flex items-center gap-1 sm:gap-2">
                     {!loading && (
                         user
                             ? <ProfileButton user={user} onSignOut={async () => { await signOut(); navigate("/"); }} />

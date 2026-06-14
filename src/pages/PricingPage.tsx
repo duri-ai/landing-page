@@ -4,13 +4,15 @@ import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
 import { useAuth } from "../contexts/AuthContext";
 
+type Feature = { text: string; sub?: string };
+
 type Plan = {
     id: "free" | "pro";
     name: string;
     price: string;
     period: string;
     tagline: string;
-    features: string[];
+    features: Feature[];
     cta: string;
     highlighted: boolean;
 };
@@ -23,9 +25,9 @@ const plans: Plan[] = [
         period: "in credits",
         tagline: "Spin up your org and see what Duri can automate for you.",
         features: [
-            "$5.00 in credits to get you started",
-            "Invite your team",
-            "Credits shared across every member",
+            { text: "$5.00 in credits to get you started" },
+            { text: "Invite your team" },
+            { text: "Credits shared across every member" },
         ],
         cta: "Get started for free",
         highlighted: false,
@@ -33,16 +35,16 @@ const plans: Plan[] = [
     {
         id: "pro",
         name: "Pro",
-        price: "$20",
-        period: "in credits / month",
+        price: "$15",
+        period: "/ month",
         tagline: "For organizations running real work on Duri.",
         features: [
-            "$20.00 in credits added every month",
-            "Recharge anytime, or turn on auto-reload",
-            "Invite your team",
-            "Credits shared across every member",
+            { text: "$20.00 in credits every month", sub: "$15.00 plus a $5.00 bonus, on us" },
+            { text: "Recharge anytime, or turn on auto-reload", sub: "1 credit is worth $1" },
+            { text: "Invite your team" },
+            { text: "Credits shared across every member" },
         ],
-        cta: "Upgrade to Pro",
+        cta: "Select",
         highlighted: true,
     },
 ];
@@ -78,7 +80,7 @@ export default function PricingPage() {
                         </h1>
                         <p className="duri-section-lede mt-5 mx-auto text-center">
                             Pay only for what you use. Credits are pooled across your
-                            organization, and 1 credit is worth $1.
+                            organization.
                         </p>
                     </div>
                 </div>
@@ -112,12 +114,19 @@ export default function PricingPage() {
 
                                     <ul className="mt-7 space-y-3">
                                         {plan.features.map((feature) => (
-                                            <li key={feature} className="flex items-start gap-2.5">
+                                            <li key={feature.text} className="flex items-start gap-2.5">
                                                 <CheckIcon
                                                     className={`w-4 h-4 mt-0.5 shrink-0 ${plan.highlighted ? "text-on-brand" : "text-brand"}`}
                                                 />
-                                                <span className={`text-sm ${plan.highlighted ? "text-on-brand/90" : "text-on-background"}`}>
-                                                    {feature}
+                                                <span className="flex flex-col">
+                                                    <span className={`text-sm ${plan.highlighted ? "text-on-brand/90" : "text-on-background"}`}>
+                                                        {feature.text}
+                                                    </span>
+                                                    {feature.sub && (
+                                                        <span className={`text-xs mt-0.5 ${plan.highlighted ? "text-on-brand/60" : "text-on-background-secondary"}`}>
+                                                            {feature.sub}
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </li>
                                         ))}

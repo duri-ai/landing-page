@@ -32,73 +32,75 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                     />
                 </a>
 
-                <button
-                    type="button"
-                    aria-label="Duri on Discord"
-                    className="inline-flex items-center justify-center px-2 py-2 opacity-80 hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-                >
-                    <img
-                        src={`${import.meta.env.BASE_URL}logos/discord.svg`}
-                        alt=""
-                        className="h-[18px] w-[18px]"
-                    />
-                </button>
-                <a
-                    href="https://www.reddit.com/r/Duri/?screen_view_count=4"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Duri on Reddit"
-                    className="inline-flex items-center justify-center px-2 py-2 opacity-80 hover:opacity-100 transition-opacity duration-200"
-                >
-                    <img
-                        src={`${import.meta.env.BASE_URL}logos/reddit.svg`}
-                        alt=""
-                        className="h-[18px] w-[18px]"
-                    />
-                </a>
+                <div className="inline-flex items-center gap-1 sm:gap-2">
+                    <a
+                        href="/pricing"
+                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
+                    >
+                        Pricing
+                    </a>
+                    <a
+                        href="/privacy"
+                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
+                    >
+                        Privacy
+                    </a>
 
-                <a
-                    href="/pricing"
-                    className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
-                >
-                    Pricing
-                </a>
-                <a
-                    href="/privacy"
-                    className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
-                >
-                    Privacy
-                </a>
+                    <button
+                        type="button"
+                        aria-label="Duri on Discord"
+                        className="inline-flex items-center justify-center px-2 py-2 opacity-80 hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                    >
+                        <img
+                            src={`${import.meta.env.BASE_URL}logos/discord.svg`}
+                            alt=""
+                            className="h-[18px] w-[18px]"
+                        />
+                    </button>
+                    <a
+                        href="https://www.reddit.com/r/Duri/?screen_view_count=4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Duri on Reddit"
+                        className="inline-flex items-center justify-center px-2 py-2 opacity-80 hover:opacity-100 transition-opacity duration-200"
+                    >
+                        <img
+                            src={`${import.meta.env.BASE_URL}logos/reddit.svg`}
+                            alt=""
+                            className="h-[18px] w-[18px]"
+                        />
+                    </a>
 
-                {!loading && (
-                    user
-                        ? <ProfileButton user={user} onSignOut={async () => { await signOut(); navigate("/"); }} />
-                        : <>
-                            {onDemoClick && (
+                    {!loading && (
+                        user
+                            ? <ProfileButton user={user} onSignOut={async () => { await signOut(); navigate("/"); }} />
+                            : <>
+                                {onDemoClick && (
+                                    <button
+                                        type="button"
+                                        onClick={onDemoClick}
+                                        className="hidden sm:inline-flex text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
+                                    >
+                                        Book a demo
+                                    </button>
+                                )}
                                 <button
                                     type="button"
-                                    onClick={onDemoClick}
-                                    className="hidden sm:inline-flex text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
+                                    onClick={() => navigate("/login")}
+                                    className="text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-sm leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer"
                                 >
-                                    Book a demo
+                                    Sign in
                                 </button>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => navigate("/login")}
-                                className="text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-sm leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer"
-                            >
-                                Sign in
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => navigate("/signup")}
-                                className="text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer"
-                            >
-                                Create account
-                            </button>
-                        </>
-                )}
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/signup")}
+                                    className="text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer"
+                                >
+                                    Create account
+                                </button>
+                            </>
+                    )}
+                </div>
             </div>
         </nav>
     );

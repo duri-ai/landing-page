@@ -1,20 +1,10 @@
 import { Link } from "react-router-dom";
+import Nav from "../components/landing/Nav";
 
 function PrivacyPolicy() {
     return (
         <div className="min-h-screen bg-background text-on-background">
-            <nav className="bg-background sticky w-full z-20 top-0 border-b border-divider min-w-xs">
-                <div className="flex items-center justify-between p-4 md:py-0 md:px-8">
-                    <Link to="/">
-                        <img src={`${import.meta.env.BASE_URL}logos/duri.svg`} className="h-5" alt="Duri Text Logo" />
-                    </Link>
-                    <div className="inline-flex items-center gap-3 md:py-4" aria-hidden="true">
-                        <span className="invisible box-border border-2 border-transparent font-normal leading-5 rounded-xs text-sm px-3 py-[5px] md:px-5 md:py-2.5 select-none">
-                            Request a Demo
-                        </span>
-                    </div>
-                </div>
-            </nav>
+            <Nav />
 
             <main className="max-w-3xl mx-auto px-[24px] py-[48px]">
                 <h1 className="text-3xl font-bold mb-[8px]">Privacy Policy</h1>

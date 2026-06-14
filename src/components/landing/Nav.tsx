@@ -2,11 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-type NavProps = {
-    onDemoClick?: () => void;
-};
-
-export default function Nav({ onDemoClick }: NavProps = {}) {
+export default function Nav() {
     const [scrolled, setScrolled] = useState(false);
     const { user, loading, signOut } = useAuth();
     const navigate = useNavigate();
@@ -70,16 +66,6 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                     >
                         Privacy
                     </a>
-
-                    {onDemoClick && (
-                        <button
-                            type="button"
-                            onClick={onDemoClick}
-                            className="hidden sm:inline-flex text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
-                        >
-                            Contact us
-                        </button>
-                    )}
 
                     {!loading && (
                         user

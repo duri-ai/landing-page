@@ -12,13 +12,9 @@ import Footer from "../components/landing/Footer";
 export default function LandingPage() {
     const ctaRef = useRef<HTMLElement | null>(null);
 
-    const scrollToDemo = () => {
-        ctaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    };
-
     return (
         <>
-            <Nav onDemoClick={scrollToDemo} />
+            <Nav />
             <main>
                 <Hero />
                 <Integrations />

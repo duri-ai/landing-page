@@ -34,6 +34,22 @@ type OrgData = {
     seat_count: number;
 };
 
+type MemberUsage = {
+    user_id: string;
+    email?: string | null;
+    full_name?: string | null;
+    role: "admin" | "member";
+    cost_usd: number;
+    runs: number;
+    last_used_at: string | null;
+};
+
+type UsageData = {
+    members: MemberUsage[];
+    total_cost_usd: number;
+    days: number | null;
+};
+
 const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
 
 export default function AccountPage() {
@@ -56,6 +72,7 @@ export default function AccountPage() {
 
     const [showRecharge, setShowRecharge] = useState(false);
     const [showAutoReload, setShowAutoReload] = useState(false);
+    const [showUsage, setShowUsage] = useState(false);
 
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
     const [leaveLoading, setLeaveLoading] = useState(false);
@@ -324,9 +341,20 @@ export default function AccountPage() {
                                 </div>
 
                                 <div>
-                                    <p className="text-xs text-on-background-secondary mb-3">
-                                        {org.members.length} {org.members.length === 1 ? "member" : "members"}
-                                    </p>
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <p className="text-xs text-on-background-secondary">
+                                            {org.members.length} {org.members.length === 1 ? "member" : "members"}
+                                        </p>
+                                        {isAdmin && org.members.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowUsage(true)}
+                                                className="text-xs text-brand hover:text-brand-variant transition-colors cursor-pointer"
+                                            >
+                                                View usage
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="flex flex-col">
                                         {org.members.map((m) => (
                                             <MemberRow
@@ -413,6 +441,10 @@ export default function AccountPage() {
                         if (ok) setShowAutoReload(false);
                     }}
                 />
+            )}
+
+            {showUsage && org && (
+                <UsageModal orgId={org.id} onClose={() => setShowUsage(false)} />
             )}
 
             {showLeaveConfirm && org && (
@@ -745,14 +777,14 @@ function ModalField({
     );
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: React.ReactNode; wide?: boolean }) {
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
             onClick={onClose}
         >
             <div
-                className="w-full max-w-[420px] rounded-md border border-divider bg-background p-6 shadow-lg"
+                className={`w-full ${wide ? "max-w-[520px]" : "max-w-[420px]"} max-h-[85vh] overflow-y-auto rounded-md border border-divider bg-background p-6 shadow-lg`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <p className="text-base font-semibold text-on-background mb-4">{title}</p>
@@ -792,6 +824,86 @@ function SecondaryButton({
         >
             {children}
         </button>
+    );
+}
+
+function UsageModal({ orgId, onClose }: { orgId: number; onClose: () => void }) {
+    const [data, setData] = useState<UsageData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        let active = true;
+        (async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            const res = await fetch(`${BACKEND}/organizations/${orgId}/usage`, {
+                headers: { Authorization: `Bearer ${session?.access_token}` },
+            });
+            if (!active) return;
+            if (!res.ok) {
+                setError("Couldn't load usage.");
+            } else {
+                setData(await res.json());
+            }
+            setLoading(false);
+        })();
+        return () => { active = false; };
+    }, [orgId]);
+
+    const max = data && data.members.length
+        ? Math.max(...data.members.map((m) => m.cost_usd), 0.0001)
+        : 1;
+
+    return (
+        <Modal title="Member usage" onClose={onClose} wide>
+            {loading ? (
+                <Spinner />
+            ) : error ? (
+                <p className="text-sm text-red-600">{error}</p>
+            ) : data && data.members.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-baseline justify-between">
+                        <p className="text-xs text-on-background-secondary">Credit consumed per member</p>
+                        <p className="text-sm font-medium text-on-background tabular-nums">
+                            {data.total_cost_usd.toFixed(2)} total
+                        </p>
+                    </div>
+                    <div className="flex flex-col divide-y divide-divider">
+                        {data.members.map((m) => {
+                            const label = m.full_name ?? m.email ?? m.user_id.slice(0, 8);
+                            const pct = m.cost_usd > 0 ? Math.max(3, (m.cost_usd / max) * 100) : 0;
+                            return (
+                                <div key={m.user_id} className="py-2.5">
+                                    <div className="mb-1.5 flex items-center justify-between gap-3">
+                                        <span className="truncate text-sm text-on-background">
+                                            {label}
+                                            {m.role === "admin" && (
+                                                <span className="ml-2 text-[10px] uppercase tracking-wider text-on-background-secondary">
+                                                    admin
+                                                </span>
+                                            )}
+                                        </span>
+                                        <span className="shrink-0 text-sm font-medium text-on-background tabular-nums">
+                                            {m.cost_usd.toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-divider/60">
+                                        <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
+                                    </div>
+                                    <p className="mt-1 text-[11px] text-on-background-secondary">
+                                        {m.runs} {m.runs === 1 ? "run" : "runs"}
+                                        {m.last_used_at &&
+                                            ` · last ${new Date(m.last_used_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`}
+                                    </p>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            ) : (
+                <p className="text-sm italic text-on-background-secondary">No usage yet.</p>
+            )}
+        </Modal>
     );
 }
 

@@ -29,29 +29,19 @@ export default function Nav() {
                 </a>
 
                 <div className="inline-flex items-center gap-1 sm:gap-2">
-                    <button
-                        type="button"
-                        aria-label="Duri on Discord"
-                        className="inline-flex items-center justify-center px-2 py-2 opacity-80 hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-                    >
-                        <img
-                            src={`${import.meta.env.BASE_URL}logos/discord.svg`}
-                            alt=""
-                            className="h-[18px] w-[18px]"
-                        />
-                    </button>
                     <a
                         href="https://www.reddit.com/r/Duri/?screen_view_count=4"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Duri on Reddit"
-                        className="inline-flex items-center justify-center px-2 py-2 opacity-80 hover:opacity-100 transition-opacity duration-200"
+                        className="inline-flex items-center gap-1.5 px-2 py-2 text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium opacity-80 hover:opacity-100 transition-all duration-200"
                     >
                         <img
                             src={`${import.meta.env.BASE_URL}logos/reddit.svg`}
                             alt=""
                             className="h-[18px] w-[18px]"
                         />
+                        <span className="hidden sm:inline">r/Duri</span>
                     </a>
 
                     <a

@@ -33,19 +33,6 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                 </a>
 
                 <div className="inline-flex items-center gap-1 sm:gap-2">
-                    <a
-                        href="/pricing"
-                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
-                    >
-                        Pricing
-                    </a>
-                    <a
-                        href="/privacy"
-                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
-                    >
-                        Privacy
-                    </a>
-
                     <button
                         type="button"
                         aria-label="Duri on Discord"
@@ -69,6 +56,19 @@ export default function Nav({ onDemoClick }: NavProps = {}) {
                             alt=""
                             className="h-[18px] w-[18px]"
                         />
+                    </a>
+
+                    <a
+                        href="/pricing"
+                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
+                    >
+                        Pricing
+                    </a>
+                    <a
+                        href="/privacy"
+                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200"
+                    >
+                        Privacy
                     </a>
 
                     {!loading && (

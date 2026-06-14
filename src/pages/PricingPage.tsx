@@ -4,7 +4,7 @@ import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
 import { useAuth } from "../contexts/AuthContext";
 
-type Feature = { text: string; sub?: string };
+type Feature = { text: string; subs?: string[] };
 
 type Plan = {
     id: "free" | "pro";
@@ -27,7 +27,7 @@ const plans: Plan[] = [
         features: [
             { text: "$5.00 in credits to get you started" },
             { text: "Invite your team" },
-            { text: "Credits shared across every member" },
+            { text: "Credits shared across every member in the organization" },
         ],
         cta: "Get started for free",
         highlighted: false,
@@ -39,10 +39,16 @@ const plans: Plan[] = [
         period: "/ month",
         tagline: "For organizations running real work on Duri.",
         features: [
-            { text: "$20.00 in credits every month", sub: "$15.00 plus a $5.00 bonus, on us" },
-            { text: "Recharge anytime, or turn on auto-reload", sub: "1 credit is worth $1" },
+            {
+                text: "20.00 in credits every month",
+                subs: [
+                    "15.00 plus a 5.00 bonus credit",
+                    "1 credit is worth $1",
+                    "Recharge anytime, or turn on auto-reload",
+                ],
+            },
             { text: "Invite your team" },
-            { text: "Credits shared across every member" },
+            { text: "Credits shared across every member in the organization" },
         ],
         cta: "Select",
         highlighted: true,
@@ -75,12 +81,11 @@ export default function PricingPage() {
                     <div className="relative mx-auto max-w-[1280px] px-4 md:px-8 pt-14 md:pt-20 pb-6 text-center">
                         <p className="duri-eyebrow mb-4">Pricing</p>
                         <h1 className="duri-monument max-w-2xl mx-auto">
-                            One <span className="text-brand">shared wallet</span><br />
+                            One <span className="text-brand">shared credit</span><br />
                             for your whole team.
                         </h1>
                         <p className="duri-section-lede mt-5 mx-auto text-center">
-                            Pay only for what you use. Credits are pooled across your
-                            organization.
+                            Pay only for what you use.
                         </p>
                     </div>
                 </div>
@@ -122,11 +127,14 @@ export default function PricingPage() {
                                                     <span className={`text-sm ${plan.highlighted ? "text-on-brand/90" : "text-on-background"}`}>
                                                         {feature.text}
                                                     </span>
-                                                    {feature.sub && (
-                                                        <span className={`text-xs mt-0.5 ${plan.highlighted ? "text-on-brand/60" : "text-on-background-secondary"}`}>
-                                                            {feature.sub}
+                                                    {feature.subs?.map((sub) => (
+                                                        <span
+                                                            key={sub}
+                                                            className={`text-xs mt-0.5 ${plan.highlighted ? "text-on-brand/60" : "text-on-background-secondary"}`}
+                                                        >
+                                                            {sub}
                                                         </span>
-                                                    )}
+                                                    ))}
                                                 </span>
                                             </li>
                                         ))}

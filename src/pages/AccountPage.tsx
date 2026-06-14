@@ -67,7 +67,7 @@ export default function AccountPage() {
     const [checkoutLoading, setCheckoutLoading] = useState<
         "subscribe" | "recharge" | null
     >(null);
-    const [cancelLoading, setCancelLoading] = useState(false);
+    const [portalLoading, setPortalLoading] = useState(false);
     const [arSaving, setArSaving] = useState(false);
 
     const [showRecharge, setShowRecharge] = useState(false);
@@ -250,16 +250,20 @@ export default function AccountPage() {
         return res.ok;
     }
 
-    async function handleCancelSubscription() {
+    async function handleManageSubscription() {
         if (!org) return;
-        setCancelLoading(true);
+        setPortalLoading(true);
         const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch(
-            `${BACKEND}/stripe/subscription?organization_id=${org.id}`,
-            { method: "DELETE", headers: { Authorization: `Bearer ${session?.access_token}` } },
+            `${BACKEND}/stripe/portal?organization_id=${org.id}`,
+            { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } },
         );
-        if (res.ok) await refetchOrg();
-        setCancelLoading(false);
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.url) {
+            window.location.href = data.url;
+        } else {
+            setPortalLoading(false);
+        }
     }
 
     async function handleLeaveOrganization() {
@@ -318,9 +322,9 @@ export default function AccountPage() {
                                 org={org}
                                 isAdmin={isAdmin}
                                 checkoutLoading={checkoutLoading}
-                                cancelLoading={cancelLoading}
+                                portalLoading={portalLoading}
                                 onSubscribe={handleSubscribe}
-                                onCancel={handleCancelSubscription}
+                                onManageSubscription={handleManageSubscription}
                                 onOpenRecharge={() => setShowRecharge(true)}
                                 onOpenAutoReload={() => setShowAutoReload(true)}
                             />
@@ -491,18 +495,18 @@ function BillingPanel({
     org,
     isAdmin,
     checkoutLoading,
-    cancelLoading,
+    portalLoading,
     onSubscribe,
-    onCancel,
+    onManageSubscription,
     onOpenRecharge,
     onOpenAutoReload,
 }: {
     org: OrgData;
     isAdmin: boolean;
     checkoutLoading: CheckoutKind;
-    cancelLoading: boolean;
+    portalLoading: boolean;
     onSubscribe: () => void;
-    onCancel: () => void;
+    onManageSubscription: () => void;
     onOpenRecharge: () => void;
     onOpenAutoReload: () => void;
 }) {
@@ -565,28 +569,17 @@ function BillingPanel({
                 </div>
             )}
 
-            {/* Pro → status + cancel */}
-            {isAdmin && isPro && (
-                <p className="text-sm text-on-background-secondary">
-                    {isEnding
-                        ? `Your Pro plan ends on ${endsOn}. You'll keep any remaining credit.`
-                        : "Your Pro plan renews monthly."}
-                    {!isEnding && (
-                        <button
-                            type="button"
-                            disabled={cancelLoading}
-                            onClick={onCancel}
-                            className="ml-2 text-red-600 hover:text-red-700 transition-colors cursor-pointer disabled:opacity-60"
-                        >
-                            {cancelLoading ? "Cancelling…" : "Cancel"}
-                        </button>
-                    )}
-                </p>
-            )}
-
-            {/* Pro-only billing controls (Stripe collects/manages the card) */}
+            {/* Pro-only billing controls (Stripe manages the card, subscription, and invoices) */}
             {isAdmin && isPro && (
                 <div className="flex flex-col divide-y divide-divider border-t border-divider">
+                    <SettingRow
+                        label="Subscription"
+                        description={isEnding ? `Ends ${endsOn} · you keep remaining credit` : "Renews monthly"}
+                    >
+                        <SecondaryButton onClick={onManageSubscription} disabled={portalLoading}>
+                            {portalLoading ? "Opening…" : "Manage"}
+                        </SecondaryButton>
+                    </SettingRow>
                     <SettingRow label="Add credit" description="Top up your balance anytime.">
                         <SecondaryButton onClick={onOpenRecharge}>Add credit</SecondaryButton>
                     </SettingRow>
@@ -784,10 +777,20 @@ function Modal({ title, onClose, children, wide }: { title: string; onClose: () 
             onClick={onClose}
         >
             <div
-                className={`w-full ${wide ? "max-w-[520px]" : "max-w-[420px]"} max-h-[85vh] overflow-y-auto rounded-md border border-divider bg-background p-6 shadow-lg`}
+                className={`relative w-full ${wide ? "max-w-[520px]" : "max-w-[420px]"} max-h-[85vh] overflow-y-auto rounded-md border border-divider bg-background p-6 shadow-lg`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <p className="text-base font-semibold text-on-background mb-4">{title}</p>
+                <button
+                    type="button"
+                    aria-label="Close"
+                    onClick={onClose}
+                    className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-xs text-on-background-secondary hover:bg-brand-soft hover:text-on-background transition-colors cursor-pointer"
+                >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                </button>
+                <p className="text-base font-semibold text-on-background mb-4 pr-8">{title}</p>
                 {children}
             </div>
         </div>
@@ -827,82 +830,116 @@ function SecondaryButton({
     );
 }
 
+const USAGE_RANGES: { label: string; days: number | null }[] = [
+    { label: "30d", days: 30 },
+    { label: "60d", days: 60 },
+    { label: "90d", days: 90 },
+    { label: "All", days: null },
+];
+
 function UsageModal({ orgId, onClose }: { orgId: number; onClose: () => void }) {
     const [data, setData] = useState<UsageData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [days, setDays] = useState<number | null>(30);
 
     useEffect(() => {
         let active = true;
+        setLoading(true);
+        setError(null);
         (async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            const res = await fetch(`${BACKEND}/organizations/${orgId}/usage`, {
+            const url = days == null
+                ? `${BACKEND}/organizations/${orgId}/usage`
+                : `${BACKEND}/organizations/${orgId}/usage?days=${days}`;
+            const res = await fetch(url, {
                 headers: { Authorization: `Bearer ${session?.access_token}` },
             });
             if (!active) return;
             if (!res.ok) {
                 setError("Couldn't load usage.");
+                setData(null);
             } else {
                 setData(await res.json());
             }
             setLoading(false);
         })();
         return () => { active = false; };
-    }, [orgId]);
+    }, [orgId, days]);
 
     const max = data && data.members.length
         ? Math.max(...data.members.map((m) => m.cost_usd), 0.0001)
         : 1;
+    const hasUsage = !!data && data.members.some((m) => m.cost_usd > 0);
 
     return (
         <Modal title="Member usage" onClose={onClose} wide>
-            {loading ? (
-                <Spinner />
-            ) : error ? (
-                <p className="text-sm text-red-600">{error}</p>
-            ) : data && data.members.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-baseline justify-between">
-                        <p className="text-xs text-on-background-secondary">Credit consumed per member</p>
-                        <p className="text-sm font-medium text-on-background tabular-nums">
-                            {data.total_cost_usd.toFixed(2)} total
-                        </p>
-                    </div>
-                    <div className="flex flex-col divide-y divide-divider">
-                        {data.members.map((m) => {
-                            const label = m.full_name ?? m.email ?? m.user_id.slice(0, 8);
-                            const pct = m.cost_usd > 0 ? Math.max(3, (m.cost_usd / max) * 100) : 0;
-                            return (
-                                <div key={m.user_id} className="py-2.5">
-                                    <div className="mb-1.5 flex items-center justify-between gap-3">
-                                        <span className="truncate text-sm text-on-background">
-                                            {label}
-                                            {m.role === "admin" && (
-                                                <span className="ml-2 text-[10px] uppercase tracking-wider text-on-background-secondary">
-                                                    admin
-                                                </span>
-                                            )}
-                                        </span>
-                                        <span className="shrink-0 text-sm font-medium text-on-background tabular-nums">
-                                            {m.cost_usd.toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-divider/60">
-                                        <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
-                                    </div>
-                                    <p className="mt-1 text-[11px] text-on-background-secondary">
-                                        {m.runs} {m.runs === 1 ? "run" : "runs"}
-                                        {m.last_used_at &&
-                                            ` · last ${new Date(m.last_used_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`}
-                                    </p>
-                                </div>
-                            );
-                        })}
-                    </div>
+            <div className="flex flex-col gap-4">
+                <div className="inline-flex self-start rounded-xs border border-divider p-0.5">
+                    {USAGE_RANGES.map((r) => (
+                        <button
+                            key={r.label}
+                            type="button"
+                            onClick={() => setDays(r.days)}
+                            className={`px-2.5 py-1 rounded-xs text-xs transition-colors cursor-pointer ${
+                                days === r.days
+                                    ? "bg-brand-soft text-brand font-medium"
+                                    : "text-on-background-secondary hover:text-on-background"
+                            }`}
+                        >
+                            {r.label}
+                        </button>
+                    ))}
                 </div>
-            ) : (
-                <p className="text-sm italic text-on-background-secondary">No usage yet.</p>
-            )}
+
+                {loading ? (
+                    <Spinner />
+                ) : error ? (
+                    <p className="text-sm text-red-600">{error}</p>
+                ) : hasUsage && data ? (
+                    <>
+                        <div className="flex items-baseline justify-between">
+                            <p className="text-xs text-on-background-secondary">Credit consumed per member</p>
+                            <p className="text-sm font-medium text-on-background tabular-nums">
+                                {data.total_cost_usd.toFixed(2)} total
+                            </p>
+                        </div>
+                        <div className="flex flex-col divide-y divide-divider">
+                            {data.members.map((m) => {
+                                const label = m.full_name ?? m.email ?? m.user_id.slice(0, 8);
+                                const pct = m.cost_usd > 0 ? Math.max(3, (m.cost_usd / max) * 100) : 0;
+                                return (
+                                    <div key={m.user_id} className="py-2.5">
+                                        <div className="mb-1.5 flex items-center justify-between gap-3">
+                                            <span className="truncate text-sm text-on-background">
+                                                {label}
+                                                {m.role === "admin" && (
+                                                    <span className="ml-2 text-[10px] uppercase tracking-wider text-on-background-secondary">
+                                                        admin
+                                                    </span>
+                                                )}
+                                            </span>
+                                            <span className="shrink-0 text-sm font-medium text-on-background tabular-nums">
+                                                {m.cost_usd.toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-divider/60">
+                                            <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
+                                        </div>
+                                        <p className="mt-1 text-[11px] text-on-background-secondary">
+                                            {m.runs} {m.runs === 1 ? "run" : "runs"}
+                                            {m.last_used_at &&
+                                                ` · last ${new Date(m.last_used_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`}
+                                        </p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </>
+                ) : (
+                    <p className="text-sm italic text-on-background-secondary">No usage in this period.</p>
+                )}
+            </div>
         </Modal>
     );
 }

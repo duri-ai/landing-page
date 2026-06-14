@@ -1,13 +1,11 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckIcon } from "lucide-react";
 import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
 import { useAuth } from "../contexts/AuthContext";
-import { supabase } from "../utils/supabase";
 
 type Plan = {
-    id: string;
+    id: "free" | "pro";
     name: string;
     price: string;
     period: string;
@@ -21,86 +19,49 @@ const plans: Plan[] = [
     {
         id: "free",
         name: "Free",
-        price: "$0",
-        period: "forever",
-        tagline: "Try it out at your own pace.",
+        price: "$5",
+        period: "in credits, on us",
+        tagline: "Spin up your organization and explore Duri together.",
         features: [
-            "5 automation runs per month",
-            "1 integration",
-            "Basic scheduling",
-            "Community support",
-        ],
-        cta: "Get started free",
-        highlighted: false,
-    },
-    {
-        id: "team",
-        name: "Team",
-        price: "$29",
-        period: "per user / month",
-        tagline: "For teams ready to run their operations on Duri.",
-        features: [
-            "Unlimited automation runs",
-            "All integrations",
-            "Full scheduling and reporting",
-            "Email support",
-            "Shared playbook library",
+            "$5.00 in credits to get you started",
+            "Invite your whole organization",
+            "Credits shared across every member",
+            "1 credit = $1 of usage",
         ],
         cta: "Get started",
-        highlighted: true,
-    },
-    {
-        id: "enterprise",
-        name: "Enterprise",
-        price: "Custom",
-        period: "contact us",
-        tagline: "For larger organizations with custom needs.",
-        features: [
-            "Everything in Team",
-            "Dedicated onboarding",
-            "Priority support with SLA",
-            "SSO and access controls",
-            "Custom integrations",
-        ],
-        cta: "Contact us",
         highlighted: false,
     },
+    {
+        id: "pro",
+        name: "Pro",
+        price: "$20",
+        period: "in credits / month",
+        tagline: "For organizations running real work on Duri.",
+        features: [
+            "$20.00 in credits added every month",
+            "Recharge anytime, or turn on auto-reload",
+            "Invite your whole organization",
+            "Credits shared across every member",
+            "1 credit = $1 of usage",
+        ],
+        cta: "Upgrade to Pro",
+        highlighted: true,
+    },
 ];
-
-// Maps user role → the pricing card that represents it
-const ROLE_TO_PLAN: Record<string, string> = {
-    free: "free",
-    admin: "team",
-};
-
-// Maps pricing card → the role that will be stored
-const PLAN_TO_ROLE: Record<string, "free" | "admin"> = {
-    free: "free",
-    team: "admin",
-};
 
 export default function PricingPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const role = user?.user_metadata?.role as string | undefined;
-    const currentPlanId = role ? (ROLE_TO_PLAN[role] ?? null) : null;
-    const [updating, setUpdating] = useState<string | null>(null);
 
-    async function handlePlanChange(planId: string) {
-        const newRole = PLAN_TO_ROLE[planId];
-        if (!newRole || !user) return;
-        setUpdating(planId);
-        await supabase.auth.updateUser({ data: { role: newRole } });
-        setUpdating(null);
-    }
+    const handleCta = () => {
+        navigate(user ? "/account" : "/signup");
+    };
 
-    const ctaClassName = (highlighted: boolean, isCurrent: boolean) =>
-        `mt-9 w-full inline-flex items-center justify-center rounded-xs border text-sm font-medium px-5 py-3 transition-colors duration-200 ${
-            isCurrent
-                ? "bg-transparent border-divider text-on-background-secondary cursor-default"
-                : highlighted
-                    ? "bg-on-brand text-brand border-on-brand hover:bg-brand-soft hover:text-on-background cursor-pointer"
-                    : "bg-brand text-on-brand border-brand hover:bg-brand-variant hover:border-brand-variant cursor-pointer"
+    const ctaClassName = (highlighted: boolean) =>
+        `mt-9 w-full inline-flex items-center justify-center rounded-xs border text-sm font-medium px-5 py-3 transition-colors duration-200 cursor-pointer ${
+            highlighted
+                ? "bg-on-brand text-brand border-on-brand hover:bg-brand-soft hover:text-on-background"
+                : "bg-brand text-on-brand border-brand hover:bg-brand-variant hover:border-brand-variant"
         }`;
 
     return (
@@ -114,113 +75,78 @@ export default function PricingPage() {
                     <div className="relative mx-auto max-w-[1280px] px-4 md:px-8 pt-14 md:pt-20 pb-6 text-center">
                         <p className="duri-eyebrow mb-4">Pricing</p>
                         <h1 className="duri-monument max-w-2xl mx-auto">
-                            Simple pricing,<br />
-                            <span className="text-brand">no surprises.</span>
+                            Two plans,<br />
+                            <span className="text-brand">one shared wallet.</span>
                         </h1>
                         <p className="duri-section-lede mt-5 mx-auto text-center">
-                            Start free and scale when you're ready. No lock-in.
+                            Pay only for what you use. Credits are pooled across your whole
+                            organization, and 1 credit is always worth $1.
                         </p>
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-[1280px] px-4 md:px-8 pb-24">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10">
-                        {plans.map((plan) => {
-                            const isCurrent = currentPlanId === plan.id;
-                            // Members are invite-only — pricing cards are view-only for them
-                            const isMember = role === "member";
-
-                            return (
-                                <div
-                                    key={plan.id}
-                                    className={`relative flex flex-col rounded-xs border p-8 transition-shadow duration-200 ${
-                                        plan.highlighted
-                                            ? "border-brand bg-brand shadow-[0_4px_32px_0_rgba(0,168,107,0.18)]"
-                                            : "border-divider bg-background hover:border-divider-strong"
-                                    }`}
-                                >
-                                    {isCurrent && (
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                            <span className="inline-block bg-brand-soft text-brand text-xs font-medium px-3 py-1 rounded-xs border border-brand/20">
-                                                Your plan
-                                            </span>
-                                        </div>
-                                    )}
-                                    {!isCurrent && plan.highlighted && (
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                            <span className="inline-block bg-on-background text-background text-xs font-medium px-3 py-1 rounded-xs">
-                                                Most popular
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    <div className="flex-1">
-                                        <p className={`text-sm font-medium uppercase tracking-widest ${plan.highlighted ? "text-on-brand/70" : "text-on-background-secondary"}`}>
-                                            {plan.name}
-                                        </p>
-                                        <div className="mt-3 flex items-end gap-1.5">
-                                            <span className={`text-4xl font-medium tracking-tight ${plan.highlighted ? "text-on-brand" : "text-on-background"}`}>
-                                                {plan.price}
-                                            </span>
-                                            {plan.id !== "enterprise" && (
-                                                <span className={`text-sm mb-1 ${plan.highlighted ? "text-on-brand/60" : "text-on-background-secondary"}`}>
-                                                    / {plan.period}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className={`mt-3 text-sm leading-relaxed ${plan.highlighted ? "text-on-brand/80" : "text-on-background-secondary"}`}>
-                                            {plan.tagline}
-                                        </p>
-
-                                        <ul className="mt-7 space-y-3">
-                                            {plan.features.map((feature) => (
-                                                <li key={feature} className="flex items-start gap-2.5">
-                                                    <CheckIcon
-                                                        className={`w-4 h-4 mt-0.5 shrink-0 ${plan.highlighted ? "text-on-brand" : "text-brand"}`}
-                                                    />
-                                                    <span className={`text-sm ${plan.highlighted ? "text-on-brand/90" : "text-on-background"}`}>
-                                                        {feature}
-                                                    </span>
-                                                </li>
-                                            ))}
-                                        </ul>
+                <div className="mx-auto max-w-[820px] px-4 md:px-8 pb-24">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10">
+                        {plans.map((plan) => (
+                            <div
+                                key={plan.id}
+                                className={`relative flex flex-col rounded-xs border p-8 transition-shadow duration-200 ${
+                                    plan.highlighted
+                                        ? "border-brand bg-brand shadow-[0_4px_32px_0_rgba(0,168,107,0.18)]"
+                                        : "border-divider bg-background hover:border-divider-strong"
+                                }`}
+                            >
+                                {plan.highlighted && (
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                                        <span className="inline-block bg-on-background text-background text-xs font-medium px-3 py-1 rounded-xs">
+                                            Most popular
+                                        </span>
                                     </div>
+                                )}
 
-                                    {plan.id === "enterprise" ? (
-                                        <a
-                                            href={isCurrent || isMember ? undefined : "mailto:info@duri-ai.com?subject=Enterprise%20inquiry"}
-                                            className={ctaClassName(plan.highlighted, isCurrent || isMember)}
-                                        >
-                                            {isCurrent ? "Current plan" : plan.cta}
-                                        </a>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            disabled={isCurrent || isMember || updating === plan.id}
-                                            onClick={() => {
-                                                if (isCurrent || isMember) return;
-                                                if (user) {
-                                                    handlePlanChange(plan.id);
-                                                } else {
-                                                    navigate(`/signup?plan=${plan.id}`);
-                                                }
-                                            }}
-                                            className={ctaClassName(plan.highlighted, isCurrent || isMember)}
-                                        >
-                                            {updating === plan.id
-                                                ? "Updating..."
-                                                : isCurrent
-                                                    ? "Current plan"
-                                                    : plan.cta}
-                                        </button>
-                                    )}
+                                <div className="flex-1">
+                                    <p className={`text-sm font-medium uppercase tracking-widest ${plan.highlighted ? "text-on-brand/70" : "text-on-background-secondary"}`}>
+                                        {plan.name}
+                                    </p>
+                                    <div className="mt-3 flex items-end gap-1.5">
+                                        <span className={`text-4xl font-medium tracking-tight ${plan.highlighted ? "text-on-brand" : "text-on-background"}`}>
+                                            {plan.price}
+                                        </span>
+                                        <span className={`text-sm mb-1 ${plan.highlighted ? "text-on-brand/60" : "text-on-background-secondary"}`}>
+                                            {plan.period}
+                                        </span>
+                                    </div>
+                                    <p className={`mt-3 text-sm leading-relaxed ${plan.highlighted ? "text-on-brand/80" : "text-on-background-secondary"}`}>
+                                        {plan.tagline}
+                                    </p>
+
+                                    <ul className="mt-7 space-y-3">
+                                        {plan.features.map((feature) => (
+                                            <li key={feature} className="flex items-start gap-2.5">
+                                                <CheckIcon
+                                                    className={`w-4 h-4 mt-0.5 shrink-0 ${plan.highlighted ? "text-on-brand" : "text-brand"}`}
+                                                />
+                                                <span className={`text-sm ${plan.highlighted ? "text-on-brand/90" : "text-on-background"}`}>
+                                                    {feature}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            );
-                        })}
+
+                                <button
+                                    type="button"
+                                    onClick={handleCta}
+                                    className={ctaClassName(plan.highlighted)}
+                                >
+                                    {plan.cta}
+                                </button>
+                            </div>
+                        ))}
                     </div>
 
                     <p className="mt-10 text-center text-xs text-on-background-secondary">
-                        All prices in USD. Enterprise billed annually.{" "}
+                        All prices in USD. Credits never expire while your plan is active.{" "}
                         <a href="/privacy" className="underline underline-offset-2 hover:text-on-background transition-colors">
                             Privacy Policy
                         </a>

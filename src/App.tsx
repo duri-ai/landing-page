@@ -11,6 +11,7 @@ import CheckoutReturnPage from "./pages/CheckoutReturnPage.tsx";
 import OnboardingPage from "./pages/OnboardingPage.tsx";
 import UpdatePasswordPage from "./pages/UpdatePasswordPage.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
+import PricingPage from "./pages/PricingPage.tsx";
 import Eula from "./pages/Eula.tsx";
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
     <AuthProvider>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/pricing" element={<Navigate to="/" replace />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/signup" element={<SignUpPage />} />

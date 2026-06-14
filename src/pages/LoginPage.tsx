@@ -28,7 +28,7 @@ export default function LoginPage() {
         if (error) {
             setError(error.message);
         } else {
-            navigate("/account");
+            navigate("/");
         }
     }
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
         <div className="min-h-dvh bg-background flex flex-col">
             <Nav />
 
-            <div className="flex-1 flex items-center justify-center px-4 py-16">
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
                 <div className="w-full max-w-[420px]">
                     <h1 className="text-2xl font-semibold text-on-background tracking-tight text-center">
                         Sign in
@@ -122,14 +122,14 @@ export default function LoginPage() {
                             Create one
                         </Link>
                     </p>
-
-                    <p className="mt-6 text-center text-xs text-on-background-secondary leading-relaxed">
-                        By signing in, you agree to our{" "}
-                        <a href="/eula" className="underline underline-offset-2">Terms of Service</a>
-                        {" "}and{" "}
-                        <a href="/privacy" className="underline underline-offset-2">Privacy Policy</a>.
-                    </p>
                 </div>
+
+                <p className="mt-6 text-center text-xs text-on-background-secondary leading-relaxed sm:whitespace-nowrap">
+                    By signing in, you agree to our{" "}
+                    <a href="/eula" className="underline underline-offset-2">Terms of Service</a>
+                    {" "}and{" "}
+                    <a href="/privacy" className="underline underline-offset-2">Privacy Policy</a>.
+                </p>
             </div>
         </div>
     );

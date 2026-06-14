@@ -62,7 +62,7 @@ export default function SignUpPage() {
             <div className="min-h-dvh bg-background flex flex-col">
                 <Nav />
                 <div className="flex-1 flex items-center justify-center px-4 py-16">
-                    <div className="w-full max-w-[480px] text-center">
+                    <div className="w-full max-w-[420px] text-center">
                         <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft">
                             <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
                                 <path d="M4 11.5l5 5 9-9" stroke="#00a86b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -87,19 +87,19 @@ export default function SignUpPage() {
         <div className="min-h-dvh bg-background flex flex-col">
             <Nav />
 
-            <div className="flex-1 flex items-center justify-center px-4 py-16">
-                <div className="w-full max-w-[480px]">
-                    <h1 className="text-2xl font-semibold text-on-background tracking-tight">
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
+                <div className="w-full max-w-[420px]">
+                    <h1 className="text-2xl font-semibold text-on-background tracking-tight text-center">
                         Create an account
                     </h1>
-                    <p className="mt-2 text-sm text-on-background-secondary">
+                    <p className="mt-2 text-sm text-on-background-secondary text-center">
                         Get started with Duri.
                     </p>
 
                     <button
                         type="button"
                         onClick={handleGoogleSignUp}
-                        className="mt-7 w-full flex items-center justify-center gap-2.5 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium px-4 py-2.5 hover:bg-brand-soft transition-colors duration-200 cursor-pointer"
+                        className="mt-6 w-full flex items-center justify-center gap-2.5 rounded-xs border border-divider-strong bg-background text-on-background text-sm font-medium h-10 px-4 hover:bg-brand-soft transition-colors duration-200 cursor-pointer"
                     >
                         <GoogleIcon />
                         Continue with Google
@@ -111,7 +111,7 @@ export default function SignUpPage() {
                         <div className="flex-1 h-px bg-divider" />
                     </div>
 
-                    <form onSubmit={handleEmailSignUp} className="flex flex-col gap-4">
+                    <form onSubmit={handleEmailSignUp} className="flex flex-col gap-6">
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="email" className="text-sm text-on-background">
                                 Email
@@ -124,7 +124,7 @@ export default function SignUpPage() {
                                 placeholder="you@company.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
+                                className="h-10 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
                             />
                         </div>
 
@@ -141,7 +141,7 @@ export default function SignUpPage() {
                                 placeholder="Create a password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="h-11 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
+                                className="h-10 w-full rounded-xs border border-divider-strong bg-background px-3 text-sm text-on-background placeholder:text-on-background-secondary-variant focus:border-brand transition-colors duration-150"
                             />
                         </div>
 
@@ -154,7 +154,7 @@ export default function SignUpPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="mt-1 h-11 w-full rounded-xs border border-on-background bg-on-background text-on-brand text-sm font-medium hover:opacity-90 transition-opacity duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="h-10 w-full rounded-xs border border-on-background bg-on-background text-on-brand text-sm font-medium hover:opacity-90 transition-opacity duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {loading ? "Creating account..." : "Create account"}
                         </button>
@@ -166,14 +166,14 @@ export default function SignUpPage() {
                             Sign in
                         </Link>
                     </p>
-
-                    <p className="mt-6 text-center text-xs text-on-background-secondary leading-relaxed">
-                        By creating an account, you agree to our{" "}
-                        <a href="/eula" className="underline underline-offset-2">Terms of Service</a>
-                        {" "}and{" "}
-                        <a href="/privacy" className="underline underline-offset-2">Privacy Policy</a>.
-                    </p>
                 </div>
+
+                <p className="mt-6 text-center text-xs text-on-background-secondary leading-relaxed sm:whitespace-nowrap">
+                    By creating an account, you agree to our{" "}
+                    <a href="/eula" className="underline underline-offset-2">Terms of Service</a>
+                    {" "}and{" "}
+                    <a href="/privacy" className="underline underline-offset-2">Privacy Policy</a>.
+                </p>
             </div>
         </div>
     );

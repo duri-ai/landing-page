@@ -50,7 +50,7 @@ const plans: Plan[] = [
             { text: "Invite your team" },
             { text: "Credits shared across every member in the organization" },
         ],
-        cta: "Select",
+        cta: "Get started",
         highlighted: true,
     },
 ];

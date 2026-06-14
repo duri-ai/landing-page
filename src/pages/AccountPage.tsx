@@ -490,6 +490,14 @@ function BillingPanel({
     return (
         <div className="flex flex-col gap-7">
             <div className="flex flex-col gap-6 sm:flex-row sm:gap-12">
+                {/* Available credit */}
+                <div>
+                    <p className="text-xs text-on-background-secondary">Available credit</p>
+                    <p className="mt-1 text-3xl font-semibold text-on-background tracking-tight">
+                        {org.credit_usd.toFixed(2)}
+                    </p>
+                </div>
+
                 {/* Current plan */}
                 <div>
                     <p className="text-xs text-on-background-secondary">Current plan</p>
@@ -504,14 +512,6 @@ function BillingPanel({
                             {isPro ? (isEnding ? `Pro · ends ${endsOn}` : "Pro") : "Free"}
                         </span>
                     </div>
-                </div>
-
-                {/* Available credit */}
-                <div>
-                    <p className="text-xs text-on-background-secondary">Available credit</p>
-                    <p className="mt-1 text-3xl font-semibold text-on-background tracking-tight">
-                        {org.credit_usd.toFixed(2)}
-                    </p>
                 </div>
             </div>
 

@@ -13,8 +13,8 @@ export default function LandingPage() {
             <main>
                 <Hero />
                 <HowItWorks />
-                <Comparison />
                 <Automation />
+                <Comparison />
                 <CTABand />
             </main>
             <Footer />

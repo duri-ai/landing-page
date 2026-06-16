@@ -50,20 +50,18 @@ export default function Automation() {
                         <div className="mt-8 flex items-center gap-3">
                             {FLOW.map((node, i) => (
                                 <div key={node.label} className="flex items-center gap-3">
-                                    <div className="flex flex-col items-center gap-2">
-                                        <div className="flex items-center justify-center w-12 h-12 rounded-full border border-divider-strong bg-background shadow-[0_4px_12px_-6px_rgba(0,50,32,0.18)]">
-                                            <img
-                                                src={node.src}
-                                                alt={node.label}
-                                                className="w-7 h-7 object-contain"
-                                            />
-                                        </div>
-                                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-background-secondary">
-                                            {node.label}
-                                        </p>
+                                    <div
+                                        className="flex items-center justify-center w-12 h-12 rounded-full border border-divider-strong bg-background shadow-[0_4px_12px_-6px_rgba(0,50,32,0.18)]"
+                                        title={node.label}
+                                    >
+                                        <img
+                                            src={node.src}
+                                            alt={node.label}
+                                            className="w-7 h-7 object-contain"
+                                        />
                                     </div>
                                     {i < FLOW.length - 1 ? (
-                                        <div className="flex items-center pb-5" aria-hidden>
+                                        <div className="flex items-center" aria-hidden>
                                             <span className="block w-6 sm:w-10 h-[2px] rounded-full bg-divider-strong" />
                                             <span className="block w-2 h-2 rounded-full bg-brand -ml-1" />
                                         </div>

@@ -9,10 +9,10 @@ export const integrations: Integration[] = [
     { name: "Shopify", logo: `${base}logos/third_party/shopify.svg` },
     { name: "QuickBooks", logo: `${base}logos/third_party/quickbooks.svg` },
     { name: "Gmail", logo: `${base}logos/third_party/gmail.svg` },
-    { name: "Slack", logo: `${base}logos/third_party/slack.png` },
+    { name: "Clover", logo: `${base}logos/third_party/clover.svg` },
+    { name: "Slack", logo: `${base}logos/third_party/slack.svg` },
     { name: "Notion", logo: `${base}logos/third_party/notion.svg` },
     { name: "Airtable", logo: `${base}logos/third_party/airtable.svg` },
-
     { name: "Excel", logo: `${base}logos/third_party/excel.svg` },
 ];
 
@@ -25,35 +25,35 @@ export type HowItWorksAct = {
 export const howItWorks: HowItWorksAct[] = [
     {
         index: "01",
-        title: "Learns from you",
-        body: "Show it once. Type the steps, drop a doc, or record yourself doing the work. It picks up the shape and remembers.",
+        title: "Describe the work",
+        body: "Type it in plain language. 'Every morning, sync yesterday's Shopify orders across all stores into QuickBooks and send a summary to the team.'",
     },
     {
         index: "02",
-        title: "Executes",
-        body: "It opens what it needs, asks before it guesses, and finishes the work on your behalf.",
+        title: "It connects and asks once",
+        body: "Duri hits the live APIs. If it needs a decision — which account, which template — it asks once and remembers the answer for every run after that.",
     },
     {
         index: "03",
-        title: "Then runs on a schedule",
-        body: "Daily, weekly, on every order. Hand it off. The workspace keeps the rhythm.",
+        title: "Runs on your schedule",
+        body: "Daily, weekly, or on every new order. You get the result. The tab-switching, the copy-paste, the re-entry — gone.",
     },
 ];
 
 export const realityPoints: { index: string; label: string; line: string }[] = [
     {
         index: "01",
-        label: "Manual, every day",
-        line: "Tabs and spreadsheets. The team types the same numbers across, day after day, and something always slips at month-end.",
+        label: "Three stores. Three exports. Every morning.",
+        line: "Multiple Shopify locations means multiple dashboards. You pull each one, re-enter the numbers into QuickBooks, and hope nothing mismatches by the time month-end reconciliation rolls around.",
     },
     {
         index: "02",
-        label: "Drag, drop, pray",
-        line: "No-code automation tools wired together once, in front of one person. Now nobody can read them, and they break the week a vendor shifts a field.",
+        label: "Clover ran 400 transactions. The spreadsheet shows 387.",
+        line: "POS data stays locked in the terminal. Getting a daily sales report means exporting a file, opening Excel, and reformatting it by hand before you can share it with anyone.",
     },
     {
         index: "03",
-        label: "Hire or contract",
-        line: "Bring in a developer or an agency, write the spec, wait, pay. The integration ships six weeks late and only fits one workflow.",
+        label: "The AI suggested the steps. You still clicked them.",
+        line: "Claude Cowork and most AI co-pilots run in a browser sandbox. They can see one store at a time, draft the email, and walk you through the QuickBooks form. You still do every step. Duri hits the live APIs directly and completes the operation end-to-end.",
     },
 ];

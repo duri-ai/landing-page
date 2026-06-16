@@ -1,17 +1,16 @@
 import { ArrowRightIcon } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
-const CONTACT_EMAIL = "contact@duri-ai.com";
+const CONTACT_EMAIL = "info@duri-ai.com";
 
 export default function CTABand() {
     const [email, setEmail] = useState("");
-    const [message, setMessage] = useState("");
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const subject = encodeURIComponent("Workflow to automate");
+        const subject = encodeURIComponent("Book a demo");
         const body = encodeURIComponent(
-            `${message}\n\n— Reply to ${email || "(no email provided)"}`,
+            `Hi Duri team,\n\nI'd like to book a demo.\n\nReply to ${email}.`,
         );
         window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
     };
@@ -29,48 +28,39 @@ export default function CTABand() {
                         Talk to us
                     </p>
                     <h2 className="text-[clamp(1.75rem,3.6vw,2.75rem)] leading-[1.08] tracking-[-0.02em] font-medium text-on-background text-balance">
-                        Have a workflow in mind? Walk us through it.
+                        Let us walk you through it.
                     </h2>
-                    <p className="mt-4 text-[0.975rem] leading-[1.55] text-on-background-secondary">
-                        Tell us about the task you do every week, and we'll show you what
-                        Duri does with it.
-                    </p>
 
-                    <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-3 text-left">
+                    <form
+                        onSubmit={onSubmit}
+                        className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-stretch text-left"
+                    >
                         <input
                             type="email"
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Your email"
-                            className="w-full bg-background border border-divider-strong rounded-xs px-4 py-3 text-[0.95rem] text-on-background placeholder:text-on-background-secondary focus:border-on-background focus:outline-none transition-colors duration-200"
-                        />
-                        <textarea
-                            required
-                            rows={4}
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            placeholder="What's the work you'd like off your plate?"
-                            className="w-full bg-background border border-divider-strong rounded-xs px-4 py-3 text-[0.95rem] text-on-background placeholder:text-on-background-secondary focus:border-on-background focus:outline-none transition-colors duration-200 resize-none"
+                            className="flex-1 bg-background border border-divider-strong rounded-xs px-4 py-3 text-[0.95rem] text-on-background placeholder:text-on-background-secondary focus:border-on-background focus:outline-none transition-colors duration-200"
                         />
                         <button
                             type="submit"
-                            className="mt-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xs text-[0.9rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant"
+                            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xs text-[0.9rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant whitespace-nowrap"
                         >
-                            Send
+                            Book a demo
                             <ArrowRightIcon className="w-3.5 h-3.5" />
                         </button>
-                        <p className="mt-1 text-[12px] text-on-background-secondary">
-                            Or write directly to{" "}
-                            <a
-                                href={`mailto:${CONTACT_EMAIL}`}
-                                className="text-on-background underline underline-offset-2 hover:text-brand transition-colors"
-                            >
-                                {CONTACT_EMAIL}
-                            </a>
-                            .
-                        </p>
                     </form>
+                    <p className="mt-4 text-[12px] text-on-background-secondary">
+                        Or write directly to{" "}
+                        <a
+                            href={`mailto:${CONTACT_EMAIL}`}
+                            className="text-on-background underline underline-offset-2 hover:text-brand transition-colors"
+                        >
+                            {CONTACT_EMAIL}
+                        </a>
+                        .
+                    </p>
                 </div>
             </div>
         </section>

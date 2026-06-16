@@ -49,12 +49,12 @@ function IconCard({ src }: { src: string }) {
 
 function DuriCenter() {
     return (
-        <div className="flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-[20px] bg-on-background shadow-[0_20px_48px_-16px_rgba(0,50,32,0.45)]">
+        <div className="flex items-center justify-center">
             <img
                 src={`${base}logos/d.svg`}
                 alt=""
                 aria-hidden
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-[10px]"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-[18px] drop-shadow-[0_12px_28px_rgba(0,50,32,0.18)]"
             />
         </div>
     );
@@ -95,20 +95,20 @@ export default function MultiConnect() {
                 <div className="grid grid-cols-1 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 md:gap-16 items-center">
                     <div className="max-w-[28rem]">
                         <p className="text-[11px] sm:text-[12px] font-semibold tracking-[0.18em] uppercase text-on-background-secondary mb-4">
-                            Multi connection
+                            Connectors
                         </p>
                         <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.05] tracking-[-0.024em] font-medium text-on-background text-balance">
                             Connect any data source, read and write in one place.
                         </h2>
                         <p className="mt-5 text-[clamp(0.975rem,1.15vw,1.1rem)] leading-[1.55] text-on-background-secondary">
                             Three storefronts, two ad accounts, the books in another tab.
-                            Hand them all to Duri. It moves between them like a teammate
-                            who already has the passwords.
+                            Hand them all to Duri. It moves between them like it already
+                            knows the place.
                         </p>
                     </div>
 
-                    <div className="relative">
-                        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-stretch gap-x-3 sm:gap-x-6">
+                    <div className="relative mx-auto max-w-[520px]">
+                        <div className="grid grid-cols-[auto_minmax(40px,80px)_auto_minmax(40px,80px)_auto] items-stretch gap-x-2 sm:gap-x-3">
                             <div className="flex flex-col items-center gap-4 sm:gap-5">
                                 {leftIcons.map((src, idx) => (
                                     <IconCard

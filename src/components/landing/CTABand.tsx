@@ -18,9 +18,8 @@ export default function CTABand() {
             />
 
             <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-24 md:py-32 text-center">
-                <h2 className="text-[clamp(2.25rem,5vw,4rem)] leading-[1.04] tracking-[-0.024em] font-medium text-on-background max-w-[18ch] mx-auto text-balance">
-                    Ready when{" "}
-                    <span className="text-brand">you are</span>.
+                <h2 className="text-[clamp(2.25rem,5vw,4rem)] leading-[1.04] tracking-[-0.024em] font-medium text-on-background max-w-[20ch] mx-auto text-balance">
+                    Start with Duri today.
                 </h2>
                 <Link
                     to="/signup"

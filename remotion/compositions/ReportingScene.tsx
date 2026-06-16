@@ -10,52 +10,91 @@ import {
 } from "remotion";
 import { theme } from "../theme";
 
-const PROMPT = "Every Monday at 9am, email a weekly close PDF to ops@.";
+const PROMPT =
+    "Email a weekly gross sales and ROAS report to myEmail@gmail.com.";
 
-const PHASE_PROMPT_END = 90;
-const PHASE_SOURCES_START = 110;
+const PROMPT_END = 100;
+const SOURCES_START = 120;
+const FLOWS_START = 200;
+const PDF_REVEAL = 230;
+const PDF_BUILD = 250;
+const SENT_BADGE = 330;
 
 type Source = {
-    logoSrc: string | null;
     label: string;
+    sub: string;
     metric: string;
     metricLabel: string;
     appearOffset: number;
     flowOffset: number;
+    renderMark: () => React.ReactNode;
 };
+
+function ShopifyMark() {
+    return (
+        <Img
+            src={staticFile("logos/third_party/shopify.svg")}
+            style={{ width: 40, height: 40 }}
+        />
+    );
+}
+function SquareMark() {
+    return (
+        <Img
+            src={staticFile("logos/third_party/square.png")}
+            style={{ width: 40, height: 40, borderRadius: 7 }}
+        />
+    );
+}
+function MetaMark() {
+    return (
+        <div
+            style={{
+                width: 40,
+                height: 40,
+                borderRadius: 999,
+                background: "linear-gradient(135deg, #0064e0, #00a6ff)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontWeight: 800,
+                fontSize: 22,
+                letterSpacing: "-0.06em",
+            }}
+        >
+            ∞
+        </div>
+    );
+}
 
 const SOURCES: Source[] = [
     {
-        logoSrc: "logos/third_party/square.png",
         label: "Square",
-        metric: "$4,820",
-        metricLabel: "POS sales",
+        sub: "POS sales",
+        metric: "$3,948",
+        metricLabel: "This week",
         appearOffset: 0,
         flowOffset: 80,
+        renderMark: SquareMark,
     },
     {
-        logoSrc: "logos/third_party/google.svg",
-        label: "Google Ads",
-        metric: "$1,240",
-        metricLabel: "Ad spend",
-        appearOffset: 10,
-        flowOffset: 110,
-    },
-    {
-        logoSrc: "logos/third_party/shopify.svg",
         label: "Shopify",
-        metric: "142",
-        metricLabel: "Orders",
-        appearOffset: 20,
-        flowOffset: 140,
+        sub: "Online sales",
+        metric: "$5,626",
+        metricLabel: "This week",
+        appearOffset: 14,
+        flowOffset: 102,
+        renderMark: ShopifyMark,
     },
     {
-        logoSrc: "logos/third_party/clover.svg",
-        label: "Clover",
-        metric: "$3,180",
-        metricLabel: "POS sales",
-        appearOffset: 30,
-        flowOffset: 170,
+        label: "Meta Ads",
+        sub: "Spend / ROAS",
+        metric: "3.2×",
+        metricLabel: "$924 spent",
+        appearOffset: 28,
+        flowOffset: 124,
+        renderMark: MetaMark,
     },
 ];
 
@@ -64,41 +103,37 @@ function Composer({ frame }: { frame: number }) {
         0,
         Math.min(
             PROMPT.length,
-            Math.floor(interpolate(frame, [12, 78], [0, PROMPT.length])),
+            Math.floor(interpolate(frame, [14, 88], [0, PROMPT.length])),
         ),
     );
     const visible = PROMPT.slice(0, visibleChars);
-    const sentLift = interpolate(frame, [PHASE_PROMPT_END, PHASE_PROMPT_END + 16], [0, -12], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-    });
-    const sentFade = interpolate(frame, [PHASE_PROMPT_END, PHASE_PROMPT_END + 16], [1, 0.55], {
+    const fade = interpolate(frame, [PROMPT_END, PROMPT_END + 18], [1, 0.7], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
     const caretOn = Math.floor(frame / 8) % 2 === 0;
-    const showCaret = frame < PHASE_PROMPT_END;
+    const showCaret = frame < PROMPT_END;
+
     return (
         <div
             style={{
                 background: theme.background,
                 border: `1.5px solid ${theme.onBackground}`,
-                borderRadius: 8,
-                padding: "20px 22px",
+                borderRadius: 10,
+                padding: "26px 28px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 12,
-                boxShadow: "0 16px 40px -24px rgba(0,50,32,0.22)",
-                transform: `translateY(${sentLift}px)`,
-                opacity: sentFade,
+                boxShadow: "0 18px 44px -24px rgba(0,50,32,0.24)",
+                opacity: fade,
             }}
         >
             <div
                 style={{
-                    fontSize: 11,
-                    fontWeight: 700,
+                    fontSize: 13,
+                    fontWeight: 800,
                     color: theme.onBackgroundSecondary,
-                    letterSpacing: "0.16em",
+                    letterSpacing: "0.18em",
                     textTransform: "uppercase",
                 }}
             >
@@ -106,12 +141,12 @@ function Composer({ frame }: { frame: number }) {
             </div>
             <div
                 style={{
-                    fontSize: 22,
-                    lineHeight: 1.35,
+                    fontSize: 26,
+                    lineHeight: 1.4,
                     color: theme.onBackground,
                     fontWeight: 500,
-                    letterSpacing: "-0.01em",
-                    minHeight: 64,
+                    letterSpacing: "-0.012em",
+                    minHeight: 78,
                 }}
             >
                 {visible}
@@ -134,17 +169,17 @@ function Composer({ frame }: { frame: number }) {
 }
 
 function SourceCard({ src, frame }: { src: Source; frame: number }) {
-    const appearAt = PHASE_SOURCES_START + src.appearOffset;
-    const appear = interpolate(frame - appearAt, [0, 16], [0, 1], {
+    const appearAt = SOURCES_START + src.appearOffset;
+    const op = interpolate(frame - appearAt, [0, 18], [0, 1], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
-    const lift = interpolate(frame - appearAt, [0, 16], [10, 0], {
+    const lift = interpolate(frame - appearAt, [0, 18], [12, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
-    const flowAt = PHASE_SOURCES_START + src.flowOffset;
-    const pulse = interpolate(frame - flowAt, [0, 8, 24], [0, 1, 0], {
+    const flowAt = FLOWS_START + src.flowOffset - 80;
+    const pulse = interpolate(frame - flowAt, [0, 10, 26], [0, 1, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
@@ -152,39 +187,36 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
         <div
             style={{
                 position: "relative",
-                width: 380,
                 background: theme.background,
                 border: `1.5px solid ${theme.dividerStrong}`,
-                borderRadius: 7,
-                padding: "16px 18px",
+                borderRadius: 9,
+                padding: "20px 22px",
                 display: "flex",
                 alignItems: "center",
-                gap: 14,
-                opacity: appear,
+                gap: 16,
+                opacity: op,
                 transform: `translateY(${lift}px)`,
-                boxShadow: "0 10px 28px -22px rgba(0,50,32,0.18)",
+                boxShadow: "0 12px 32px -22px rgba(0,50,32,0.20)",
             }}
         >
             <div
                 style={{
                     position: "absolute",
                     inset: -2,
-                    borderRadius: 9,
+                    borderRadius: 11,
                     border: `2px solid ${theme.brand}`,
                     opacity: pulse,
                     pointerEvents: "none",
                 }}
             />
-            {src.logoSrc ? (
-                <Img src={staticFile(src.logoSrc)} style={{ width: 32, height: 32 }} />
-            ) : null}
+            {src.renderMark()}
             <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
                 <span
                     style={{
-                        fontSize: 16,
-                        fontWeight: 600,
+                        fontSize: 20,
+                        fontWeight: 700,
                         color: theme.onBackground,
-                        letterSpacing: "-0.01em",
+                        letterSpacing: "-0.012em",
                         lineHeight: 1.1,
                     }}
                 >
@@ -192,28 +224,43 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 </span>
                 <span
                     style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         color: theme.onBackgroundSecondary,
-                        marginTop: 4,
-                        letterSpacing: "0.12em",
+                        letterSpacing: "0.14em",
                         textTransform: "uppercase",
                         fontWeight: 700,
+                        marginTop: 4,
+                    }}
+                >
+                    {src.sub}
+                </span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                <span
+                    style={{
+                        fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                        fontSize: 26,
+                        fontWeight: 800,
+                        color: theme.onBackground,
+                        letterSpacing: "-0.012em",
+                        lineHeight: 1,
+                    }}
+                >
+                    {src.metric}
+                </span>
+                <span
+                    style={{
+                        fontSize: 11,
+                        color: theme.onBackgroundSecondary,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        marginTop: 5,
                     }}
                 >
                     {src.metricLabel}
                 </span>
             </div>
-            <span
-                style={{
-                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                    fontSize: 20,
-                    color: theme.onBackground,
-                    fontWeight: 700,
-                    letterSpacing: "-0.01em",
-                }}
-            >
-                {src.metric}
-            </span>
         </div>
     );
 }
@@ -223,33 +270,38 @@ export const ReportingScene: React.FC = () => {
     const { fps } = useVideoConfig();
     const stageIn = spring({ frame, fps, config: { damping: 200 } });
 
-    const PDF_APPEAR = PHASE_SOURCES_START + 40;
-    const pdfIn = interpolate(frame - PDF_APPEAR, [0, 24], [0, 1], {
+    const pdfOp = interpolate(frame - PDF_REVEAL, [0, 22], [0, 1], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
-    const pdfLift = interpolate(frame - PDF_APPEAR, [0, 24], [20, 0], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-    });
-
-    const PDF_CONTENT_START = PHASE_SOURCES_START + 220;
-    const contentIn = interpolate(frame - PDF_CONTENT_START, [0, 26], [0, 1], {
+    const pdfLift = interpolate(frame - PDF_REVEAL, [0, 22], [22, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
 
-    const SENT_BADGE = PHASE_SOURCES_START + 280;
+    const headerIn = interpolate(frame - PDF_BUILD, [0, 18], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+    });
+    const chartIn = interpolate(frame - (PDF_BUILD + 14), [0, 22], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+    });
+    const breakdownIn = interpolate(frame - (PDF_BUILD + 32), [0, 22], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+    });
+
     const sentIn = interpolate(frame - SENT_BADGE, [0, 18], [0, 1], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
-    const sentLift = interpolate(frame - SENT_BADGE, [0, 18], [8, 0], {
+    const sentLift = interpolate(frame - SENT_BADGE, [0, 18], [12, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
 
-    const chartBars = [42, 56, 38, 64, 48, 72, 60, 54, 68, 76, 58, 62, 70, 80];
+    const chartBars = [42, 56, 50, 64, 48, 72, 60, 58, 66, 76, 70, 80, 88];
 
     return (
         <AbsoluteFill style={{ background: theme.background, fontFamily: theme.fontFamily }}>
@@ -268,19 +320,19 @@ export const ReportingScene: React.FC = () => {
 
             <AbsoluteFill
                 style={{
-                    padding: "70px 90px",
+                    padding: "70px 100px",
                     opacity: stageIn,
                     display: "flex",
-                    alignItems: "stretch",
                     gap: 60,
+                    alignItems: "stretch",
                 }}
             >
                 <div
                     style={{
-                        flex: "0 0 460px",
+                        flex: "0 0 580px",
                         display: "flex",
                         flexDirection: "column",
-                        gap: 18,
+                        gap: 22,
                     }}
                 >
                     <Composer frame={frame} />
@@ -291,19 +343,19 @@ export const ReportingScene: React.FC = () => {
 
                 <div style={{ flex: 1, position: "relative" }}>
                     {SOURCES.map((s, idx) => {
-                        const flowAt = PHASE_SOURCES_START + s.flowOffset;
-                        const t = (frame - flowAt) / 22;
+                        const flowAt = FLOWS_START + s.flowOffset - 80;
+                        const t = (frame - flowAt) / 24;
                         if (t < 0 || t > 1.2) return null;
-                        const x = interpolate(t, [0, 1], [0, 100], {
+                        const x = interpolate(t, [0, 1], [-12, 50], {
                             extrapolateLeft: "clamp",
                             extrapolateRight: "clamp",
                         });
-                        const startY = ((idx + 1.6) / (SOURCES.length + 1)) * 100;
+                        const startY = (idx + 1) * 22 + 16;
                         const y = interpolate(t, [0, 1], [startY, 50], {
                             extrapolateLeft: "clamp",
                             extrapolateRight: "clamp",
                         });
-                        const op = interpolate(t, [0, 0.1, 0.85, 1], [0, 1, 1, 0]);
+                        const op = interpolate(t, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
                         return (
                             <div
                                 key={s.label}
@@ -311,12 +363,12 @@ export const ReportingScene: React.FC = () => {
                                     position: "absolute",
                                     left: `${x}%`,
                                     top: `${y}%`,
-                                    width: 12,
-                                    height: 12,
+                                    width: 14,
+                                    height: 14,
                                     borderRadius: 999,
                                     background: theme.brand,
                                     transform: "translate(-50%, -50%)",
-                                    boxShadow: `0 0 14px ${theme.brand}`,
+                                    boxShadow: `0 0 18px ${theme.brand}`,
                                     opacity: op,
                                 }}
                             />
@@ -328,150 +380,140 @@ export const ReportingScene: React.FC = () => {
                             position: "absolute",
                             inset: 0,
                             display: "flex",
-                            flexDirection: "column",
+                            alignItems: "center",
                             justifyContent: "center",
-                            opacity: pdfIn,
+                            opacity: pdfOp,
                             transform: `translateY(${pdfLift}px)`,
                         }}
                     >
                         <div
                             style={{
-                                margin: "0 auto",
-                                width: 540,
-                                height: 720,
+                                width: "100%",
+                                height: 760,
                                 background: theme.background,
                                 border: `1.5px solid ${theme.onBackground}`,
                                 borderRadius: 4,
-                                boxShadow: "0 40px 100px -36px rgba(0,50,32,0.35)",
+                                boxShadow: "0 44px 110px -36px rgba(0,50,32,0.38)",
                                 display: "flex",
                                 flexDirection: "column",
-                                overflow: "hidden",
                                 position: "relative",
+                                overflow: "hidden",
                             }}
                         >
                             <div
                                 style={{
                                     position: "absolute",
-                                    top: 18,
-                                    right: 18,
+                                    top: 22,
+                                    right: 22,
                                     background: "#d33b3b",
                                     color: "#fff",
-                                    padding: "4px 10px",
+                                    padding: "6px 12px",
                                     borderRadius: 3,
                                     fontFamily:
                                         "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    letterSpacing: "0.16em",
+                                    fontSize: 13,
+                                    fontWeight: 800,
+                                    letterSpacing: "0.18em",
                                 }}
                             >
                                 PDF
                             </div>
-                            <div style={{ padding: "30px 36px 24px" }}>
+
+                            <div style={{ padding: "36px 44px 26px" }}>
                                 <span
                                     style={{
                                         fontFamily:
                                             "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                        fontSize: 12,
+                                        fontSize: 14,
                                         color: theme.onBackgroundSecondary,
-                                        letterSpacing: "0.16em",
+                                        letterSpacing: "0.18em",
                                         fontWeight: 700,
                                         textTransform: "uppercase",
                                     }}
                                 >
-                                    weekly_close.pdf
+                                    weekly_sales.pdf
                                 </span>
-                                <div
-                                    style={{
-                                        marginTop: 12,
-                                        height: 1,
-                                        background: theme.divider,
-                                    }}
-                                />
                             </div>
 
                             <div
                                 style={{
-                                    padding: "0 36px",
+                                    padding: "0 44px 36px",
                                     display: "flex",
                                     flexDirection: "column",
-                                    gap: 26,
-                                    opacity: contentIn,
+                                    gap: 32,
+                                    flex: 1,
                                 }}
                             >
-                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                <div style={{ opacity: headerIn, display: "flex", flexDirection: "column", gap: 8 }}>
                                     <span
                                         style={{
-                                            fontSize: 11,
+                                            fontSize: 13,
                                             color: theme.onBackgroundSecondary,
                                             fontWeight: 700,
-                                            letterSpacing: "0.16em",
+                                            letterSpacing: "0.18em",
                                             textTransform: "uppercase",
                                         }}
                                     >
-                                        Net revenue, May 5 to May 11
+                                        Week of Jun 9 to Jun 15
                                     </span>
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "baseline",
-                                            gap: 14,
-                                        }}
-                                    >
+                                    <div style={{ display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
                                         <span
                                             style={{
-                                                fontSize: 44,
+                                                fontSize: 64,
                                                 fontWeight: 600,
                                                 color: theme.onBackground,
-                                                letterSpacing: "-0.02em",
+                                                letterSpacing: "-0.026em",
                                                 lineHeight: 1,
                                             }}
                                         >
-                                            $9,240
+                                            $9,574
                                         </span>
                                         <span
                                             style={{
-                                                fontSize: 16,
+                                                fontSize: 22,
                                                 color: theme.brand,
-                                                fontWeight: 700,
+                                                fontWeight: 800,
                                             }}
                                         >
-                                            +12.4%
+                                            +18.6%
                                         </span>
                                     </div>
-                                </div>
-
-                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                                     <span
                                         style={{
-                                            fontSize: 11,
+                                            fontSize: 14,
+                                            color: theme.onBackgroundSecondary,
+                                            letterSpacing: "0.16em",
+                                            textTransform: "uppercase",
+                                            fontWeight: 700,
+                                            marginTop: 4,
+                                        }}
+                                    >
+                                        Gross sales
+                                    </span>
+                                </div>
+
+                                <div style={{ opacity: chartIn, display: "flex", flexDirection: "column", gap: 10 }}>
+                                    <span
+                                        style={{
+                                            fontSize: 12,
                                             color: theme.onBackgroundSecondary,
                                             fontWeight: 700,
-                                            letterSpacing: "0.14em",
+                                            letterSpacing: "0.18em",
                                             textTransform: "uppercase",
                                         }}
                                     >
-                                        Daily revenue
+                                        Daily gross
                                     </span>
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "flex-end",
-                                            gap: 4,
-                                            height: 110,
-                                        }}
-                                    >
+                                    <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130 }}>
                                         {chartBars.map((h, i) => (
                                             <div
                                                 key={i}
                                                 style={{
                                                     flex: 1,
                                                     background:
-                                                        i === chartBars.length - 1
-                                                            ? theme.brand
-                                                            : theme.onBackground,
-                                                    height: `${h * contentIn}%`,
-                                                    borderRadius: 2,
+                                                        i === chartBars.length - 1 ? theme.brand : theme.onBackground,
+                                                    height: `${h * chartIn}%`,
+                                                    borderRadius: 3,
                                                 }}
                                             />
                                         ))}
@@ -480,51 +522,86 @@ export const ReportingScene: React.FC = () => {
 
                                 <div
                                     style={{
+                                        opacity: breakdownIn,
                                         display: "grid",
-                                        gridTemplateColumns: "1fr 1fr 1fr",
-                                        gap: 18,
-                                        paddingTop: 18,
+                                        gridTemplateColumns: "1fr 1fr",
+                                        gap: 36,
+                                        paddingTop: 20,
                                         borderTop: `1px solid ${theme.divider}`,
                                     }}
                                 >
-                                    {[
-                                        { label: "POS sales", value: "$8,000" },
-                                        { label: "Ad spend", value: "$1,240" },
-                                        { label: "Orders", value: "142" },
-                                    ].map((m) => (
-                                        <div
-                                            key={m.label}
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                        <span
                                             style={{
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                gap: 4,
+                                                fontSize: 11,
+                                                color: theme.onBackgroundSecondary,
+                                                fontWeight: 800,
+                                                letterSpacing: "0.18em",
+                                                textTransform: "uppercase",
                                             }}
                                         >
-                                            <span
-                                                style={{
-                                                    fontSize: 10,
-                                                    color: theme.onBackgroundSecondary,
-                                                    fontWeight: 700,
-                                                    letterSpacing: "0.14em",
-                                                    textTransform: "uppercase",
-                                                }}
-                                            >
-                                                {m.label}
-                                            </span>
-                                            <span
-                                                style={{
-                                                    fontFamily:
-                                                        "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                                    fontSize: 22,
-                                                    fontWeight: 700,
-                                                    color: theme.onBackground,
-                                                    letterSpacing: "-0.01em",
-                                                }}
-                                            >
-                                                {m.value}
-                                            </span>
-                                        </div>
-                                    ))}
+                                            Blended ROAS
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontFamily:
+                                                    "ui-monospace, SFMono-Regular, Menlo, monospace",
+                                                fontSize: 44,
+                                                fontWeight: 700,
+                                                color: theme.onBackground,
+                                                letterSpacing: "-0.02em",
+                                                lineHeight: 1,
+                                            }}
+                                        >
+                                            3.2×
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontSize: 12,
+                                                color: theme.onBackgroundSecondary,
+                                                fontWeight: 600,
+                                                marginTop: 2,
+                                            }}
+                                        >
+                                            $924 spent · $2,956 attributed
+                                        </span>
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                        <span
+                                            style={{
+                                                fontSize: 11,
+                                                color: theme.onBackgroundSecondary,
+                                                fontWeight: 800,
+                                                letterSpacing: "0.18em",
+                                                textTransform: "uppercase",
+                                            }}
+                                        >
+                                            Orders
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontFamily:
+                                                    "ui-monospace, SFMono-Regular, Menlo, monospace",
+                                                fontSize: 44,
+                                                fontWeight: 700,
+                                                color: theme.onBackground,
+                                                letterSpacing: "-0.02em",
+                                                lineHeight: 1,
+                                            }}
+                                        >
+                                            186
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontSize: 12,
+                                                color: theme.onBackgroundSecondary,
+                                                fontWeight: 600,
+                                                marginTop: 2,
+                                            }}
+                                        >
+                                            AOV $51.5 · across 3 channels
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -532,43 +609,43 @@ export const ReportingScene: React.FC = () => {
                         <div
                             style={{
                                 position: "absolute",
-                                bottom: 60,
-                                right: 60,
+                                bottom: 48,
+                                right: 36,
                                 background: theme.background,
                                 border: `1.5px solid ${theme.brand}`,
-                                borderRadius: 5,
-                                padding: "10px 14px",
+                                borderRadius: 6,
+                                padding: "12px 16px",
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 10,
+                                gap: 12,
                                 opacity: sentIn,
                                 transform: `translateY(${sentLift}px)`,
-                                boxShadow: "0 12px 32px -20px rgba(0,50,32,0.22)",
+                                boxShadow: "0 14px 36px -20px rgba(0,50,32,0.24)",
                             }}
                         >
                             <Img
                                 src={staticFile("logos/third_party/gmail.svg")}
-                                style={{ width: 22, height: 22 }}
+                                style={{ width: 26, height: 26 }}
                             />
                             <div style={{ display: "flex", flexDirection: "column" }}>
                                 <span
                                     style={{
-                                        fontSize: 12,
-                                        fontWeight: 700,
+                                        fontSize: 14,
+                                        fontWeight: 800,
                                         color: theme.onBackground,
                                         letterSpacing: "-0.01em",
                                     }}
                                 >
-                                    Sent to ops@
+                                    Sent to myEmail@gmail.com
                                 </span>
                                 <span
                                     style={{
-                                        fontSize: 10,
+                                        fontSize: 11,
                                         color: theme.onBackgroundSecondary,
-                                        letterSpacing: "0.12em",
+                                        letterSpacing: "0.14em",
                                         textTransform: "uppercase",
-                                        fontWeight: 600,
-                                        marginTop: 1,
+                                        fontWeight: 700,
+                                        marginTop: 2,
                                     }}
                                 >
                                     Monday, 9:00 AM

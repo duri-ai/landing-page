@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const base = import.meta.env.BASE_URL;
 
@@ -29,16 +30,15 @@ export default function HowItWorks() {
         };
     }, [tick]);
 
-    const advance = useCallback(() => {
+    const next = useCallback(() => {
         setI((x) => (x + 1) % SLIDES.length);
         setProgress(0);
     }, []);
 
-    const select = useCallback((next: number) => {
-        if (next === i) return;
-        setI(next);
+    const prev = useCallback(() => {
+        setI((x) => (x - 1 + SLIDES.length) % SLIDES.length);
         setProgress(0);
-    }, [i]);
+    }, []);
 
     useEffect(() => {
         const v = videoRef.current;
@@ -67,46 +67,48 @@ export default function HowItWorks() {
             />
 
             <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-16 sm:py-24 md:py-32">
-                <h2 className="text-[clamp(2.5rem,7vw,5.75rem)] leading-[1.02] tracking-[-0.028em] font-medium text-on-background text-balance text-center">
-                    Automate.
-                </h2>
+                <p className="text-center text-[11px] sm:text-[12px] font-semibold tracking-[0.18em] uppercase text-on-background-secondary mb-6">
+                    What Duri runs for you
+                </p>
 
-                <div
-                    role="tablist"
-                    aria-label="Use cases"
-                    className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-10"
-                >
-                    {SLIDES.map((s, idx) => {
-                        const active = idx === i;
-                        return (
-                            <button
-                                key={s.word}
-                                type="button"
-                                role="tab"
-                                aria-selected={active}
-                                onClick={() => select(idx)}
-                                className={`group relative inline-flex flex-col items-center pb-2 transition-colors duration-200 cursor-pointer ${
-                                    active
-                                        ? "text-on-background"
-                                        : "text-on-background-secondary hover:text-on-background"
-                                }`}
-                            >
-                                <span className="text-[clamp(1.25rem,2.4vw,1.85rem)] leading-none tracking-[-0.02em] font-medium">
+                <div className="flex flex-col items-center select-none">
+                    <button
+                        type="button"
+                        onClick={prev}
+                        aria-label="Previous"
+                        className="inline-flex items-center justify-center w-10 h-8 text-on-background-secondary hover:text-on-background transition-colors duration-200 cursor-pointer"
+                    >
+                        <ChevronUp className="w-5 h-5" strokeWidth={2.25} />
+                    </button>
+
+                    <div className="relative h-[clamp(3.5rem,9vw,7.5rem)] overflow-hidden flex items-center justify-center">
+                        <div
+                            className="flex flex-col items-center transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                            style={{ transform: `translateY(-${i * 100}%)` }}
+                        >
+                            {SLIDES.map((s) => (
+                                <span
+                                    key={s.word}
+                                    className="block h-[clamp(3.5rem,9vw,7.5rem)] leading-[clamp(3.5rem,9vw,7.5rem)] text-[clamp(2.75rem,7.5vw,6rem)] tracking-[-0.028em] font-medium text-on-background whitespace-nowrap"
+                                >
                                     {s.word}
                                 </span>
-                                <span
-                                    aria-hidden
-                                    className={`mt-2.5 h-[3px] w-full rounded-full transition-colors duration-200 ${
-                                        active ? "bg-brand" : "bg-transparent"
-                                    }`}
-                                />
-                            </button>
-                        );
-                    })}
+                            ))}
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={next}
+                        aria-label="Next"
+                        className="inline-flex items-center justify-center w-10 h-8 text-on-background-secondary hover:text-on-background transition-colors duration-200 cursor-pointer"
+                    >
+                        <ChevronDown className="w-5 h-5" strokeWidth={2.25} />
+                    </button>
                 </div>
 
                 <div className="mt-10 sm:mt-12 mx-auto max-w-[960px]">
-                    <div className="relative rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background-warm shadow-[0_28px_72px_-28px_rgba(0,50,32,0.22)]">
+                    <div className="relative rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background shadow-[0_28px_72px_-28px_rgba(0,50,32,0.22)]">
                         <video
                             key={SLIDES[i].word}
                             ref={videoRef}
@@ -116,7 +118,7 @@ export default function HowItWorks() {
                             playsInline
                             preload="auto"
                             aria-hidden
-                            onEnded={advance}
+                            onEnded={next}
                             className="w-full block aspect-video object-cover"
                         />
                     </div>
@@ -135,13 +137,6 @@ export default function HowItWorks() {
                                 }}
                             />
                         </div>
-                        <button
-                            type="button"
-                            onClick={advance}
-                            className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-background-secondary hover:text-on-background transition-colors duration-200 cursor-pointer"
-                        >
-                            Next
-                        </button>
                     </div>
                 </div>
             </div>

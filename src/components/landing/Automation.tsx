@@ -18,8 +18,11 @@ export default function Automation() {
 
             <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-20 md:py-32">
                 <div className="mx-auto max-w-[920px] text-center">
-                    <h2 className="text-[clamp(2.25rem,5.6vw,4.5rem)] leading-[1.04] tracking-[-0.026em] font-medium text-on-background text-balance">
-                        Recurring tasks, just describe the work.
+                    <p className="text-[11px] sm:text-[12px] font-semibold tracking-[0.18em] uppercase text-on-background-secondary mb-5">
+                        Recurring tasks
+                    </p>
+                    <h2 className="text-[clamp(2.5rem,6vw,5rem)] leading-[1.02] tracking-[-0.028em] font-medium text-on-background text-balance">
+                        Just describe the work.
                     </h2>
                 </div>
 

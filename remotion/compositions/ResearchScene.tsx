@@ -12,7 +12,7 @@ import { theme } from "../theme";
 
 const PROMPT = "How am I doing against @your.rival this week?";
 const PROMPT_END = 92;
-const RESULT_START = 130;
+const RESULT_START = 120;
 
 type Account = {
     handle: string;
@@ -62,10 +62,6 @@ function Composer({ frame }: { frame: number }) {
         ),
     );
     const visible = PROMPT.slice(0, visibleChars);
-    const collapse = interpolate(frame, [RESULT_START - 30, RESULT_START - 4], [1, 0], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-    });
     const caretOn = Math.floor(frame / 8) % 2 === 0;
     const showCaret = frame < PROMPT_END;
     return (
@@ -74,15 +70,11 @@ function Composer({ frame }: { frame: number }) {
                 background: theme.background,
                 border: `1.5px solid ${theme.onBackground}`,
                 borderRadius: 10,
-                padding: "22px 26px",
+                padding: "20px 24px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 10,
+                gap: 8,
                 boxShadow: "0 18px 44px -24px rgba(0,50,32,0.24)",
-                transform: `scaleY(${collapse})`,
-                transformOrigin: "top",
-                opacity: collapse,
-                marginBottom: collapse > 0 ? 20 : -200,
             }}
         >
             <div
@@ -98,12 +90,12 @@ function Composer({ frame }: { frame: number }) {
             </div>
             <div
                 style={{
-                    fontSize: 26,
-                    lineHeight: 1.4,
+                    fontSize: 24,
+                    lineHeight: 1.35,
                     color: theme.onBackground,
                     fontWeight: 500,
                     letterSpacing: "-0.012em",
-                    minHeight: 44,
+                    minHeight: 32,
                 }}
             >
                 {visible}
@@ -138,10 +130,6 @@ function AccountCard({
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
-    const lift = interpolate(frame - appearFrame, [0, 22], [16, 0], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-    });
     const photoIn = interpolate(frame - (appearFrame + 8), [0, 18], [0, 1], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
@@ -154,34 +142,36 @@ function AccountCard({
                     ? `1.5px solid ${theme.onBackground}`
                     : `1.5px solid ${theme.dividerStrong}`,
                 borderRadius: 10,
-                padding: "28px 30px",
+                padding: "22px 24px 24px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 22,
+                gap: 16,
                 opacity: op,
-                transform: `translateY(${lift}px)`,
                 boxShadow: account.isYou
-                    ? "0 32px 80px -32px rgba(0,50,32,0.36)"
-                    : "0 16px 40px -24px rgba(0,50,32,0.22)",
+                    ? "0 28px 70px -28px rgba(0,50,32,0.34)"
+                    : "0 14px 38px -22px rgba(0,50,32,0.22)",
+                width: "100%",
                 height: "100%",
+                boxSizing: "border-box",
             }}
         >
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div
                     style={{
-                        width: 56,
-                        height: 56,
+                        width: 46,
+                        height: 46,
                         borderRadius: 999,
                         background: account.avatarGrad,
                         border: `2px solid ${theme.background}`,
                         boxShadow: `0 0 0 1.5px ${theme.dividerStrong}`,
+                        flexShrink: 0,
                     }}
                 />
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span
                             style={{
-                                fontSize: 24,
+                                fontSize: 21,
                                 fontWeight: 800,
                                 color: theme.onBackground,
                                 letterSpacing: "-0.012em",
@@ -192,7 +182,7 @@ function AccountCard({
                         {account.isYou ? (
                             <span
                                 style={{
-                                    fontSize: 10,
+                                    fontSize: 9,
                                     color: theme.brandDark,
                                     background: theme.brandSoft,
                                     border: `1px solid ${theme.brand}`,
@@ -209,7 +199,7 @@ function AccountCard({
                     </div>
                     <span
                         style={{
-                            fontSize: 13,
+                            fontSize: 12,
                             color: theme.onBackgroundSecondary,
                             fontWeight: 600,
                             marginTop: 2,
@@ -225,11 +215,12 @@ function AccountCard({
                 style={{
                     position: "relative",
                     width: "100%",
-                    aspectRatio: "4 / 3",
+                    aspectRatio: "16 / 11",
                     borderRadius: 6,
                     overflow: "hidden",
                     background: theme.backgroundWarm,
                     opacity: photoIn,
+                    flex: "0 0 auto",
                 }}
             >
                 <Img
@@ -246,11 +237,11 @@ function AccountCard({
 
             <p
                 style={{
-                    fontSize: 15,
+                    fontSize: 14,
                     color: theme.onBackground,
                     fontWeight: 500,
                     letterSpacing: "-0.005em",
-                    lineHeight: 1.45,
+                    lineHeight: 1.4,
                     margin: 0,
                 }}
             >
@@ -261,9 +252,10 @@ function AccountCard({
                 style={{
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr 1fr",
-                    gap: 16,
-                    paddingTop: 20,
+                    gap: 14,
+                    paddingTop: 14,
                     borderTop: `1px solid ${theme.divider}`,
+                    marginTop: "auto",
                 }}
             >
                 {account.stats.map((s, i) => {
@@ -281,11 +273,12 @@ function AccountCard({
                                 flexDirection: "column",
                                 gap: 4,
                                 opacity: inFrame,
+                                minWidth: 0,
                             }}
                         >
                             <span
                                 style={{
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     color: theme.onBackgroundSecondary,
                                     fontWeight: 800,
                                     letterSpacing: "0.16em",
@@ -298,7 +291,7 @@ function AccountCard({
                                 style={{
                                     fontFamily:
                                         "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                    fontSize: s.emphasize ? 30 : 24,
+                                    fontSize: s.emphasize ? 26 : 20,
                                     fontWeight: 800,
                                     color: theme.onBackground,
                                     letterSpacing: "-0.012em",
@@ -337,11 +330,10 @@ export const ResearchScene: React.FC = () => {
 
             <AbsoluteFill
                 style={{
-                    padding: "60px 100px",
+                    padding: "50px 80px",
                     opacity: stageIn,
-                    display: "flex",
                     flexDirection: "column",
-                    gap: 20,
+                    gap: 24,
                 }}
             >
                 <Composer frame={frame} />
@@ -350,20 +342,25 @@ export const ResearchScene: React.FC = () => {
                     style={{
                         flex: 1,
                         display: "flex",
-                        alignItems: "stretch",
-                        justifyContent: "center",
-                        gap: 40,
+                        flexDirection: "row",
+                        gap: 30,
+                        minHeight: 0,
                     }}
                 >
                     {ACCOUNTS.map((acct, i) => (
-                        <div key={acct.handle} style={{ flex: 1, display: "flex" }}>
-                            <div style={{ flex: 1 }}>
-                                <AccountCard
-                                    account={acct}
-                                    appearFrame={RESULT_START + i * 14}
-                                    frame={frame}
-                                />
-                            </div>
+                        <div
+                            key={acct.handle}
+                            style={{
+                                flex: "1 1 0",
+                                minWidth: 0,
+                                display: "flex",
+                            }}
+                        >
+                            <AccountCard
+                                account={acct}
+                                appearFrame={RESULT_START + i * 12}
+                                frame={frame}
+                            />
                         </div>
                     ))}
                 </div>

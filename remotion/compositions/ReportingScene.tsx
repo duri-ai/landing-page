@@ -32,7 +32,7 @@ function ShopifyMark() {
     return (
         <Img
             src={staticFile("logos/third_party/shopify.svg")}
-            style={{ width: 40, height: 40 }}
+            style={{ width: 36, height: 36 }}
         />
     );
 }
@@ -40,7 +40,7 @@ function SquareMark() {
     return (
         <Img
             src={staticFile("logos/third_party/square.png")}
-            style={{ width: 40, height: 40, borderRadius: 7 }}
+            style={{ width: 36, height: 36, borderRadius: 6 }}
         />
     );
 }
@@ -48,8 +48,8 @@ function AmazonMark() {
     return (
         <div
             style={{
-                width: 48,
-                height: 40,
+                width: 44,
+                height: 36,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -57,7 +57,7 @@ function AmazonMark() {
         >
             <Img
                 src={staticFile("logos/third_party/amazon.png")}
-                style={{ width: 48, height: 40, objectFit: "contain" }}
+                style={{ width: 44, height: 36, objectFit: "contain" }}
             />
         </div>
     );
@@ -102,10 +102,6 @@ function Composer({ frame }: { frame: number }) {
         ),
     );
     const visible = PROMPT.slice(0, visibleChars);
-    const fade = interpolate(frame, [PROMPT_END, PROMPT_END + 18], [1, 0.7], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-    });
     const caretOn = Math.floor(frame / 8) % 2 === 0;
     const showCaret = frame < PROMPT_END;
     return (
@@ -114,17 +110,16 @@ function Composer({ frame }: { frame: number }) {
                 background: theme.background,
                 border: `1.5px solid ${theme.onBackground}`,
                 borderRadius: 10,
-                padding: "24px 28px",
+                padding: "20px 24px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 12,
+                gap: 8,
                 boxShadow: "0 18px 44px -24px rgba(0,50,32,0.24)",
-                opacity: fade,
             }}
         >
             <div
                 style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 800,
                     color: theme.onBackgroundSecondary,
                     letterSpacing: "0.18em",
@@ -135,12 +130,12 @@ function Composer({ frame }: { frame: number }) {
             </div>
             <div
                 style={{
-                    fontSize: 26,
-                    lineHeight: 1.4,
+                    fontSize: 24,
+                    lineHeight: 1.35,
                     color: theme.onBackground,
                     fontWeight: 500,
                     letterSpacing: "-0.012em",
-                    minHeight: 78,
+                    minHeight: 32,
                 }}
             >
                 {visible}
@@ -181,12 +176,12 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 background: theme.background,
                 border: `1.5px solid ${theme.dividerStrong}`,
                 borderRadius: 9,
-                padding: "20px 22px",
+                padding: "18px 20px",
                 display: "flex",
                 alignItems: "center",
-                gap: 16,
+                gap: 14,
                 opacity: op,
-                boxShadow: "0 12px 32px -22px rgba(0,50,32,0.20)",
+                boxShadow: "0 10px 28px -22px rgba(0,50,32,0.18)",
             }}
         >
             <div
@@ -200,10 +195,10 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 }}
             />
             {src.renderMark()}
-            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
                 <span
                     style={{
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: 700,
                         color: theme.onBackground,
                         letterSpacing: "-0.012em",
@@ -214,12 +209,12 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 </span>
                 <span
                     style={{
-                        fontSize: 12,
+                        fontSize: 11,
                         color: theme.onBackgroundSecondary,
                         letterSpacing: "0.14em",
                         textTransform: "uppercase",
                         fontWeight: 700,
-                        marginTop: 4,
+                        marginTop: 3,
                     }}
                 >
                     {src.sub}
@@ -229,7 +224,7 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 <span
                     style={{
                         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                        fontSize: 26,
+                        fontSize: 24,
                         fontWeight: 800,
                         color: theme.onBackground,
                         letterSpacing: "-0.012em",
@@ -240,7 +235,7 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 </span>
                 <span
                     style={{
-                        fontSize: 11,
+                        fontSize: 10,
                         color: sourcedSettled ? theme.brand : theme.onBackgroundSecondary,
                         letterSpacing: "0.14em",
                         textTransform: "uppercase",
@@ -324,277 +319,294 @@ export const ReportingScene: React.FC = () => {
 
             <AbsoluteFill
                 style={{
-                    padding: "70px 100px",
+                    padding: "50px 80px",
                     opacity: stageIn,
-                    display: "flex",
-                    gap: 60,
-                    alignItems: "stretch",
+                    flexDirection: "column",
+                    gap: 26,
                 }}
             >
+                <Composer frame={frame} />
+
                 <div
                     style={{
-                        flex: "0 0 580px",
+                        flex: 1,
                         display: "flex",
-                        flexDirection: "column",
-                        gap: 22,
+                        flexDirection: "row",
+                        gap: 40,
+                        minHeight: 0,
                     }}
                 >
-                    <Composer frame={frame} />
-                    {SOURCES.map((s) => (
-                        <SourceCard key={s.label} src={s} frame={frame} />
-                    ))}
-                </div>
-
-                <div style={{ flex: 1, position: "relative", display: "flex", alignItems: "center" }}>
                     <div
                         style={{
-                            width: "100%",
-                            height: 760,
-                            background: theme.background,
-                            border: `1.5px solid ${theme.onBackground}`,
-                            borderRadius: 4,
-                            boxShadow: "0 44px 110px -36px rgba(0,50,32,0.38)",
+                            flex: "0 0 480px",
                             display: "flex",
                             flexDirection: "column",
+                            gap: 16,
+                        }}
+                    >
+                        {SOURCES.map((s) => (
+                            <SourceCard key={s.label} src={s} frame={frame} />
+                        ))}
+                    </div>
+
+                    <div
+                        style={{
+                            flex: 1,
+                            minWidth: 0,
                             position: "relative",
-                            overflow: "hidden",
-                            opacity: pdfOp,
+                            display: "flex",
+                            alignItems: "stretch",
                         }}
                     >
                         <div
                             style={{
-                                position: "absolute",
-                                top: 22,
-                                right: 22,
-                                background: "#d33b3b",
-                                color: "#fff",
-                                padding: "6px 12px",
-                                borderRadius: 3,
-                                fontFamily:
-                                    "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                fontSize: 13,
-                                fontWeight: 800,
-                                letterSpacing: "0.18em",
-                            }}
-                        >
-                            PDF
-                        </div>
-
-                        <div style={{ padding: "36px 44px 18px" }}>
-                            <span
-                                style={{
-                                    fontFamily:
-                                        "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                    fontSize: 14,
-                                    color: theme.onBackgroundSecondary,
-                                    letterSpacing: "0.18em",
-                                    fontWeight: 700,
-                                    textTransform: "uppercase",
-                                }}
-                            >
-                                weekly_sales.pdf
-                            </span>
-                        </div>
-
-                        <div
-                            style={{
-                                padding: "0 44px 36px",
+                                width: "100%",
+                                background: theme.background,
+                                border: `1.5px solid ${theme.onBackground}`,
+                                borderRadius: 4,
+                                boxShadow: "0 36px 90px -30px rgba(0,50,32,0.36)",
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: 30,
-                                flex: 1,
+                                position: "relative",
+                                overflow: "hidden",
+                                opacity: pdfOp,
                             }}
                         >
-                            <div style={{ opacity: headerIn, display: "flex", flexDirection: "column", gap: 8 }}>
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    top: 18,
+                                    right: 18,
+                                    background: "#d33b3b",
+                                    color: "#fff",
+                                    padding: "5px 11px",
+                                    borderRadius: 3,
+                                    fontFamily:
+                                        "ui-monospace, SFMono-Regular, Menlo, monospace",
+                                    fontSize: 12,
+                                    fontWeight: 800,
+                                    letterSpacing: "0.18em",
+                                }}
+                            >
+                                PDF
+                            </div>
+
+                            <div style={{ padding: "26px 36px 14px" }}>
                                 <span
                                     style={{
+                                        fontFamily:
+                                            "ui-monospace, SFMono-Regular, Menlo, monospace",
                                         fontSize: 13,
                                         color: theme.onBackgroundSecondary,
-                                        fontWeight: 700,
                                         letterSpacing: "0.18em",
-                                        textTransform: "uppercase",
-                                    }}
-                                >
-                                    Week of Jun 9 to Jun 15
-                                </span>
-                                <div style={{ display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
-                                    <span
-                                        style={{
-                                            fontSize: 68,
-                                            fontWeight: 600,
-                                            color: theme.onBackground,
-                                            letterSpacing: "-0.028em",
-                                            lineHeight: 1,
-                                        }}
-                                    >
-                                        $11,758
-                                    </span>
-                                    <span
-                                        style={{
-                                            fontSize: 22,
-                                            color: theme.brand,
-                                            fontWeight: 800,
-                                        }}
-                                    >
-                                        +14.8%
-                                    </span>
-                                </div>
-                                <span
-                                    style={{
-                                        fontSize: 14,
-                                        color: theme.onBackgroundSecondary,
-                                        letterSpacing: "0.16em",
-                                        textTransform: "uppercase",
                                         fontWeight: 700,
-                                        marginTop: 4,
+                                        textTransform: "uppercase",
                                     }}
                                 >
-                                    Gross sales
+                                    weekly_sales.pdf
                                 </span>
                             </div>
 
-                            <div style={{ opacity: chartIn, display: "flex", flexDirection: "column", gap: 10 }}>
-                                <span
+                            <div
+                                style={{
+                                    padding: "0 36px 28px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 22,
+                                    flex: 1,
+                                }}
+                            >
+                                <div style={{ opacity: headerIn, display: "flex", flexDirection: "column", gap: 6 }}>
+                                    <span
+                                        style={{
+                                            fontSize: 12,
+                                            color: theme.onBackgroundSecondary,
+                                            fontWeight: 700,
+                                            letterSpacing: "0.18em",
+                                            textTransform: "uppercase",
+                                        }}
+                                    >
+                                        Week of Jun 9 to Jun 15
+                                    </span>
+                                    <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
+                                        <span
+                                            style={{
+                                                fontSize: 54,
+                                                fontWeight: 600,
+                                                color: theme.onBackground,
+                                                letterSpacing: "-0.026em",
+                                                lineHeight: 1,
+                                            }}
+                                        >
+                                            $11,758
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontSize: 18,
+                                                color: theme.brand,
+                                                fontWeight: 800,
+                                            }}
+                                        >
+                                            +14.8%
+                                        </span>
+                                    </div>
+                                    <span
+                                        style={{
+                                            fontSize: 12,
+                                            color: theme.onBackgroundSecondary,
+                                            letterSpacing: "0.16em",
+                                            textTransform: "uppercase",
+                                            fontWeight: 700,
+                                            marginTop: 2,
+                                        }}
+                                    >
+                                        Gross sales
+                                    </span>
+                                </div>
+
+                                <div style={{ opacity: chartIn, display: "flex", flexDirection: "column", gap: 8 }}>
+                                    <span
+                                        style={{
+                                            fontSize: 11,
+                                            color: theme.onBackgroundSecondary,
+                                            fontWeight: 700,
+                                            letterSpacing: "0.18em",
+                                            textTransform: "uppercase",
+                                        }}
+                                    >
+                                        Daily gross
+                                    </span>
+                                    <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 96 }}>
+                                        {chartBars.map((h, i) => (
+                                            <div
+                                                key={i}
+                                                style={{
+                                                    flex: 1,
+                                                    background:
+                                                        i === chartBars.length - 1 ? theme.brand : theme.onBackground,
+                                                    height: `${h * chartIn}%`,
+                                                    borderRadius: 3,
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div
                                     style={{
-                                        fontSize: 12,
-                                        color: theme.onBackgroundSecondary,
-                                        fontWeight: 700,
-                                        letterSpacing: "0.18em",
-                                        textTransform: "uppercase",
+                                        opacity: breakdownIn,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 10,
+                                        paddingTop: 16,
+                                        borderTop: `1px solid ${theme.divider}`,
                                     }}
                                 >
-                                    Daily gross
-                                </span>
-                                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130 }}>
-                                    {chartBars.map((h, i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                flex: 1,
-                                                background:
-                                                    i === chartBars.length - 1 ? theme.brand : theme.onBackground,
-                                                height: `${h * chartIn}%`,
-                                                borderRadius: 3,
-                                            }}
-                                        />
+                                    <span
+                                        style={{
+                                            fontSize: 11,
+                                            color: theme.onBackgroundSecondary,
+                                            fontWeight: 700,
+                                            letterSpacing: "0.18em",
+                                            textTransform: "uppercase",
+                                        }}
+                                    >
+                                        By channel
+                                    </span>
+                                    {[
+                                        { label: "Shopify", pct: 78, value: "$5,626" },
+                                        { label: "Square", pct: 55, value: "$3,948" },
+                                        { label: "Amazon", pct: 30, value: "$2,184" },
+                                    ].map((b) => (
+                                        <div key={b.label} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    fontSize: 13,
+                                                }}
+                                            >
+                                                <span style={{ color: theme.onBackground, fontWeight: 700 }}>
+                                                    {b.label}
+                                                </span>
+                                                <span
+                                                    style={{
+                                                        fontFamily:
+                                                            "ui-monospace, SFMono-Regular, Menlo, monospace",
+                                                        color: theme.onBackground,
+                                                        fontWeight: 800,
+                                                    }}
+                                                >
+                                                    {b.value}
+                                                </span>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    height: 5,
+                                                    borderRadius: 999,
+                                                    background: theme.divider,
+                                                    overflow: "hidden",
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        height: "100%",
+                                                        width: `${b.pct * breakdownIn}%`,
+                                                        background: theme.onBackground,
+                                                        borderRadius: 999,
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
 
                             <div
                                 style={{
-                                    opacity: breakdownIn,
+                                    position: "absolute",
+                                    bottom: 30,
+                                    right: 28,
+                                    background: theme.background,
+                                    border: `1.5px solid ${theme.brand}`,
+                                    borderRadius: 6,
+                                    padding: "10px 14px",
                                     display: "flex",
-                                    flexDirection: "column",
-                                    gap: 12,
-                                    paddingTop: 20,
-                                    borderTop: `1px solid ${theme.divider}`,
+                                    alignItems: "center",
+                                    gap: 10,
+                                    opacity: sentIn,
+                                    transform: `translateY(${sentLift}px)`,
+                                    boxShadow: "0 14px 36px -20px rgba(0,50,32,0.24)",
                                 }}
                             >
-                                <span
-                                    style={{
-                                        fontSize: 12,
-                                        color: theme.onBackgroundSecondary,
-                                        fontWeight: 700,
-                                        letterSpacing: "0.18em",
-                                        textTransform: "uppercase",
-                                    }}
-                                >
-                                    By channel
-                                </span>
-                                {[
-                                    { label: "Shopify", pct: 78, value: "$5,626" },
-                                    { label: "Square", pct: 55, value: "$3,948" },
-                                    { label: "Amazon", pct: 30, value: "$2,184" },
-                                ].map((b) => (
-                                    <div key={b.label} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                fontSize: 14,
-                                            }}
-                                        >
-                                            <span style={{ color: theme.onBackground, fontWeight: 700 }}>
-                                                {b.label}
-                                            </span>
-                                            <span
-                                                style={{
-                                                    fontFamily:
-                                                        "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                                    color: theme.onBackground,
-                                                    fontWeight: 800,
-                                                }}
-                                            >
-                                                {b.value}
-                                            </span>
-                                        </div>
-                                        <div
-                                            style={{
-                                                height: 6,
-                                                borderRadius: 999,
-                                                background: theme.divider,
-                                                overflow: "hidden",
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    height: "100%",
-                                                    width: `${b.pct * breakdownIn}%`,
-                                                    background: theme.onBackground,
-                                                    borderRadius: 999,
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div
-                            style={{
-                                position: "absolute",
-                                bottom: 48,
-                                right: 36,
-                                background: theme.background,
-                                border: `1.5px solid ${theme.brand}`,
-                                borderRadius: 6,
-                                padding: "12px 16px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 12,
-                                opacity: sentIn,
-                                transform: `translateY(${sentLift}px)`,
-                                boxShadow: "0 14px 36px -20px rgba(0,50,32,0.24)",
-                            }}
-                        >
-                            <Img
-                                src={staticFile("logos/third_party/gmail.svg")}
-                                style={{ width: 26, height: 26 }}
-                            />
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-                                <span
-                                    style={{
-                                        fontSize: 14,
-                                        fontWeight: 800,
-                                        color: theme.onBackground,
-                                        letterSpacing: "-0.01em",
-                                    }}
-                                >
-                                    Sent to myEmail@gmail.com
-                                </span>
-                                <span
-                                    style={{
-                                        fontSize: 11,
-                                        color: theme.onBackgroundSecondary,
-                                        letterSpacing: "0.14em",
-                                        textTransform: "uppercase",
-                                        fontWeight: 700,
-                                        marginTop: 2,
-                                    }}
-                                >
-                                    Monday, 9:00 AM
-                                </span>
+                                <Img
+                                    src={staticFile("logos/third_party/gmail.png")}
+                                    style={{ width: 22, height: 22, objectFit: "contain" }}
+                                />
+                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                    <span
+                                        style={{
+                                            fontSize: 12,
+                                            fontWeight: 800,
+                                            color: theme.onBackground,
+                                            letterSpacing: "-0.01em",
+                                        }}
+                                    >
+                                        Sent to myEmail@gmail.com
+                                    </span>
+                                    <span
+                                        style={{
+                                            fontSize: 10,
+                                            color: theme.onBackgroundSecondary,
+                                            letterSpacing: "0.14em",
+                                            textTransform: "uppercase",
+                                            fontWeight: 700,
+                                            marginTop: 2,
+                                        }}
+                                    >
+                                        Monday, 9:00 AM
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>

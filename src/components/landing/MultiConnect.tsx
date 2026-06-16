@@ -2,94 +2,79 @@ import { useEffect, useState } from "react";
 
 const base = import.meta.env.BASE_URL;
 
-const ROTATION_POOL = [
-    `${base}logos/third_party/gmail.png`,
-    `${base}logos/third_party/excel.svg`,
-    `${base}logos/third_party/clover.svg`,
-    `${base}logos/third_party/square.png`,
-    `${base}logos/third_party/airtable.svg`,
-    `${base}logos/third_party/notion.svg`,
-    `${base}logos/third_party/slack.svg`,
+const POOL = [
     `${base}logos/third_party/google.svg`,
     `${base}logos/third_party/m365.png`,
-    `${base}logos/third_party/outlook.svg`,
-    `${base}logos/third_party/mailchimp.svg`,
-    `${base}logos/third_party/amazon.png`,
+    `${base}logos/third_party/gmail.png`,
     `${base}logos/third_party/meta.png`,
-    `${base}logos/third_party/trello.svg`,
-    `${base}logos/third_party/jira.svg`,
+    `${base}logos/third_party/square.png`,
+    `${base}logos/third_party/shopify-bag.svg`,
+    `${base}logos/third_party/quickbooks-circle.svg`,
 ];
 
-const SHOPIFY = `${base}logos/third_party/shopify-bag.svg`;
-const QUICKBOOKS = `${base}logos/third_party/quickbooks-circle.svg`;
+const MULTI_ACCOUNT = new Set([
+    `${base}logos/third_party/shopify-bag.svg`,
+    `${base}logos/third_party/quickbooks-circle.svg`,
+]);
 
-const LEFT_SLOTS = 4;
-const RIGHT_SLOTS = 4;
+const SLOTS = 4;
 
-function pickInitial(count: number, used: Set<string>): string[] {
-    const pool = ROTATION_POOL.filter((p) => !used.has(p));
-    const picks: string[] = [];
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    for (let i = 0; i < count; i++) {
-        const v = shuffled[i % shuffled.length];
-        picks.push(v);
-        used.add(v);
+function randomSide(): string[] {
+    // 35% chance: pick a multi-account service and fill all 4 slots
+    if (Math.random() < 0.35) {
+        const multi = Array.from(MULTI_ACCOUNT);
+        const pick = multi[Math.floor(Math.random() * multi.length)];
+        return Array(SLOTS).fill(pick);
     }
-    return picks;
+    // Otherwise: 4 distinct non-multi services
+    const nonMulti = POOL.filter((p) => !MULTI_ACCOUNT.has(p));
+    const shuffled = [...nonMulti].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, SLOTS);
+}
+
+function isMultiSide(side: string[]): boolean {
+    return side.length > 0 && side.every((s) => s === side[0]) && MULTI_ACCOUNT.has(side[0]);
 }
 
 function IconCard({ src }: { src: string }) {
     return (
         <div
             key={src}
-            className="duri-mc-icon flex items-center justify-center w-14 h-14 rounded-[12px] border border-divider-strong bg-background shadow-[0_8px_20px_-10px_rgba(0,50,32,0.22)]"
+            className="duri-mc-icon flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-[14px] border border-divider-strong bg-background shadow-[0_10px_24px_-12px_rgba(0,50,32,0.22)]"
         >
-            <img src={src} alt="" aria-hidden className="w-8 h-8 object-contain" />
+            <img src={src} alt="" aria-hidden className="w-9 h-9 sm:w-11 sm:h-11 object-contain" />
         </div>
     );
 }
 
-function AnchorCard({ src, label }: { src: string; label: string }) {
+function DuriCenter() {
     return (
-        <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center justify-center w-20 h-20 rounded-[16px] border-[1.5px] border-on-background bg-background shadow-[0_16px_36px_-16px_rgba(0,50,32,0.28)]">
-                <img src={src} alt="" aria-hidden className="w-11 h-11 object-contain" />
-            </div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-background-secondary">
-                {label}
-            </p>
+        <div className="flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-[20px] bg-on-background shadow-[0_20px_48px_-16px_rgba(0,50,32,0.45)]">
+            <img
+                src={`${base}logos/d.svg`}
+                alt=""
+                aria-hidden
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-[10px]"
+            />
         </div>
     );
 }
 
 export default function MultiConnect() {
-    const [leftIcons, setLeftIcons] = useState<string[]>(() => {
-        const used = new Set<string>();
-        return pickInitial(LEFT_SLOTS, used);
-    });
-    const [rightIcons, setRightIcons] = useState<string[]>(() => {
-        const used = new Set<string>(leftIcons);
-        return pickInitial(RIGHT_SLOTS, used);
-    });
+    const [leftIcons, setLeftIcons] = useState<string[]>(() => randomSide());
+    const [rightIcons, setRightIcons] = useState<string[]>(() => randomSide());
 
     useEffect(() => {
         const id = window.setInterval(() => {
             const side = Math.random() < 0.5 ? "left" : "right";
             const setter = side === "left" ? setLeftIcons : setRightIcons;
-            setter((current) => {
-                const otherSide = side === "left" ? rightIcons : leftIcons;
-                const used = new Set<string>([...current, ...otherSide]);
-                const candidates = ROTATION_POOL.filter((p) => !used.has(p));
-                if (candidates.length === 0) return current;
-                const pick = candidates[Math.floor(Math.random() * candidates.length)];
-                const slot = Math.floor(Math.random() * current.length);
-                const next = [...current];
-                next[slot] = pick;
-                return next;
-            });
-        }, 1800);
+            setter(randomSide());
+        }, 2000);
         return () => window.clearInterval(id);
-    }, [leftIcons, rightIcons]);
+    }, []);
+
+    const leftIsMulti = isMultiSide(leftIcons);
+    const rightIsMulti = isMultiSide(rightIcons);
 
     return (
         <section className="relative w-full bg-background-warm border-t border-divider overflow-hidden">
@@ -106,77 +91,97 @@ export default function MultiConnect() {
                 }}
             />
 
-            <div className="relative mx-auto max-w-[1320px] px-5 sm:px-6 md:px-8 py-20 md:py-28">
-                <div className="text-center max-w-[40rem] mx-auto">
-                    <p className="text-[11px] sm:text-[12px] font-semibold tracking-[0.18em] uppercase text-on-background-secondary mb-4">
-                        Multi connection
-                    </p>
-                    <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.04] tracking-[-0.024em] font-medium text-on-background text-balance">
-                        Plug in once. Reach every tool you already pay for.
-                    </h2>
-                </div>
+            <div className="relative mx-auto max-w-[1320px] px-5 sm:px-6 md:px-8 py-16 sm:py-24 md:py-32">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 md:gap-16 items-center">
+                    <div className="max-w-[28rem]">
+                        <p className="text-[11px] sm:text-[12px] font-semibold tracking-[0.18em] uppercase text-on-background-secondary mb-4">
+                            Multi connection
+                        </p>
+                        <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.05] tracking-[-0.024em] font-medium text-on-background text-balance">
+                            Connect any data source, read and write in one place.
+                        </h2>
+                        <p className="mt-5 text-[clamp(0.975rem,1.15vw,1.1rem)] leading-[1.55] text-on-background-secondary">
+                            Three storefronts, two ad accounts, the books in another tab.
+                            Hand them all to Duri. It moves between them like a teammate
+                            who already has the passwords.
+                        </p>
+                    </div>
 
-                <div className="mt-14 md:mt-20 mx-auto max-w-[960px]">
-                    <div className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-x-4 sm:gap-x-8">
-                        <div className="flex flex-col items-stretch gap-4 sm:gap-6">
-                            {leftIcons.map((src, idx) => (
-                                <IconCard key={`l-${idx}-${src}`} src={src} />
-                            ))}
-                        </div>
+                    <div className="relative">
+                        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-stretch gap-x-3 sm:gap-x-6">
+                            <div className="flex flex-col items-center gap-4 sm:gap-5">
+                                {leftIcons.map((src, idx) => (
+                                    <IconCard
+                                        key={`l-${idx}-${src}-${leftIsMulti ? "m" : "s"}`}
+                                        src={src}
+                                    />
+                                ))}
+                            </div>
 
-                        <div className="relative h-full flex flex-col items-stretch justify-center" aria-hidden>
-                            {leftIcons.map((_, idx) => {
-                                const y = (idx + 0.5) * (100 / LEFT_SLOTS);
-                                return (
-                                    <svg
-                                        key={`l-line-${idx}`}
-                                        viewBox="0 0 100 100"
-                                        preserveAspectRatio="none"
-                                        className="absolute inset-0 w-full h-full"
-                                    >
-                                        <path
-                                            d={`M 0 ${y} Q 60 ${y} 100 50`}
-                                            stroke="color-mix(in oklch, var(--on-background) 14%, transparent)"
-                                            strokeWidth="1.5"
-                                            fill="none"
-                                            vectorEffect="non-scaling-stroke"
-                                        />
-                                    </svg>
-                                );
-                            })}
-                        </div>
+                            <div className="relative h-full" aria-hidden>
+                                {leftIcons.map((_, idx) => {
+                                    const y = (idx + 0.5) * (100 / SLOTS);
+                                    return (
+                                        <svg
+                                            key={`l-line-${idx}`}
+                                            viewBox="0 0 100 100"
+                                            preserveAspectRatio="none"
+                                            className="absolute inset-0 w-full h-full"
+                                        >
+                                            <path
+                                                d={`M 0 ${y} Q 55 ${y} 100 50`}
+                                                stroke={
+                                                    leftIsMulti
+                                                        ? "color-mix(in oklch, var(--brand) 55%, transparent)"
+                                                        : "color-mix(in oklch, var(--on-background) 14%, transparent)"
+                                                }
+                                                strokeWidth={leftIsMulti ? 2 : 1.5}
+                                                fill="none"
+                                                vectorEffect="non-scaling-stroke"
+                                            />
+                                        </svg>
+                                    );
+                                })}
+                            </div>
 
-                        <div className="flex flex-row items-center gap-4 sm:gap-6">
-                            <AnchorCard src={SHOPIFY} label="Shopify" />
-                            <AnchorCard src={QUICKBOOKS} label="QuickBooks" />
-                        </div>
+                            <div className="flex items-center justify-center">
+                                <DuriCenter />
+                            </div>
 
-                        <div className="relative h-full flex flex-col items-stretch justify-center" aria-hidden>
-                            {rightIcons.map((_, idx) => {
-                                const y = (idx + 0.5) * (100 / RIGHT_SLOTS);
-                                return (
-                                    <svg
-                                        key={`r-line-${idx}`}
-                                        viewBox="0 0 100 100"
-                                        preserveAspectRatio="none"
-                                        className="absolute inset-0 w-full h-full"
-                                    >
-                                        <path
-                                            d={`M 0 50 Q 40 ${y} 100 ${y}`}
-                                            stroke="color-mix(in oklch, var(--on-background) 14%, transparent)"
-                                            strokeWidth="1.5"
-                                            fill="none"
-                                            vectorEffect="non-scaling-stroke"
-                                        />
-                                    </svg>
-                                );
-                            })}
-                        </div>
+                            <div className="relative h-full" aria-hidden>
+                                {rightIcons.map((_, idx) => {
+                                    const y = (idx + 0.5) * (100 / SLOTS);
+                                    return (
+                                        <svg
+                                            key={`r-line-${idx}`}
+                                            viewBox="0 0 100 100"
+                                            preserveAspectRatio="none"
+                                            className="absolute inset-0 w-full h-full"
+                                        >
+                                            <path
+                                                d={`M 0 50 Q 45 ${y} 100 ${y}`}
+                                                stroke={
+                                                    rightIsMulti
+                                                        ? "color-mix(in oklch, var(--brand) 55%, transparent)"
+                                                        : "color-mix(in oklch, var(--on-background) 14%, transparent)"
+                                                }
+                                                strokeWidth={rightIsMulti ? 2 : 1.5}
+                                                fill="none"
+                                                vectorEffect="non-scaling-stroke"
+                                            />
+                                        </svg>
+                                    );
+                                })}
+                            </div>
 
-                        <div className="flex flex-col items-stretch gap-4 sm:gap-6">
-                            {rightIcons.map((src, idx) => (
-                                <IconCard key={`r-${idx}-${src}`} src={src} />
-                            ))}
+                            <div className="flex flex-col items-center gap-4 sm:gap-5">
+                                {rightIcons.map((src, idx) => (
+                                    <IconCard
+                                        key={`r-${idx}-${src}-${rightIsMulti ? "m" : "s"}`}
+                                        src={src}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

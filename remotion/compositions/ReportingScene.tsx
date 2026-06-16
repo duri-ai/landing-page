@@ -173,24 +173,26 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
         <div
             style={{
                 position: "relative",
-                background: theme.background,
-                border: `1.5px solid ${theme.dividerStrong}`,
-                borderRadius: 9,
-                padding: "18px 20px",
+                padding: "14px 4px",
                 display: "flex",
                 alignItems: "center",
-                gap: 14,
+                gap: 18,
                 opacity: op,
-                boxShadow: "0 10px 28px -22px rgba(0,50,32,0.18)",
+                borderBottom: `1px solid ${theme.divider}`,
             }}
         >
             <div
                 style={{
                     position: "absolute",
-                    inset: -2,
-                    borderRadius: 11,
-                    border: `2px solid ${theme.brand}`,
+                    left: -8,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    width: 6,
+                    height: 6,
+                    borderRadius: 999,
+                    background: theme.brand,
                     opacity: sourcedPulse,
+                    boxShadow: `0 0 14px ${theme.brand}`,
                     pointerEvents: "none",
                 }}
             />
@@ -361,26 +363,21 @@ export const ReportingScene: React.FC = () => {
                         <div
                             style={{
                                 width: "100%",
-                                background: theme.background,
-                                border: `1.5px solid ${theme.onBackground}`,
-                                borderRadius: 4,
-                                boxShadow: "0 36px 90px -30px rgba(0,50,32,0.36)",
                                 display: "flex",
                                 flexDirection: "column",
                                 position: "relative",
-                                overflow: "hidden",
                                 opacity: pdfOp,
                             }}
                         >
                             <div
                                 style={{
-                                    background: theme.backgroundWarm,
-                                    borderBottom: `1px solid ${theme.divider}`,
-                                    padding: "22px 28px",
+                                    padding: "4px 4px 22px",
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 16,
                                     flexShrink: 0,
+                                    borderBottom: `1px solid ${theme.divider}`,
+                                    marginBottom: 22,
                                 }}
                             >
                                 <div
@@ -425,7 +422,7 @@ export const ReportingScene: React.FC = () => {
 
                             <div
                                 style={{
-                                    padding: "26px 36px 28px",
+                                    padding: "0 4px",
                                     display: "flex",
                                     flexDirection: "column",
                                     gap: 22,
@@ -581,18 +578,13 @@ export const ReportingScene: React.FC = () => {
                             <div
                                 style={{
                                     position: "absolute",
-                                    bottom: 30,
-                                    right: 28,
-                                    background: theme.background,
-                                    border: `1.5px solid ${theme.brand}`,
-                                    borderRadius: 6,
-                                    padding: "10px 14px",
+                                    bottom: 12,
+                                    right: 4,
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 10,
                                     opacity: sentIn,
                                     transform: `translateY(${sentLift}px)`,
-                                    boxShadow: "0 14px 36px -20px rgba(0,50,32,0.24)",
                                 }}
                             >
                                 <Img

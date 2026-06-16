@@ -137,19 +137,11 @@ function AccountCard({
     return (
         <div
             style={{
-                background: theme.background,
-                border: account.isYou
-                    ? `1.5px solid ${theme.onBackground}`
-                    : `1.5px solid ${theme.dividerStrong}`,
-                borderRadius: 10,
-                padding: "20px 22px 22px",
+                padding: "4px 8px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 14,
+                gap: 16,
                 opacity: op,
-                boxShadow: account.isYou
-                    ? "0 28px 70px -28px rgba(0,50,32,0.34)"
-                    : "0 14px 38px -22px rgba(0,50,32,0.22)",
                 width: "100%",
                 height: "100%",
                 boxSizing: "border-box",
@@ -278,7 +270,7 @@ function AccountCard({
                         >
                             <span
                                 style={{
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     color: theme.onBackgroundSecondary,
                                     fontWeight: 800,
                                     letterSpacing: "0.16em",
@@ -291,7 +283,7 @@ function AccountCard({
                                 style={{
                                     fontFamily:
                                         "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                    fontSize: s.emphasize ? 30 : 23,
+                                    fontSize: s.emphasize ? 38 : 30,
                                     fontWeight: 800,
                                     color: theme.onBackground,
                                     letterSpacing: "-0.012em",

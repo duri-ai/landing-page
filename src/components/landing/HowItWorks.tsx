@@ -12,13 +12,13 @@ const ITEMS = [
     {
         key: "reporting",
         title: "Weekly reporting",
-        body: "Your numbers live spread across Shopify, Square, Amazon, and more. Duri pulls every source, rolls them into one branded PDF, and emails it where it needs to go.",
+        body: "Your numbers live spread across every tool you run. Duri pulls each source, rolls them into one branded PDF, and emails it where it needs to go.",
         src: `${base}videos/reporting.mp4`,
     },
     {
         key: "research",
         title: "Market research",
-        body: "Duri pulls public and private data — competitor posts, your store metrics, even what's trending around you — and lays the comparison right next to yours.",
+        body: "Drop a competitor handle and ask. Duri pulls their posts, follower counts, and engagement, and lays it right next to yours so you can see how you're doing.",
         src: `${base}videos/research.mp4`,
     },
 ] as const;

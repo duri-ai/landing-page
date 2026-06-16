@@ -68,15 +68,26 @@ function Composer({ frame }: { frame: number }) {
         <div
             style={{
                 background: theme.background,
-                border: `1.5px solid ${theme.dividerStrong}`,
-                borderRadius: 16,
-                padding: "22px 26px 18px",
+                border: `1.5px solid ${theme.onBackground}`,
+                borderRadius: 10,
+                padding: "20px 24px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 18,
-                boxShadow: "0 22px 50px -28px rgba(0,50,32,0.22)",
+                gap: 8,
+                boxShadow: "0 18px 44px -24px rgba(0,50,32,0.24)",
             }}
         >
+            <div
+                style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: theme.onBackgroundSecondary,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                }}
+            >
+                You
+            </div>
             <div
                 style={{
                     fontSize: 28,
@@ -92,56 +103,15 @@ function Composer({ frame }: { frame: number }) {
                     <span
                         style={{
                             display: "inline-block",
-                            width: 2.5,
+                            width: 3,
                             height: "1em",
-                            background: theme.onBackground,
+                            background: theme.brand,
                             verticalAlign: "-0.18em",
                             marginLeft: 2,
                             opacity: caretOn ? 1 : 0,
                         }}
                     />
                 ) : null}
-            </div>
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                }}
-            >
-                <div
-                    style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: 999,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: theme.onBackgroundSecondary,
-                        fontSize: 22,
-                        fontWeight: 400,
-                        lineHeight: 1,
-                    }}
-                >
-                    +
-                </div>
-                <div
-                    style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 999,
-                        background: theme.onBackground,
-                        color: theme.onBrand,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 18,
-                        fontWeight: 700,
-                        lineHeight: 1,
-                    }}
-                >
-                    ↑
-                </div>
             </div>
         </div>
     );
@@ -172,10 +142,10 @@ function AccountCard({
                     ? `1.5px solid ${theme.onBackground}`
                     : `1.5px solid ${theme.dividerStrong}`,
                 borderRadius: 10,
-                padding: "22px 24px 24px",
+                padding: "20px 22px 22px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 16,
+                gap: 14,
                 opacity: op,
                 boxShadow: account.isYou
                     ? "0 28px 70px -28px rgba(0,50,32,0.34)"
@@ -245,7 +215,7 @@ function AccountCard({
                 style={{
                     position: "relative",
                     width: "100%",
-                    aspectRatio: "16 / 11",
+                    aspectRatio: "16 / 9",
                     borderRadius: 6,
                     overflow: "hidden",
                     background: theme.backgroundWarm,

@@ -108,15 +108,26 @@ function Composer({ frame }: { frame: number }) {
         <div
             style={{
                 background: theme.background,
-                border: `1.5px solid ${theme.dividerStrong}`,
-                borderRadius: 16,
-                padding: "22px 26px 18px",
+                border: `1.5px solid ${theme.onBackground}`,
+                borderRadius: 10,
+                padding: "20px 24px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 18,
-                boxShadow: "0 22px 50px -28px rgba(0,50,32,0.22)",
+                gap: 8,
+                boxShadow: "0 18px 44px -24px rgba(0,50,32,0.24)",
             }}
         >
+            <div
+                style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: theme.onBackgroundSecondary,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                }}
+            >
+                You
+            </div>
             <div
                 style={{
                     fontSize: 28,
@@ -132,56 +143,15 @@ function Composer({ frame }: { frame: number }) {
                     <span
                         style={{
                             display: "inline-block",
-                            width: 2.5,
+                            width: 3,
                             height: "1em",
-                            background: theme.onBackground,
+                            background: theme.brand,
                             verticalAlign: "-0.18em",
                             marginLeft: 2,
                             opacity: caretOn ? 1 : 0,
                         }}
                     />
                 ) : null}
-            </div>
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                }}
-            >
-                <div
-                    style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: 999,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: theme.onBackgroundSecondary,
-                        fontSize: 22,
-                        fontWeight: 400,
-                        lineHeight: 1,
-                    }}
-                >
-                    +
-                </div>
-                <div
-                    style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 999,
-                        background: theme.onBackground,
-                        color: theme.onBrand,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 18,
-                        fontWeight: 700,
-                        lineHeight: 1,
-                    }}
-                >
-                    ↑
-                </div>
             </div>
         </div>
     );
@@ -406,10 +376,10 @@ export const ReportingScene: React.FC = () => {
                                 style={{
                                     background: theme.backgroundWarm,
                                     borderBottom: `1px solid ${theme.divider}`,
-                                    padding: "14px 20px",
+                                    padding: "22px 28px",
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: 12,
+                                    gap: 16,
                                     flexShrink: 0,
                                 }}
                             >
@@ -417,13 +387,13 @@ export const ReportingScene: React.FC = () => {
                                     style={{
                                         background: "#d33b3b",
                                         color: "#fff",
-                                        padding: "5px 9px",
-                                        borderRadius: 3,
+                                        padding: "10px 14px",
+                                        borderRadius: 5,
                                         fontFamily:
                                             "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                        fontSize: 11,
+                                        fontSize: 16,
                                         fontWeight: 800,
-                                        letterSpacing: "0.16em",
+                                        letterSpacing: "0.18em",
                                         lineHeight: 1,
                                     }}
                                 >
@@ -431,10 +401,10 @@ export const ReportingScene: React.FC = () => {
                                 </div>
                                 <span
                                     style={{
-                                        fontSize: 16,
+                                        fontSize: 24,
                                         color: theme.onBackground,
                                         fontWeight: 700,
-                                        letterSpacing: "-0.005em",
+                                        letterSpacing: "-0.01em",
                                     }}
                                 >
                                     weekly_sales.pdf
@@ -442,7 +412,7 @@ export const ReportingScene: React.FC = () => {
                                 <span
                                     style={{
                                         marginLeft: "auto",
-                                        fontSize: 11,
+                                        fontSize: 13,
                                         color: theme.onBackgroundSecondary,
                                         letterSpacing: "0.16em",
                                         textTransform: "uppercase",

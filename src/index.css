@@ -98,6 +98,12 @@ html, body, #root {
   background-color: var(--brand-dark);
 }
 
+/* Keep the vertical scrollbar slot reserved so the Nav doesn't shift
+   width between short pages (login / signup) and long pages (landing). */
+html {
+  scrollbar-gutter: stable;
+}
+
 @layer base {
   * {
     outline: none;
@@ -409,6 +415,20 @@ html, body, #root {
     transform 560ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
 }
 
+
+/* MultiConnect section: icon tile cross-fades when its slot value
+   changes (the key change in React already remounts the node, so we
+   just play the entrance animation once). */
+@keyframes duri-mc-icon {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.duri-mc-icon {
+  animation: duri-mc-icon 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .duri-mc-icon { animation: none !important; }
+}
 
 /* Automation section: checklist items appear in sequence. */
 @keyframes duri-auto-step {

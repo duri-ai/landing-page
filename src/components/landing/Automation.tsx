@@ -85,22 +85,6 @@ export default function Automation() {
                         </div>
 
                         <div className="rounded-[14px] rounded-tl-[4px] border-[1.5px] border-on-background bg-background overflow-hidden shadow-[0_28px_72px_-28px_rgba(0,50,32,0.22)]">
-                            <div className="px-6 py-5 border-b border-divider flex flex-col gap-3">
-                                <p className="text-[13px] font-mono text-on-background break-all leading-snug">
-                                    https://docs.google.com/spreadsheets/d/1CdRgorTNU8T8lTE6QB5m_NZ9YsCTG5yePeYYdwalrXE/edit?gid=0#gid=0 that I can track reddit subreddits, posts, comments that
-                                </p>
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-on-background-secondary">
-                                    <span className="inline-flex items-center gap-1.5">
-                                        <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full bg-brand" />
-                                        Every day at 8:00 AM
-                                    </span>
-                                    <span className="opacity-60">·</span>
-                                    <span>America/Vancouver</span>
-                                    <span className="opacity-60">·</span>
-                                    <span>Last run 18 minutes ago</span>
-                                </div>
-                            </div>
-
                             <ul className="px-6 py-6 flex flex-col gap-4">
                                 {STEPS.map((step, i) => {
                                     const running = i === runningIdx;

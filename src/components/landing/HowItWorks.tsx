@@ -12,17 +12,29 @@ export default function HowItWorks() {
     }, []);
 
     return (
-        <section id="how" className="relative w-full bg-background border-t border-divider overflow-hidden">
+        <section id="how" className="relative w-full bg-background overflow-hidden">
             <div
                 aria-hidden
-                className="absolute inset-0 duri-grid-bg opacity-[0.12] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]"
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    backgroundImage:
+                        "linear-gradient(to bottom, color-mix(in oklch, var(--background-warm) 70%, transparent), transparent 60%, color-mix(in oklch, var(--background-warm) 50%, transparent))",
+                }}
             />
             <div
                 aria-hidden
-                className="absolute inset-x-0 top-0 h-[420px] pointer-events-none"
+                className="absolute -left-32 top-1/2 -translate-y-1/2 h-[480px] w-[480px] rounded-full pointer-events-none"
                 style={{
                     background:
-                        "radial-gradient(ellipse 70% 60% at 50% 0%, color-mix(in oklch, var(--brand) 6%, transparent) 0%, transparent 70%)",
+                        "radial-gradient(circle, color-mix(in oklch, var(--brand) 7%, transparent) 0%, transparent 70%)",
+                }}
+            />
+            <div
+                aria-hidden
+                className="absolute -right-32 top-1/2 -translate-y-1/2 h-[480px] w-[480px] rounded-full pointer-events-none"
+                style={{
+                    background:
+                        "radial-gradient(circle, color-mix(in oklch, var(--highlight) 4%, transparent) 0%, transparent 70%)",
                 }}
             />
 
@@ -43,7 +55,6 @@ export default function HowItWorks() {
                         </span>
                         <span className="sr-only">{SLIDES[i]}</span>
                     </span>
-                    .
                 </h2>
 
                 <div className="mt-12 md:mt-16 mx-auto max-w-[960px]">

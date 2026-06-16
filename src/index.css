@@ -162,11 +162,12 @@ html, body, #root {
   }
 
   .duri-revolver {
-    display: inline-flex;
-    height: 1em;
+    display: inline-block;
+    height: 1.25em;
     overflow: hidden;
-    vertical-align: baseline;
+    vertical-align: bottom;
     line-height: 1;
+    transform: translateY(0.18em);
   }
   .duri-revolver-track {
     display: flex;
@@ -175,10 +176,10 @@ html, body, #root {
     will-change: transform;
   }
   .duri-revolver-word {
-    height: 1em;
-    line-height: 1;
     display: flex;
     align-items: center;
+    height: 1.25em;
+    line-height: 1.25;
   }
   @media (prefers-reduced-motion: reduce) {
     .duri-revolver-track { transition: none; }

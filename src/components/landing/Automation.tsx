@@ -5,28 +5,25 @@ export default function Automation() {
         <section className="relative w-full bg-background-warm border-t border-divider overflow-hidden">
             <div
                 aria-hidden
-                className="absolute inset-0 duri-grid-bg opacity-[0.14] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
+                className="absolute inset-0 duri-grid-bg opacity-[0.16] [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"
             />
             <div
                 aria-hidden
-                className="absolute inset-x-0 top-0 h-[420px] pointer-events-none"
+                className="absolute -top-20 right-[-180px] h-[520px] w-[520px] rounded-full pointer-events-none"
                 style={{
                     background:
-                        "radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in oklch, var(--brand) 5%, transparent) 0%, transparent 70%)",
+                        "radial-gradient(circle, color-mix(in oklch, var(--brand) 8%, transparent) 0%, transparent 65%)",
                 }}
             />
 
             <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-20 md:py-32">
-                <div className="max-w-[22ch]">
-                    <h2 className="text-[clamp(2.25rem,5.4vw,4.25rem)] leading-[1.02] tracking-[-0.026em] font-medium text-on-background text-balance">
-                        <span className="text-brand">Recurring</span> tasks.
+                <div className="text-center max-w-[28ch] mx-auto">
+                    <h2 className="text-[clamp(2.25rem,5.6vw,4.5rem)] leading-[1.04] tracking-[-0.026em] font-medium text-on-background text-balance">
+                        <span className="text-brand">Recurring tasks</span>, just describe the work.
                     </h2>
-                    <p className="mt-4 text-[clamp(1rem,1.35vw,1.2rem)] leading-[1.5] text-on-background-secondary">
-                        Just describe the work.
-                    </p>
                 </div>
 
-                <div className="mt-12 md:mt-16 mx-auto max-w-[960px]">
+                <div className="mt-14 md:mt-20 mx-auto max-w-[960px]">
                     <div className="rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background shadow-[0_24px_72px_-28px_rgba(0,50,32,0.26)]">
                         <video
                             src={`${base}videos/flow-animation.mp4`}

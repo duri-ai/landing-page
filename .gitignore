@@ -33,6 +33,10 @@ dist-ssr
 # Local scratch — never committed.
 temp_tests/
 
+# Remotion build artifacts
+.remotion/
+out/
+
 .claude/
 .github/skills/
 .impeccable/

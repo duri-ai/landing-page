@@ -1,5 +1,7 @@
 import { Check, Loader2 } from "lucide-react";
 
+const base = import.meta.env.BASE_URL;
+
 const STEPS = [
     "Pulled 24 invoices from QuickBooks",
     "Filtered overdue 30+ days",
@@ -11,14 +13,14 @@ export default function Automation() {
     return (
         <section className="w-full bg-background-warm border-t border-divider">
             <div className="mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-16 sm:py-20 md:py-28">
-                <h2 className="duri-section-title text-balance max-w-[22ch]">
+                <h2 className="duri-section-title text-balance max-w-[24ch]">
                     <span className="duri-strike mr-3 md:mr-4">Workflow Builder</span>
                     <br className="hidden sm:inline" />
                     <span>Just describe the work.</span>
                 </h2>
 
-                <div className="mt-12 md:mt-16 max-w-[640px]">
-                    <div className="rounded-xs border border-on-background bg-background overflow-hidden shadow-[0_16px_48px_-24px_rgba(0,50,32,0.2)]">
+                <div className="mt-12 md:mt-16 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-6 lg:gap-10 items-stretch">
+                    <div className="rounded-xs border border-on-background bg-background overflow-hidden shadow-[0_16px_48px_-24px_rgba(0,50,32,0.18)] flex flex-col">
                         <div className="px-5 py-4 border-b border-divider bg-background-warm">
                             <p className="text-[11px] uppercase tracking-[0.14em] text-on-background-secondary font-semibold mb-1.5">
                                 You
@@ -27,7 +29,7 @@ export default function Automation() {
                                 Every Wednesday, email overdue invoices to those customers.
                             </p>
                         </div>
-                        <ul className="px-5 py-5 flex flex-col gap-3">
+                        <ul className="px-5 py-5 flex flex-col gap-3 flex-1">
                             {STEPS.map((step, i) => {
                                 const running = i === STEPS.length - 1;
                                 return (
@@ -62,6 +64,17 @@ export default function Automation() {
                                 );
                             })}
                         </ul>
+                    </div>
+
+                    <div className="rounded-xs overflow-hidden border-[1.5px] border-on-background bg-background shadow-[0_16px_48px_-24px_rgba(0,50,32,0.18)]">
+                        <video
+                            src={`${base}videos/flow-animation.mp4`}
+                            autoPlay
+                            muted
+                            playsInline
+                            aria-hidden="true"
+                            className="w-full h-full block aspect-video object-cover"
+                        />
                     </div>
                 </div>
             </div>

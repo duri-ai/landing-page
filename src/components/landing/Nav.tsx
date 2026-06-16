@@ -68,22 +68,13 @@ export default function Nav() {
                                 Account
                             </button>
                         ) : (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={() => navigate("/login")}
-                                    className="text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
-                                >
-                                    Sign in
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => navigate("/signup")}
-                                    className="text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
-                                >
-                                    Create account
-                                </button>
-                            </>
+                            <button
+                                type="button"
+                                onClick={() => navigate("/signup")}
+                                className="text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
+                            >
+                                Create account
+                            </button>
                         )
                     )}
                 </div>

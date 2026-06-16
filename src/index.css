@@ -208,17 +208,23 @@ html, body, #root {
     color: color-mix(in oklch, var(--on-background) 50%, transparent);
   }
 
+  .duri-strike::before,
   .duri-strike::after {
     content: "";
     position: absolute;
-    left: -2%;
-    right: -2%;
+    left: -3%;
+    right: -3%;
     top: 50%;
-    height: 0.07em;
+    height: 0.085em;
     background-color: #d23a3a;
     border-radius: 999px;
     pointer-events: none;
-    transform: translateY(-50%);
+  }
+  .duri-strike::before {
+    transform: translateY(-50%) rotate(-9deg);
+  }
+  .duri-strike::after {
+    transform: translateY(-50%) rotate(9deg);
   }
 }
 

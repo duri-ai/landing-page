@@ -18,13 +18,33 @@ export default function Hero() {
     }, []);
 
     return (
-        <section className="w-full bg-background">
-            <div className="mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 pt-16 sm:pt-24 md:pt-28 pb-16 md:pb-24">
+        <section className="relative w-full bg-background overflow-hidden">
+            <div
+                aria-hidden
+                className="absolute inset-0 duri-grid-bg opacity-[0.18] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
+            />
+            <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-[520px] pointer-events-none"
+                style={{
+                    background:
+                        "radial-gradient(ellipse 70% 60% at 50% 0%, color-mix(in oklch, var(--brand) 8%, transparent) 0%, transparent 70%)",
+                }}
+            />
+            <div
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+                style={{
+                    background:
+                        "linear-gradient(to bottom, transparent, var(--background) 80%)",
+                }}
+            />
+            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 pt-16 sm:pt-24 md:pt-28 pb-16 md:pb-24">
                 <div id="download" className="text-center">
                     <h1 className="text-[clamp(2.5rem,6.4vw,5rem)] leading-[1.02] tracking-[-0.028em] font-medium text-on-background max-w-[16ch] mx-auto text-balance">
                         An <span className="text-brand">AI workspace</span> for small business.
                     </h1>
-                    <p className="mt-6 text-[clamp(1.125rem,1.7vw,1.4rem)] leading-[1.4] text-on-background-secondary max-w-[40ch] mx-auto text-balance">
+                    <p className="mt-5 text-[clamp(1rem,1.35vw,1.2rem)] leading-[1.45] text-on-background-secondary max-w-[40ch] mx-auto text-balance">
                         Automate your business in plain language.
                     </p>
                 </div>
@@ -32,7 +52,7 @@ export default function Hero() {
                 <div className="mt-9 sm:mt-11 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
                     <a
                         href={MAC_DOWNLOAD}
-                        className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xs text-base font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[220px] ${
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] ${
                             isMac
                                 ? "bg-brand text-on-brand border-brand hover:bg-brand-variant"
                                 : "bg-background text-on-background border-divider-strong hover:border-on-background"
@@ -43,7 +63,7 @@ export default function Hero() {
                     </a>
                     <a
                         href={WIN_DOWNLOAD}
-                        className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xs text-base font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[220px] ${
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] ${
                             !isMac
                                 ? "bg-brand text-on-brand border-brand hover:bg-brand-variant"
                                 : "bg-background text-on-background border-divider-strong hover:border-on-background"
@@ -55,21 +75,17 @@ export default function Hero() {
                 </div>
 
                 <div className="mt-12 sm:mt-16 mx-auto max-w-[960px]">
-                    <div className="rounded-[10px] overflow-hidden shadow-[0_28px_80px_-28px_rgba(0,50,32,0.24)] border-[1.5px] border-on-background bg-background">
-                        <video
-                            src={`${base}videos/flow-animation.mp4`}
-                            autoPlay
-                            muted
-                            playsInline
-                            aria-hidden="true"
-                            className="w-full block aspect-video object-cover"
-                        />
+                    <div className="relative rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background-warm aspect-video flex items-center justify-center">
+                        <div aria-hidden className="absolute inset-0 duri-grid-bg opacity-[0.25]" />
+                        <p className="relative text-on-background-secondary text-sm font-medium tracking-[0.14em] uppercase">
+                            Hero video, coming soon
+                        </p>
                     </div>
                 </div>
 
                 <div className="mt-12 sm:mt-16">
                     <p className="text-center text-[11px] font-semibold tracking-[0.16em] uppercase text-on-background-secondary mb-6">
-                        Works with the tools your business already runs on
+                        Works with the tools your business runs on
                     </p>
                     <div className="relative w-full overflow-hidden">
                         <div

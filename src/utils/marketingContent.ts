@@ -8,18 +8,13 @@ export type Integration = {
 export const integrations: Integration[] = [
     { name: "Shopify", logo: `${base}logos/third_party/shopify.svg` },
     { name: "QuickBooks", logo: `${base}logos/third_party/quickbooks.svg` },
-    { name: "Gmail", logo: `${base}logos/third_party/gmail.svg` },
     { name: "Google Workspace", logo: `${base}logos/third_party/google.svg` },
     { name: "Microsoft 365", logo: `${base}logos/third_party/m365.png` },
-    { name: "Outlook", logo: `${base}logos/third_party/outlook.svg` },
     { name: "Excel", logo: `${base}logos/third_party/excel.svg` },
     { name: "Clover", logo: `${base}logos/third_party/clover.svg` },
-    { name: "Square", logo: `${base}logos/third_party/square.png` },
     { name: "Airtable", logo: `${base}logos/third_party/airtable.svg` },
     { name: "Notion", logo: `${base}logos/third_party/notion.svg` },
     { name: "Slack", logo: `${base}logos/third_party/slack.svg` },
-    { name: "Mailchimp", logo: `${base}logos/third_party/mailchimp.svg` },
-    { name: "Jira", logo: `${base}logos/third_party/jira.svg` },
 ];
 
 export type HowItWorksAct = {

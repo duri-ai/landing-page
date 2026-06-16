@@ -43,7 +43,7 @@ const plans: Plan[] = [
                 text: "20.00 in credits every month",
                 subs: [
                     "15.00 plus a 5.00 bonus credit",
-                    "Recharge anytime, or turn on auto-reload — 1 credit is worth $1",
+                    "Recharge anytime, or turn on auto-reload",
                 ],
             },
             { text: "Invite your team" },

@@ -29,7 +29,7 @@ export default function Nav() {
                         className="h-6 w-6 rounded-[5px]"
                     />
                     <span className="text-[1.25rem] font-bold tracking-[-0.03em] text-on-background leading-none">
-                        duri
+                        Duri
                     </span>
                 </Link>
 

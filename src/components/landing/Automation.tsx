@@ -5,7 +5,7 @@ export default function Automation() {
         <section className="relative w-full bg-background-warm border-t border-divider overflow-hidden">
             <div
                 aria-hidden
-                className="absolute inset-0 duri-grid-bg opacity-[0.16] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
+                className="absolute inset-0 duri-grid-bg opacity-[0.14] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
             />
             <div
                 aria-hidden
@@ -16,18 +16,13 @@ export default function Automation() {
                 }}
             />
 
-            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-20 md:py-28">
-                <div className="max-w-[26ch]">
-                    <p className="duri-eyebrow mb-5">
-                        <span className="duri-strike">Workflow builder</span>
-                    </p>
-                    <h2 className="text-[clamp(2rem,4.6vw,3.75rem)] leading-[1.04] tracking-[-0.024em] font-medium text-on-background text-balance">
-                        Recurring tasks,{" "}
-                        <span className="text-brand">done for you</span>.
+            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-20 md:py-32">
+                <div className="max-w-[22ch]">
+                    <h2 className="text-[clamp(2.25rem,5.4vw,4.25rem)] leading-[1.02] tracking-[-0.026em] font-medium text-on-background text-balance">
+                        <span className="text-brand">Recurring</span> tasks.
                     </h2>
-                    <p className="mt-5 text-[clamp(1rem,1.35vw,1.2rem)] leading-[1.5] text-on-background-secondary max-w-[40ch]">
-                        Just describe the work. Duri runs it on schedule, no graph to wire,
-                        no nodes to maintain.
+                    <p className="mt-4 text-[clamp(1rem,1.35vw,1.2rem)] leading-[1.5] text-on-background-secondary">
+                        Just describe the work.
                     </p>
                 </div>
 

@@ -24,10 +24,10 @@ export default function CTABand() {
                 </h2>
                 <Link
                     to="/signup"
-                    className="mt-10 inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xs text-[0.95rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant"
+                    className="mt-9 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant"
                 >
-                    Try Duri free
-                    <ArrowRightIcon className="w-4 h-4" />
+                    Get started
+                    <ArrowRightIcon className="w-3.5 h-3.5" />
                 </Link>
             </div>
         </section>

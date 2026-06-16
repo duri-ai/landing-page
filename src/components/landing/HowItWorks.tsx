@@ -1,85 +1,66 @@
-import { ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const base = import.meta.env.BASE_URL;
-const logo = (slug: string) => `${base}logos/third_party/${slug}`;
-
-type Column = {
-    accent: string;
-    sources: { src: string; alt: string }[];
-    target: { src: string; alt: string };
-};
-
-const COLUMNS: Column[] = [
-    {
-        accent: "Operations",
-        sources: [
-            { src: logo("shopify.svg"), alt: "Shopify" },
-            { src: logo("shopify.svg"), alt: "Shopify" },
-            { src: logo("shopify.svg"), alt: "Shopify" },
-        ],
-        target: { src: logo("quickbooks.svg"), alt: "QuickBooks" },
-    },
-    {
-        accent: "Reporting",
-        sources: [
-            { src: logo("clover.svg"), alt: "Clover" },
-            { src: logo("excel.svg"), alt: "Sheets" },
-            { src: logo("shopify.svg"), alt: "Shopify" },
-        ],
-        target: { src: logo("gmail.svg"), alt: "Gmail" },
-    },
-];
-
-function Flow({ col }: { col: Column }) {
-    return (
-        <div className="flex items-center justify-center gap-4 sm:gap-6 h-full">
-            <div className="flex flex-col items-center gap-2">
-                {col.sources.map((s, i) => (
-                    <div
-                        key={i}
-                        className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xs border border-divider-strong bg-background"
-                    >
-                        <img src={s.src} alt={s.alt} className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
-                    </div>
-                ))}
-            </div>
-            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-on-background-secondary flex-none" aria-hidden />
-            <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xs border-[1.5px] border-on-background bg-background">
-                <img src={col.target.src} alt={col.target.alt} className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
-            </div>
-        </div>
-    );
-}
+const SLIDES = ["operations", "reporting", "research"] as const;
+const ROTATE_MS = 3200;
 
 export default function HowItWorks() {
+    const [i, setI] = useState(0);
+
+    useEffect(() => {
+        const id = setInterval(() => setI((x) => (x + 1) % SLIDES.length), ROTATE_MS);
+        return () => clearInterval(id);
+    }, []);
+
     return (
         <section id="how" className="relative w-full bg-background border-t border-divider overflow-hidden">
             <div
                 aria-hidden
                 className="absolute inset-0 duri-grid-bg opacity-[0.12] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]"
             />
-            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-16 sm:py-20 md:py-28">
-                <div className="grid grid-cols-2 gap-x-6 sm:gap-x-12 md:gap-x-20">
-                    {COLUMNS.map((col) => (
-                        <h2
-                            key={col.accent}
-                            className="text-[clamp(1.25rem,2.6vw,2.125rem)] leading-[1.12] tracking-[-0.02em] font-medium text-on-background text-balance"
+            <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-[420px] pointer-events-none"
+                style={{
+                    background:
+                        "radial-gradient(ellipse 70% 60% at 50% 0%, color-mix(in oklch, var(--brand) 6%, transparent) 0%, transparent 70%)",
+                }}
+            />
+
+            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-20 md:py-32">
+                <h2 className="text-[clamp(2.5rem,7vw,5.75rem)] leading-[1.02] tracking-[-0.028em] font-medium text-on-background text-balance">
+                    Automate{" "}
+                    <span className="duri-revolver">
+                        <span
+                            className="duri-revolver-track"
+                            style={{ transform: `translateY(-${i * 100}%)` }}
+                            aria-hidden
                         >
-                            Automate{" "}
-                            <span className="text-brand">{col.accent.toLowerCase()}</span>{" "}
-                            in plain language.
-                        </h2>
-                    ))}
-                </div>
-                <div className="mt-10 sm:mt-14 grid grid-cols-2 gap-x-6 sm:gap-x-12 md:gap-x-20">
-                    {COLUMNS.map((col) => (
-                        <div
-                            key={col.accent}
-                            className="rounded-xs border border-divider bg-background py-8 sm:py-10 shadow-[0_8px_32px_-20px_rgba(0,50,32,0.18)]"
-                        >
-                            <Flow col={col} />
+                            {SLIDES.map((s) => (
+                                <span key={s} className="duri-revolver-word text-brand">
+                                    {s}
+                                </span>
+                            ))}
+                        </span>
+                        <span className="sr-only">{SLIDES[i]}</span>
+                    </span>
+                    .
+                </h2>
+
+                <div className="mt-12 md:mt-16 mx-auto max-w-[960px]">
+                    <div
+                        key={SLIDES[i]}
+                        className="duri-fade-up relative rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background-warm aspect-video flex items-center justify-center"
+                    >
+                        <div aria-hidden className="absolute inset-0 duri-grid-bg opacity-[0.18]" />
+                        <div className="relative flex flex-col items-center gap-2 text-center">
+                            <p className="text-[clamp(1.5rem,2.4vw,2rem)] leading-none tracking-[-0.02em] font-medium text-on-background capitalize">
+                                {SLIDES[i]}
+                            </p>
+                            <p className="text-[11px] uppercase tracking-[0.16em] text-on-background-secondary font-semibold">
+                                Preview, coming soon
+                            </p>
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
         </section>

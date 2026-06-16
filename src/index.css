@@ -161,6 +161,29 @@ html, body, #root {
     max-width: 36rem;
   }
 
+  .duri-revolver {
+    display: inline-flex;
+    height: 1em;
+    overflow: hidden;
+    vertical-align: baseline;
+    line-height: 1;
+  }
+  .duri-revolver-track {
+    display: flex;
+    flex-direction: column;
+    transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .duri-revolver-word {
+    height: 1em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .duri-revolver-track { transition: none; }
+  }
+
   .duri-grid-bg {
     background-image:
       linear-gradient(

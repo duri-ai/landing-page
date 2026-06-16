@@ -17,9 +17,9 @@ export default function Automation() {
             />
 
             <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-20 md:py-32">
-                <div className="text-center max-w-[28ch] mx-auto">
+                <div className="mx-auto max-w-[920px] text-center">
                     <h2 className="text-[clamp(2.25rem,5.6vw,4.5rem)] leading-[1.04] tracking-[-0.026em] font-medium text-on-background text-balance">
-                        <span className="text-brand">Recurring tasks</span>, just describe the work.
+                        Recurring tasks, just describe the work.
                     </h2>
                 </div>
 

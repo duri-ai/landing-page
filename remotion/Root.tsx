@@ -4,7 +4,7 @@ import { ReportingScene } from "./compositions/ReportingScene";
 import { ResearchScene } from "./compositions/ResearchScene";
 
 const FPS = 30;
-const DURATION_SECONDS = 6;
+const DURATION_SECONDS = 12;
 const WIDTH = 1600;
 const HEIGHT = 900;
 

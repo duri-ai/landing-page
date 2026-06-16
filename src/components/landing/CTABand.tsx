@@ -17,17 +17,26 @@ export default function CTABand() {
                 }}
             />
 
-            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-24 md:py-32 text-center">
-                <h2 className="text-[clamp(1.75rem,3.6vw,2.75rem)] leading-[1.08] tracking-[-0.02em] font-medium text-on-background max-w-[20ch] mx-auto text-balance">
-                    Ready when you are.
-                </h2>
-                <Link
-                    to="/signup"
-                    className="mt-9 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant"
-                >
-                    Get started
-                    <ArrowRightIcon className="w-3.5 h-3.5" />
-                </Link>
+            <div className="relative mx-auto max-w-[1320px] px-5 sm:px-6 md:px-8 py-20 md:py-28">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 md:gap-16 items-center">
+                    <div className="max-w-[26rem]">
+                        <p className="text-[11px] sm:text-[12px] font-semibold tracking-[0.18em] uppercase text-on-background-secondary mb-4">
+                            Get started
+                        </p>
+                        <h2 className="text-[clamp(1.75rem,3.6vw,2.75rem)] leading-[1.08] tracking-[-0.02em] font-medium text-on-background text-balance">
+                            Ready when you are.
+                        </h2>
+                    </div>
+                    <div className="flex md:justify-end">
+                        <Link
+                            to="/signup"
+                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant"
+                        >
+                            Get started
+                            <ArrowRightIcon className="w-3.5 h-3.5" />
+                        </Link>
+                    </div>
+                </div>
             </div>
         </section>
     );

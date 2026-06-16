@@ -25,33 +25,22 @@ export default function Automation() {
                 }}
             />
 
-            <div className="relative mx-auto max-w-[1180px] px-5 sm:px-6 md:px-8 py-16 sm:py-24 md:py-32">
-                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 md:gap-14 items-center">
-                    <div className="max-w-[28rem]">
+            <div className="relative mx-auto max-w-[1320px] px-5 sm:px-6 md:px-8 py-16 sm:py-24 md:py-32">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 md:gap-16 items-center">
+                    <div className="max-w-[26rem]">
                         <p className="text-[11px] sm:text-[12px] font-semibold tracking-[0.18em] uppercase text-on-background-secondary mb-4">
                             Recurring tasks
                         </p>
                         <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.05] tracking-[-0.024em] font-medium text-on-background text-balance">
                             Just describe the work.
                         </h2>
-                        <p className="mt-5 text-[0.975rem] leading-[1.55] text-on-background-secondary">
-                            One sentence in. Duri runs the steps, shows its work, and
-                            reports back, every time the schedule fires.
-                        </p>
                     </div>
 
                     <div className="rounded-xs border-[1.5px] border-on-background bg-background overflow-hidden shadow-[0_28px_72px_-28px_rgba(0,50,32,0.22)]">
                         <div className="flex items-center gap-2.5 border-b border-divider px-4 py-3 bg-background-warm">
-                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-on-background/15" />
-                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-on-background/15" />
-                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-on-background/15" />
-                            <span className="ml-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-on-background-secondary">
-                                Duri
-                            </span>
-                            <span className="ml-auto inline-flex items-center gap-1.5 text-[11px] font-medium text-on-background-secondary">
-                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-                                Working
-                            </span>
+                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#e15c5c]" />
+                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#e0a93b]" />
+                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#5fb96a]" />
                         </div>
 
                         <div className="px-6 py-5 border-b border-divider">
@@ -61,15 +50,6 @@ export default function Automation() {
                             <p className="text-[1rem] sm:text-[1.05rem] leading-[1.4] text-on-background">
                                 Every Wednesday, find invoices overdue 30+ days and email
                                 reminders to those customers.
-                            </p>
-                        </div>
-
-                        <div className="px-6 py-5 flex items-center justify-between gap-4 border-b border-divider">
-                            <p className="text-[10px] uppercase tracking-[0.16em] text-brand font-semibold">
-                                Duri · run #18
-                            </p>
-                            <p className="text-[11px] text-on-background-secondary font-mono">
-                                Wed, Jun 17 · 09:00
                             </p>
                         </div>
 

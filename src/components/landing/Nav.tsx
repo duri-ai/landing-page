@@ -20,7 +20,7 @@ export default function Nav() {
                 scrolled ? "border-b border-divider" : "border-b border-transparent"
             }`}
         >
-            <div className="mx-auto flex max-w-[960px] items-center justify-between px-4 py-3 md:px-8 md:py-4">
+            <div className="mx-auto flex max-w-[1320px] items-center justify-between px-4 py-3 md:px-8 md:py-4">
                 <Link to="/" aria-label="Duri home" className="inline-flex items-center gap-2">
                     <img
                         src={`${import.meta.env.BASE_URL}logos/d.svg`}

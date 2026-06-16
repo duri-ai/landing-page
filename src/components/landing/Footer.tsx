@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function Footer() {
     return (
         <footer className="w-full bg-brand-dark">
-            <div className="mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-5 flex flex-wrap items-center justify-between gap-4">
+            <div className="mx-auto max-w-[1320px] px-5 sm:px-6 md:px-8 py-5 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <Link to="/" aria-label="Duri home" className="inline-flex items-center gap-2">
                         <img

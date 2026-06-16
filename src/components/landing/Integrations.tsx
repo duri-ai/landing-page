@@ -8,7 +8,7 @@ export default function Integrations() {
             className="w-full bg-background-warm border-t border-b border-divider min-w-xs"
         >
             <div className="mx-auto max-w-[960px] px-6 md:px-8 py-6 md:py-8">
-                <p className="text-[0.8125rem] font-medium tracking-[0.01em] text-on-background-secondary text-center mb-5 text-brand">
+                <p className="text-[0.75rem] font-semibold tracking-[0.14em] uppercase text-on-background-secondary text-center mb-5">
                     Works with the tools you already use
                 </p>
                 <div className="relative w-full overflow-hidden">

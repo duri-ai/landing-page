@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabase";
+import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 
 export default function SignUpPage() {
@@ -14,6 +15,7 @@ export default function SignUpPage() {
 
     async function handleGoogleSignUp() {
         setError(null);
+        track("signup_started", { method: "google" });
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
@@ -27,6 +29,7 @@ export default function SignUpPage() {
         e.preventDefault();
         setError(null);
         setLoading(true);
+        track("signup_started", { method: "email" });
 
         const { data, error } = await supabase.auth.signUp({
             email,
@@ -49,10 +52,12 @@ export default function SignUpPage() {
         }
 
         if (data.session) {
+            track("signup_completed", { method: "email", verified: true });
             navigate("/onboarding");
             return;
         }
 
+        track("signup_pending_verification", { method: "email" });
         setLoading(false);
         setVerifyPending(true);
     }

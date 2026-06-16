@@ -3,6 +3,7 @@ import { CheckIcon } from "lucide-react";
 import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
 import { useAuth } from "../contexts/AuthContext";
+import { track } from "../utils/analytics";
 
 type Feature = { text: string; subs?: string[] };
 
@@ -58,7 +59,8 @@ export default function PricingPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    const handleCta = () => {
+    const handleCta = (plan: "free" | "pro") => () => {
+        track("pricing_cta_click", { plan, signed_in: Boolean(user) });
         navigate(user ? "/account" : "/signup");
     };
 
@@ -142,7 +144,7 @@ export default function PricingPage() {
 
                                 <button
                                     type="button"
-                                    onClick={handleCta}
+                                    onClick={handleCta(plan.id)}
                                     className={ctaClassName(plan.highlighted)}
                                 >
                                     {plan.cta}

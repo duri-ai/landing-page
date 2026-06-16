@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { integrations } from "../../utils/marketingContent";
+import { track } from "../../utils/analytics";
 import HeroProductWindow from "./HeroProductWindow";
 
 const base = import.meta.env.BASE_URL;
@@ -53,6 +54,7 @@ export default function Hero() {
                 <div className="mt-9 sm:mt-11 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
                     <a
                         href={MAC_DOWNLOAD}
+                        onClick={() => track("download_app", { os: "mac", detected_os: isMac ? "mac" : "win" })}
                         className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] ${
                             isMac
                                 ? "bg-brand text-on-brand border-brand hover:bg-brand-variant"
@@ -64,6 +66,7 @@ export default function Hero() {
                     </a>
                     <a
                         href={WIN_DOWNLOAD}
+                        onClick={() => track("download_app", { os: "win", detected_os: isMac ? "mac" : "win" })}
                         className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] ${
                             !isMac
                                 ? "bg-brand text-on-brand border-brand hover:bg-brand-variant"

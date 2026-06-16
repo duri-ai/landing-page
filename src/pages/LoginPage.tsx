@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../utils/supabase";
+import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 
 export default function LoginPage() {
@@ -12,6 +13,7 @@ export default function LoginPage() {
 
     async function handleGoogleSignIn() {
         setError(null);
+        track("login_started", { method: "google" });
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: { redirectTo: window.location.origin + "/onboarding" },
@@ -23,11 +25,13 @@ export default function LoginPage() {
         e.preventDefault();
         setError(null);
         setLoading(true);
+        track("login_started", { method: "email" });
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         setLoading(false);
         if (error) {
             setError(error.message);
         } else {
+            track("login_completed", { method: "email" });
             navigate("/");
         }
     }

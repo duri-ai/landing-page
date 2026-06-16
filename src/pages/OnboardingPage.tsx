@@ -1,7 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
+import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 
 export default function OnboardingPage() {
@@ -15,12 +16,27 @@ export default function OnboardingPage() {
     const [companyName, setCompanyName] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const authEventFired = useRef(false);
 
     useEffect(() => {
         if (loading) return;
         if (!user) {
             navigate("/login");
             return;
+        }
+        // Fire the auth-completion analytics event exactly once per
+        // mount. Brand-new user (created within ~2 min) counts as a
+        // signup_completed; otherwise it's a login_completed bouncing
+        // through onboarding.
+        if (!authEventFired.current) {
+            authEventFired.current = true;
+            const createdAt = user.created_at ? new Date(user.created_at).getTime() : 0;
+            const recent = createdAt && Date.now() - createdAt < 2 * 60 * 1000;
+            if (recent) {
+                track("signup_completed", { method: "oauth", verified: true });
+            } else {
+                track("login_completed", { method: "oauth" });
+            }
         }
         // If user already completed onboarding (e.g. returning Google OAuth user),
         // skip straight to the account page.
@@ -63,6 +79,7 @@ export default function OnboardingPage() {
             }
             await supabase.auth.updateUser({ data: metadata });
 
+            track("activation_completed", { source: "onboarding_form" });
             navigate("/account");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Something went wrong");

@@ -5,7 +5,7 @@ const base = import.meta.env.BASE_URL;
 const ITEMS = [
     {
         key: "operations",
-        title: "Live operations",
+        title: "Business operations",
         body: "Tell Duri what should happen when. It pulls orders, updates ledgers, and keeps inventory aligned across every store you run, without you watching.",
         src: `${base}videos/flow-animation.mp4`,
     },

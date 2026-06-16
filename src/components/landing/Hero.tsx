@@ -21,14 +21,10 @@ export default function Hero() {
             <div className="mx-auto max-w-[1040px] px-5 sm:px-6 md:px-8 pt-14 sm:pt-20 md:pt-24 pb-12 md:pb-20">
                 <div id="download" className="text-center">
                     <p className="duri-eyebrow mb-5">An AI workspace for small business</p>
-                    <h1 className="duri-monument max-w-[18ch] mx-auto text-balance">
-                        The workspace your{" "}
-                        <span className="text-brand">business runs on</span>.
+                    <h1 className="duri-monument max-w-[20ch] mx-auto text-balance">
+                        Automate your business in{" "}
+                        <span className="text-brand">plain language</span>.
                     </h1>
-                    <p className="duri-section-lede mt-5 mx-auto text-balance">
-                        Describe the work in plain language. Duri operates the tools your
-                        team already uses, asks when it needs to, and remembers next time.
-                    </p>
                 </div>
 
                 <div className="mt-10 sm:mt-14 mx-auto max-w-[920px]">
@@ -37,7 +33,6 @@ export default function Hero() {
                             src={`${base}videos/flow-animation.mp4`}
                             autoPlay
                             muted
-                            loop
                             playsInline
                             aria-hidden="true"
                             className="w-full block aspect-video object-cover"

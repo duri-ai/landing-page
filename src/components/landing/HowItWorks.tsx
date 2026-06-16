@@ -1,56 +1,71 @@
-import OperationsScene from "./scenes/OperationsScene";
-import ReportingScene from "./scenes/ReportingScene";
+import { ArrowRight } from "lucide-react";
 
-const CARDS = [
+const base = import.meta.env.BASE_URL;
+const logo = (slug: string) => `${base}logos/third_party/${slug}`;
+
+type Row = {
+    title: string;
+    sources: { src: string; alt: string }[];
+    target: { src: string; alt: string };
+};
+
+const ROWS: Row[] = [
     {
-        id: "operations",
-        eyebrow: "Operations",
-        title: "Sync many stores into one ledger.",
-        body: "Tell Duri what to do. It pulls orders, refunds, and payouts from every Shopify store you run and writes them into QuickBooks, every day, without you watching.",
-        Scene: OperationsScene,
-        reverse: false,
+        title: "Automate operations in plain language.",
+        sources: [
+            { src: logo("shopify.svg"), alt: "Shopify" },
+            { src: logo("shopify.svg"), alt: "Shopify" },
+            { src: logo("shopify.svg"), alt: "Shopify" },
+        ],
+        target: { src: logo("quickbooks.svg"), alt: "QuickBooks" },
     },
     {
-        id: "reporting",
-        eyebrow: "Reporting",
-        title: "One report from many sources.",
-        body: "POS sales from Clover and Square, line items in Google Sheets, orders from Shopify. Duri reconciles them into a single PDF and emails it where it needs to go.",
-        Scene: ReportingScene,
-        reverse: true,
+        title: "Automate reporting in plain language.",
+        sources: [
+            { src: logo("clover.svg"), alt: "Clover" },
+            { src: logo("shopify.svg"), alt: "Shopify" },
+            { src: logo("excel.svg"), alt: "Sheets" },
+        ],
+        target: { src: logo("gmail.svg"), alt: "Gmail" },
     },
 ];
+
+function Flow({ row }: { row: Row }) {
+    return (
+        <div className="flex items-center justify-center gap-5 sm:gap-7 py-4">
+            <div className="flex flex-col items-center gap-2">
+                {row.sources.map((s, i) => (
+                    <div
+                        key={i}
+                        className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-xs border border-divider-strong bg-background"
+                    >
+                        <img src={s.src} alt={s.alt} className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
+                    </div>
+                ))}
+            </div>
+            <ArrowRight className="w-5 h-5 text-on-background-secondary flex-none" aria-hidden />
+            <div className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xs border-[1.5px] border-on-background bg-background">
+                <img src={row.target.src} alt={row.target.alt} className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
+            </div>
+        </div>
+    );
+}
 
 export default function HowItWorks() {
     return (
         <section id="how" className="w-full bg-background border-t border-divider">
             <div className="mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-16 sm:py-20 md:py-28">
-                <div className="mb-14 md:mb-20 max-w-[44rem] mx-auto text-center">
-                    <p className="duri-eyebrow mb-4">How Duri works</p>
-                    <h2 className="duri-section-title text-balance">
-                        Real work, handed off in plain language.
-                    </h2>
-                </div>
-
-                <div className="flex flex-col gap-16 sm:gap-20 md:gap-28">
-                    {CARDS.map(({ id, eyebrow, title, body, Scene, reverse }) => (
+                <div className="flex flex-col gap-14 md:gap-20">
+                    {ROWS.map((row) => (
                         <div
-                            key={id}
-                            className={`grid gap-8 md:gap-12 lg:gap-16 items-center lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] ${
-                                reverse ? "lg:[&>*:first-child]:order-2" : ""
-                            }`}
+                            key={row.title}
+                            className="grid gap-8 md:gap-12 items-center md:grid-cols-2"
                         >
-                            <div className="max-w-[34rem]">
-                                <p className="duri-eyebrow mb-4">{eyebrow}</p>
-                                <h3 className="text-[clamp(1.5rem,2.4vw,2rem)] leading-[1.12] tracking-[-0.018em] font-medium text-on-background text-balance">
-                                    {title}
-                                </h3>
-                                <p className="mt-4 text-[0.975rem] leading-[1.6] text-on-background-secondary">
-                                    {body}
-                                </p>
-                            </div>
-                            <div className="w-full">
-                                <Scene />
-                            </div>
+                            <h2 className="text-[clamp(1.5rem,2.6vw,2.125rem)] leading-[1.12] tracking-[-0.02em] font-medium text-on-background max-w-[20ch] text-balance">
+                                {row.title.replace(/in plain language\./, "")}
+                                <span className="text-brand">in plain language</span>.
+                            </h2>
+                            <Flow row={row} />
                         </div>
                     ))}
                 </div>

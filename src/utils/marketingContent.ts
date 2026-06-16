@@ -8,8 +8,6 @@ export type Integration = {
 export const integrations: Integration[] = [
     { name: "Shopify", logo: `${base}logos/third_party/shopify.svg` },
     { name: "QuickBooks", logo: `${base}logos/third_party/quickbooks.svg` },
-    { name: "Google Workspace", logo: `${base}logos/third_party/google.svg` },
-    { name: "Microsoft 365", logo: `${base}logos/third_party/m365.png` },
     { name: "Excel", logo: `${base}logos/third_party/excel.svg` },
     { name: "Clover", logo: `${base}logos/third_party/clover.svg` },
     { name: "Airtable", logo: `${base}logos/third_party/airtable.svg` },

@@ -4,14 +4,14 @@ const base = import.meta.env.BASE_URL;
 const logo = (slug: string) => `${base}logos/third_party/${slug}`;
 
 type Column = {
-    title: string;
+    accent: string;
     sources: { src: string; alt: string }[];
     target: { src: string; alt: string };
 };
 
 const COLUMNS: Column[] = [
     {
-        title: "Automate operations",
+        accent: "Operations",
         sources: [
             { src: logo("shopify.svg"), alt: "Shopify" },
             { src: logo("shopify.svg"), alt: "Shopify" },
@@ -20,7 +20,7 @@ const COLUMNS: Column[] = [
         target: { src: logo("quickbooks.svg"), alt: "QuickBooks" },
     },
     {
-        title: "Automate reporting",
+        accent: "Reporting",
         sources: [
             { src: logo("clover.svg"), alt: "Clover" },
             { src: logo("excel.svg"), alt: "Sheets" },
@@ -53,24 +53,29 @@ function Flow({ col }: { col: Column }) {
 
 export default function HowItWorks() {
     return (
-        <section id="how" className="w-full bg-background border-t border-divider">
-            <div className="mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-16 sm:py-20 md:py-28">
+        <section id="how" className="relative w-full bg-background border-t border-divider overflow-hidden">
+            <div
+                aria-hidden
+                className="absolute inset-0 duri-grid-bg opacity-[0.12] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]"
+            />
+            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 py-16 sm:py-20 md:py-28">
                 <div className="grid grid-cols-2 gap-x-6 sm:gap-x-12 md:gap-x-20">
                     {COLUMNS.map((col) => (
                         <h2
-                            key={col.title}
+                            key={col.accent}
                             className="text-[clamp(1.25rem,2.6vw,2.125rem)] leading-[1.12] tracking-[-0.02em] font-medium text-on-background text-balance"
                         >
-                            {col.title}{" "}
-                            <span className="text-brand">in plain language</span>.
+                            Automate{" "}
+                            <span className="text-brand">{col.accent.toLowerCase()}</span>{" "}
+                            in plain language.
                         </h2>
                     ))}
                 </div>
                 <div className="mt-10 sm:mt-14 grid grid-cols-2 gap-x-6 sm:gap-x-12 md:gap-x-20">
                     {COLUMNS.map((col) => (
                         <div
-                            key={col.title}
-                            className="rounded-xs border border-divider bg-background-warm py-8 sm:py-10"
+                            key={col.accent}
+                            className="rounded-xs border border-divider bg-background py-8 sm:py-10 shadow-[0_8px_32px_-20px_rgba(0,50,32,0.18)]"
                         >
                             <Flow col={col} />
                         </div>

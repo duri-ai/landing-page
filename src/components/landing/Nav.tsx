@@ -21,12 +21,16 @@ export default function Nav() {
             }`}
         >
             <div className="mx-auto flex max-w-[960px] items-center justify-between px-4 py-3 md:px-8 md:py-4">
-                <Link to="/" aria-label="Duri home" className="inline-flex items-center">
+                <Link to="/" aria-label="Duri home" className="inline-flex items-center gap-2">
                     <img
-                        src={`${import.meta.env.BASE_URL}logos/duri.svg`}
-                        className="h-[18px]"
-                        alt="Duri"
+                        src={`${import.meta.env.BASE_URL}logos/d.svg`}
+                        alt=""
+                        aria-hidden
+                        className="h-6 w-6 rounded-[5px]"
                     />
+                    <span className="text-[1.25rem] font-bold tracking-[-0.03em] text-on-background leading-none">
+                        duri
+                    </span>
                 </Link>
 
                 <div className="inline-flex items-center gap-1 sm:gap-2">
@@ -71,7 +75,7 @@ export default function Nav() {
                             <button
                                 type="button"
                                 onClick={() => navigate("/signup")}
-                                className="text-on-brand bg-brand hover:bg-background hover:text-brand border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
+                                className="text-on-brand bg-brand hover:bg-brand-variant border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
                             >
                                 Create account
                             </button>

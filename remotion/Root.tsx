@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { OperationsScene } from "./compositions/OperationsScene";
 import { ReportingScene } from "./compositions/ReportingScene";
+import { ResearchScene } from "./compositions/ResearchScene";
 
 const FPS = 30;
 const DURATION_SECONDS = 12;
@@ -21,6 +22,14 @@ export const RemotionRoot: React.FC = () => {
             <Composition
                 id="ReportingScene"
                 component={ReportingScene}
+                durationInFrames={FPS * DURATION_SECONDS}
+                fps={FPS}
+                width={WIDTH}
+                height={HEIGHT}
+            />
+            <Composition
+                id="ResearchScene"
+                component={ResearchScene}
                 durationInFrames={FPS * DURATION_SECONDS}
                 fps={FPS}
                 width={WIDTH}

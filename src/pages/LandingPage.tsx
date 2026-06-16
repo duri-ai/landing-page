@@ -1,6 +1,5 @@
 import Nav from "../components/landing/Nav";
 import Hero from "../components/landing/Hero";
-import Integrations from "../components/landing/Integrations";
 import HowItWorks from "../components/landing/HowItWorks";
 import Comparison from "../components/landing/Comparison";
 import Automation from "../components/landing/Automation";
@@ -13,7 +12,6 @@ export default function LandingPage() {
             <Nav />
             <main>
                 <Hero />
-                <Integrations />
                 <HowItWorks />
                 <Comparison />
                 <Automation />

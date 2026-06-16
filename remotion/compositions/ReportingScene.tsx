@@ -10,15 +10,12 @@ import {
 } from "remotion";
 import { theme } from "../theme";
 
-const PROMPT =
-    "Email a weekly gross sales and ROAS report to myEmail@gmail.com.";
+const PROMPT = "Email a weekly gross sales report to myEmail@gmail.com.";
 
 const PROMPT_END = 100;
-const SOURCES_START = 120;
-const FLOWS_START = 200;
-const PDF_REVEAL = 230;
-const PDF_BUILD = 250;
-const SENT_BADGE = 330;
+const STAGE_REVEAL = 130;
+const PDF_BUILD = 170;
+const SENT_BADGE = 320;
 
 type Source = {
     label: string;
@@ -26,7 +23,6 @@ type Source = {
     metric: string;
     metricLabel: string;
     appearOffset: number;
-    flowOffset: number;
     renderMark: () => React.ReactNode;
 };
 
@@ -46,24 +42,21 @@ function SquareMark() {
         />
     );
 }
-function MetaMark() {
+function AmazonMark() {
     return (
         <div
             style={{
-                width: 40,
+                width: 48,
                 height: 40,
-                borderRadius: 999,
-                background: "linear-gradient(135deg, #0064e0, #00a6ff)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "white",
-                fontWeight: 800,
-                fontSize: 22,
-                letterSpacing: "-0.06em",
             }}
         >
-            ∞
+            <Img
+                src={staticFile("logos/third_party/amazon.png")}
+                style={{ width: 48, height: 40, objectFit: "contain" }}
+            />
         </div>
     );
 }
@@ -75,7 +68,6 @@ const SOURCES: Source[] = [
         metric: "$3,948",
         metricLabel: "This week",
         appearOffset: 0,
-        flowOffset: 80,
         renderMark: SquareMark,
     },
     {
@@ -83,18 +75,16 @@ const SOURCES: Source[] = [
         sub: "Online sales",
         metric: "$5,626",
         metricLabel: "This week",
-        appearOffset: 14,
-        flowOffset: 102,
+        appearOffset: 12,
         renderMark: ShopifyMark,
     },
     {
-        label: "Meta Ads",
-        sub: "Spend / ROAS",
-        metric: "3.2×",
-        metricLabel: "$924 spent",
-        appearOffset: 28,
-        flowOffset: 124,
-        renderMark: MetaMark,
+        label: "Amazon",
+        sub: "Marketplace sales",
+        metric: "$2,184",
+        metricLabel: "This week",
+        appearOffset: 24,
+        renderMark: AmazonMark,
     },
 ];
 
@@ -113,14 +103,13 @@ function Composer({ frame }: { frame: number }) {
     });
     const caretOn = Math.floor(frame / 8) % 2 === 0;
     const showCaret = frame < PROMPT_END;
-
     return (
         <div
             style={{
                 background: theme.background,
                 border: `1.5px solid ${theme.onBackground}`,
                 borderRadius: 10,
-                padding: "26px 28px",
+                padding: "24px 28px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 12,
@@ -169,7 +158,7 @@ function Composer({ frame }: { frame: number }) {
 }
 
 function SourceCard({ src, frame }: { src: Source; frame: number }) {
-    const appearAt = SOURCES_START + src.appearOffset;
+    const appearAt = STAGE_REVEAL + src.appearOffset;
     const op = interpolate(frame - appearAt, [0, 18], [0, 1], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
@@ -178,15 +167,9 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
-    const flowAt = FLOWS_START + src.flowOffset - 80;
-    const pulse = interpolate(frame - flowAt, [0, 10, 26], [0, 1, 0], {
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp",
-    });
     return (
         <div
             style={{
-                position: "relative",
                 background: theme.background,
                 border: `1.5px solid ${theme.dividerStrong}`,
                 borderRadius: 9,
@@ -199,16 +182,6 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 boxShadow: "0 12px 32px -22px rgba(0,50,32,0.20)",
             }}
         >
-            <div
-                style={{
-                    position: "absolute",
-                    inset: -2,
-                    borderRadius: 11,
-                    border: `2px solid ${theme.brand}`,
-                    opacity: pulse,
-                    pointerEvents: "none",
-                }}
-            />
             {src.renderMark()}
             <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
                 <span
@@ -270,11 +243,12 @@ export const ReportingScene: React.FC = () => {
     const { fps } = useVideoConfig();
     const stageIn = spring({ frame, fps, config: { damping: 200 } });
 
-    const pdfOp = interpolate(frame - PDF_REVEAL, [0, 22], [0, 1], {
+    const pdfAppear = STAGE_REVEAL + 30;
+    const pdfOp = interpolate(frame - pdfAppear, [0, 22], [0, 1], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
-    const pdfLift = interpolate(frame - PDF_REVEAL, [0, 22], [22, 0], {
+    const pdfLift = interpolate(frame - pdfAppear, [0, 22], [18, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
     });
@@ -342,39 +316,6 @@ export const ReportingScene: React.FC = () => {
                 </div>
 
                 <div style={{ flex: 1, position: "relative" }}>
-                    {SOURCES.map((s, idx) => {
-                        const flowAt = FLOWS_START + s.flowOffset - 80;
-                        const t = (frame - flowAt) / 24;
-                        if (t < 0 || t > 1.2) return null;
-                        const x = interpolate(t, [0, 1], [-12, 50], {
-                            extrapolateLeft: "clamp",
-                            extrapolateRight: "clamp",
-                        });
-                        const startY = (idx + 1) * 22 + 16;
-                        const y = interpolate(t, [0, 1], [startY, 50], {
-                            extrapolateLeft: "clamp",
-                            extrapolateRight: "clamp",
-                        });
-                        const op = interpolate(t, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
-                        return (
-                            <div
-                                key={s.label}
-                                style={{
-                                    position: "absolute",
-                                    left: `${x}%`,
-                                    top: `${y}%`,
-                                    width: 14,
-                                    height: 14,
-                                    borderRadius: 999,
-                                    background: theme.brand,
-                                    transform: "translate(-50%, -50%)",
-                                    boxShadow: `0 0 18px ${theme.brand}`,
-                                    opacity: op,
-                                }}
-                            />
-                        );
-                    })}
-
                     <div
                         style={{
                             position: "absolute",
@@ -419,7 +360,7 @@ export const ReportingScene: React.FC = () => {
                                 PDF
                             </div>
 
-                            <div style={{ padding: "36px 44px 26px" }}>
+                            <div style={{ padding: "36px 44px 18px" }}>
                                 <span
                                     style={{
                                         fontFamily:
@@ -440,7 +381,7 @@ export const ReportingScene: React.FC = () => {
                                     padding: "0 44px 36px",
                                     display: "flex",
                                     flexDirection: "column",
-                                    gap: 32,
+                                    gap: 30,
                                     flex: 1,
                                 }}
                             >
@@ -459,14 +400,14 @@ export const ReportingScene: React.FC = () => {
                                     <div style={{ display: "flex", alignItems: "baseline", gap: 18, flexWrap: "wrap" }}>
                                         <span
                                             style={{
-                                                fontSize: 64,
+                                                fontSize: 68,
                                                 fontWeight: 600,
                                                 color: theme.onBackground,
-                                                letterSpacing: "-0.026em",
+                                                letterSpacing: "-0.028em",
                                                 lineHeight: 1,
                                             }}
                                         >
-                                            $9,574
+                                            $11,758
                                         </span>
                                         <span
                                             style={{
@@ -475,7 +416,7 @@ export const ReportingScene: React.FC = () => {
                                                 fontWeight: 800,
                                             }}
                                         >
-                                            +18.6%
+                                            +14.8%
                                         </span>
                                     </div>
                                     <span
@@ -523,85 +464,70 @@ export const ReportingScene: React.FC = () => {
                                 <div
                                     style={{
                                         opacity: breakdownIn,
-                                        display: "grid",
-                                        gridTemplateColumns: "1fr 1fr",
-                                        gap: 36,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 12,
                                         paddingTop: 20,
                                         borderTop: `1px solid ${theme.divider}`,
                                     }}
                                 >
-                                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                        <span
-                                            style={{
-                                                fontSize: 11,
-                                                color: theme.onBackgroundSecondary,
-                                                fontWeight: 800,
-                                                letterSpacing: "0.18em",
-                                                textTransform: "uppercase",
-                                            }}
-                                        >
-                                            Blended ROAS
-                                        </span>
-                                        <span
-                                            style={{
-                                                fontFamily:
-                                                    "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                                fontSize: 44,
-                                                fontWeight: 700,
-                                                color: theme.onBackground,
-                                                letterSpacing: "-0.02em",
-                                                lineHeight: 1,
-                                            }}
-                                        >
-                                            3.2×
-                                        </span>
-                                        <span
-                                            style={{
-                                                fontSize: 12,
-                                                color: theme.onBackgroundSecondary,
-                                                fontWeight: 600,
-                                                marginTop: 2,
-                                            }}
-                                        >
-                                            $924 spent · $2,956 attributed
-                                        </span>
-                                    </div>
-                                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                        <span
-                                            style={{
-                                                fontSize: 11,
-                                                color: theme.onBackgroundSecondary,
-                                                fontWeight: 800,
-                                                letterSpacing: "0.18em",
-                                                textTransform: "uppercase",
-                                            }}
-                                        >
-                                            Orders
-                                        </span>
-                                        <span
-                                            style={{
-                                                fontFamily:
-                                                    "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                                fontSize: 44,
-                                                fontWeight: 700,
-                                                color: theme.onBackground,
-                                                letterSpacing: "-0.02em",
-                                                lineHeight: 1,
-                                            }}
-                                        >
-                                            186
-                                        </span>
-                                        <span
-                                            style={{
-                                                fontSize: 12,
-                                                color: theme.onBackgroundSecondary,
-                                                fontWeight: 600,
-                                                marginTop: 2,
-                                            }}
-                                        >
-                                            AOV $51.5 · across 3 channels
-                                        </span>
-                                    </div>
+                                    <span
+                                        style={{
+                                            fontSize: 12,
+                                            color: theme.onBackgroundSecondary,
+                                            fontWeight: 700,
+                                            letterSpacing: "0.18em",
+                                            textTransform: "uppercase",
+                                        }}
+                                    >
+                                        By channel
+                                    </span>
+                                    {[
+                                        { label: "Shopify", pct: 78, value: "$5,626" },
+                                        { label: "Square", pct: 55, value: "$3,948" },
+                                        { label: "Amazon", pct: 30, value: "$2,184" },
+                                    ].map((b) => (
+                                        <div key={b.label} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    fontSize: 14,
+                                                }}
+                                            >
+                                                <span style={{ color: theme.onBackground, fontWeight: 700 }}>
+                                                    {b.label}
+                                                </span>
+                                                <span
+                                                    style={{
+                                                        fontFamily:
+                                                            "ui-monospace, SFMono-Regular, Menlo, monospace",
+                                                        color: theme.onBackground,
+                                                        fontWeight: 800,
+                                                    }}
+                                                >
+                                                    {b.value}
+                                                </span>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    height: 6,
+                                                    borderRadius: 999,
+                                                    background: theme.divider,
+                                                    overflow: "hidden",
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        height: "100%",
+                                                        width: `${b.pct * breakdownIn}%`,
+                                                        background: theme.onBackground,
+                                                        borderRadius: 999,
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>

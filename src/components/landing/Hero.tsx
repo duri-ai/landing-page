@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { integrations } from "../../utils/marketingContent";
+import HeroProductWindow from "./HeroProductWindow";
 
 const base = import.meta.env.BASE_URL;
 
@@ -75,12 +76,7 @@ export default function Hero() {
                 </div>
 
                 <div className="mt-12 sm:mt-16 mx-auto max-w-[960px]">
-                    <div className="relative rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background-warm aspect-video flex items-center justify-center">
-                        <div aria-hidden className="absolute inset-0 duri-grid-bg opacity-[0.25]" />
-                        <p className="relative text-on-background-secondary text-sm font-medium tracking-[0.14em] uppercase">
-                            Hero video, coming soon
-                        </p>
-                    </div>
+                    <HeroProductWindow />
                 </div>
 
                 <div className="mt-12 sm:mt-16">

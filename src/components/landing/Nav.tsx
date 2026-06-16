@@ -20,7 +20,7 @@ export default function Nav() {
                 scrolled ? "border-b border-divider" : "border-b border-transparent"
             }`}
         >
-            <div className="mx-auto flex max-w-[1320px] items-center justify-between px-4 py-3 md:px-8 md:py-4">
+            <div className="mx-auto grid max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-6 px-4 py-3 md:px-8 md:py-4">
                 <Link to="/" aria-label="Duri home" className="inline-flex items-center gap-2">
                     <img
                         src={`${import.meta.env.BASE_URL}logos/d.svg`}
@@ -33,7 +33,7 @@ export default function Nav() {
                     </span>
                 </Link>
 
-                <div className="inline-flex items-center gap-1 sm:gap-2">
+                <div className="inline-flex items-center justify-start gap-1 sm:gap-2">
                     <a
                         href="https://www.reddit.com/r/Duri/"
                         target="_blank"
@@ -61,7 +61,9 @@ export default function Nav() {
                     >
                         Privacy
                     </Link>
+                </div>
 
+                <div className="inline-flex items-center justify-end gap-1 sm:gap-2">
                     {!loading && (
                         user ? (
                             <button
@@ -72,13 +74,22 @@ export default function Nav() {
                                 Account
                             </button>
                         ) : (
-                            <button
-                                type="button"
-                                onClick={() => navigate("/signup")}
-                                className="text-on-brand bg-brand hover:bg-brand-variant border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
-                            >
-                                Create account
-                            </button>
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/login")}
+                                    className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
+                                >
+                                    Sign in
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/signup")}
+                                    className="text-on-brand bg-brand hover:bg-brand-variant border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
+                                >
+                                    Create account
+                                </button>
+                            </>
                         )
                     )}
                 </div>

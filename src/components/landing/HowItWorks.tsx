@@ -5,20 +5,20 @@ const base = import.meta.env.BASE_URL;
 const ITEMS = [
     {
         key: "operations",
-        title: "Business operations",
+        title: "Daily operations",
         body: "Tell Duri what should happen when. It pulls orders, updates ledgers, and keeps inventory aligned across every store you run, without you watching.",
         src: `${base}videos/flow-animation.mp4`,
     },
     {
         key: "reporting",
         title: "Weekly reporting",
-        body: "Your sales live in three different dashboards. Duri reads each one, rolls the numbers into a single PDF, and emails it where it needs to go.",
+        body: "Your numbers live spread across Shopify, Square, Amazon, and more. Duri pulls every source, rolls them into one branded PDF, and emails it where it needs to go.",
         src: `${base}videos/reporting.mp4`,
     },
     {
         key: "research",
         title: "Market research",
-        body: "Drop a competitor handle and a question. Duri pulls their public posts, follower counts, and engagement, then puts the comparison next to yours.",
+        body: "Duri pulls public and private data — competitor posts, your store metrics, even what's trending around you — and lays the comparison right next to yours.",
         src: `${base}videos/research.mp4`,
     },
 ] as const;

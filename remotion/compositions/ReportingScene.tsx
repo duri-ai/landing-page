@@ -108,34 +108,23 @@ function Composer({ frame }: { frame: number }) {
         <div
             style={{
                 background: theme.background,
-                border: `1.5px solid ${theme.onBackground}`,
-                borderRadius: 10,
-                padding: "20px 24px",
+                border: `1.5px solid ${theme.dividerStrong}`,
+                borderRadius: 16,
+                padding: "22px 26px 18px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 8,
-                boxShadow: "0 18px 44px -24px rgba(0,50,32,0.24)",
+                gap: 18,
+                boxShadow: "0 22px 50px -28px rgba(0,50,32,0.22)",
             }}
         >
             <div
                 style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    color: theme.onBackgroundSecondary,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                }}
-            >
-                You
-            </div>
-            <div
-                style={{
-                    fontSize: 24,
+                    fontSize: 28,
                     lineHeight: 1.35,
                     color: theme.onBackground,
                     fontWeight: 500,
                     letterSpacing: "-0.012em",
-                    minHeight: 32,
+                    minHeight: 38,
                 }}
             >
                 {visible}
@@ -143,15 +132,56 @@ function Composer({ frame }: { frame: number }) {
                     <span
                         style={{
                             display: "inline-block",
-                            width: 3,
+                            width: 2.5,
                             height: "1em",
-                            background: theme.brand,
+                            background: theme.onBackground,
                             verticalAlign: "-0.18em",
                             marginLeft: 2,
                             opacity: caretOn ? 1 : 0,
                         }}
                     />
                 ) : null}
+            </div>
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                }}
+            >
+                <div
+                    style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 999,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: theme.onBackgroundSecondary,
+                        fontSize: 22,
+                        fontWeight: 400,
+                        lineHeight: 1,
+                    }}
+                >
+                    +
+                </div>
+                <div
+                    style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 999,
+                        background: theme.onBackground,
+                        color: theme.onBrand,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                        fontWeight: 700,
+                        lineHeight: 1,
+                    }}
+                >
+                    ↑
+                </div>
             </div>
         </div>
     );
@@ -198,7 +228,7 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
             <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
                 <span
                     style={{
-                        fontSize: 18,
+                        fontSize: 21,
                         fontWeight: 700,
                         color: theme.onBackground,
                         letterSpacing: "-0.012em",
@@ -209,7 +239,7 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 </span>
                 <span
                     style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         color: theme.onBackgroundSecondary,
                         letterSpacing: "0.14em",
                         textTransform: "uppercase",
@@ -224,7 +254,7 @@ function SourceCard({ src, frame }: { src: Source; frame: number }) {
                 <span
                     style={{
                         fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                        fontSize: 24,
+                        fontSize: 28,
                         fontWeight: 800,
                         color: theme.onBackground,
                         letterSpacing: "-0.012em",
@@ -374,42 +404,58 @@ export const ReportingScene: React.FC = () => {
                         >
                             <div
                                 style={{
-                                    position: "absolute",
-                                    top: 18,
-                                    right: 18,
-                                    background: "#d33b3b",
-                                    color: "#fff",
-                                    padding: "5px 11px",
-                                    borderRadius: 3,
-                                    fontFamily:
-                                        "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                    fontSize: 12,
-                                    fontWeight: 800,
-                                    letterSpacing: "0.18em",
+                                    background: theme.backgroundWarm,
+                                    borderBottom: `1px solid ${theme.divider}`,
+                                    padding: "14px 20px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    flexShrink: 0,
                                 }}
                             >
-                                PDF
-                            </div>
-
-                            <div style={{ padding: "26px 36px 14px" }}>
-                                <span
+                                <div
                                     style={{
+                                        background: "#d33b3b",
+                                        color: "#fff",
+                                        padding: "5px 9px",
+                                        borderRadius: 3,
                                         fontFamily:
                                             "ui-monospace, SFMono-Regular, Menlo, monospace",
-                                        fontSize: 13,
-                                        color: theme.onBackgroundSecondary,
-                                        letterSpacing: "0.18em",
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                        letterSpacing: "0.16em",
+                                        lineHeight: 1,
+                                    }}
+                                >
+                                    PDF
+                                </div>
+                                <span
+                                    style={{
+                                        fontSize: 16,
+                                        color: theme.onBackground,
                                         fontWeight: 700,
-                                        textTransform: "uppercase",
+                                        letterSpacing: "-0.005em",
                                     }}
                                 >
                                     weekly_sales.pdf
+                                </span>
+                                <span
+                                    style={{
+                                        marginLeft: "auto",
+                                        fontSize: 11,
+                                        color: theme.onBackgroundSecondary,
+                                        letterSpacing: "0.16em",
+                                        textTransform: "uppercase",
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    Generated · 1 page
                                 </span>
                             </div>
 
                             <div
                                 style={{
-                                    padding: "0 36px 28px",
+                                    padding: "26px 36px 28px",
                                     display: "flex",
                                     flexDirection: "column",
                                     gap: 22,

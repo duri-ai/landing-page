@@ -85,21 +85,20 @@ export default function Automation() {
                         </div>
 
                         <div className="rounded-[14px] rounded-tl-[4px] border-[1.5px] border-on-background bg-background overflow-hidden shadow-[0_28px_72px_-28px_rgba(0,50,32,0.22)]">
-                            <div className="px-6 py-5 border-b border-divider flex items-center justify-between gap-4">
-                                <div className="flex items-center gap-2.5">
-                                    <img
-                                        src={`${base}logos/d.svg`}
-                                        alt=""
-                                        aria-hidden
-                                        className="w-6 h-6 rounded-[5px]"
-                                    />
-                                    <p className="text-[14px] font-semibold text-on-background tracking-[-0.01em]">
-                                        Duri
-                                    </p>
-                                </div>
-                                <p className="text-[11px] font-mono text-on-background-secondary">
-                                    Wed, Jun 17 · 09:00
+                            <div className="px-6 py-5 border-b border-divider flex flex-col gap-3">
+                                <p className="text-[13px] font-mono text-on-background break-all leading-snug">
+                                    https://docs.google.com/spreadsheets/d/1CdRgorTNU8T8lTE6QB5m_NZ9YsCTG5yePeYYdwalrXE/edit?gid=0#gid=0 that I can track reddit subreddits, posts, comments that
                                 </p>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-on-background-secondary">
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full bg-brand" />
+                                        Every day at 8:00 AM
+                                    </span>
+                                    <span className="opacity-60">·</span>
+                                    <span>America/Vancouver</span>
+                                    <span className="opacity-60">·</span>
+                                    <span>Last run 18 minutes ago</span>
+                                </div>
                             </div>
 
                             <ul className="px-6 py-6 flex flex-col gap-4">
@@ -142,15 +141,6 @@ export default function Automation() {
                                     );
                                 })}
                             </ul>
-
-                            <div className="px-6 py-4 border-t border-divider bg-background-warm flex items-center justify-between gap-4">
-                                <p className="text-[12px] text-on-background-secondary">
-                                    Next run · <span className="text-on-background font-medium">Wed, Jun 24, 09:00</span>
-                                </p>
-                                <p className="text-[12px] font-mono text-on-background-secondary">
-                                    4 / 4 steps
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>

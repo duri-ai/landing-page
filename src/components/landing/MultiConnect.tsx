@@ -54,7 +54,7 @@ function DuriCenter() {
                 src={`${base}logos/d.svg`}
                 alt=""
                 aria-hidden
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-[18px] drop-shadow-[0_12px_28px_rgba(0,50,32,0.18)]"
+                className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-[14px] drop-shadow-[0_10px_22px_rgba(0,50,32,0.18)]"
             />
         </div>
     );

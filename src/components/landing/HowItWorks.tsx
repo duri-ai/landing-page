@@ -48,21 +48,13 @@ export default function HowItWorks() {
     }, [i]);
 
     return (
-        <section id="how" className="relative w-full bg-background overflow-hidden">
-            <div
-                aria-hidden
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage:
-                        "linear-gradient(to bottom, color-mix(in oklch, var(--background-warm) 70%, transparent), transparent 60%, color-mix(in oklch, var(--background-warm) 50%, transparent))",
-                }}
-            />
+        <section id="how" className="relative w-full bg-background-warm overflow-hidden">
             <div
                 aria-hidden
                 className="absolute -left-32 top-1/2 -translate-y-1/2 h-[480px] w-[480px] rounded-full pointer-events-none"
                 style={{
                     background:
-                        "radial-gradient(circle, color-mix(in oklch, var(--brand) 7%, transparent) 0%, transparent 70%)",
+                        "radial-gradient(circle, color-mix(in oklch, var(--brand) 6%, transparent) 0%, transparent 70%)",
                 }}
             />
             <div

@@ -2,7 +2,7 @@ const base = import.meta.env.BASE_URL;
 
 export default function Automation() {
     return (
-        <section className="relative w-full bg-background-warm border-t border-divider overflow-hidden">
+        <section className="relative w-full bg-background border-t border-divider overflow-hidden">
             <div
                 aria-hidden
                 className="absolute inset-0 duri-grid-bg opacity-[0.16] [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"

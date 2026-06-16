@@ -1,15 +1,35 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const SLIDES = ["operations", "reporting", "research"] as const;
-const ROTATE_MS = 3200;
+const base = import.meta.env.BASE_URL;
+
+const SLIDES = [
+    { word: "operations", src: `${base}videos/operations.mp4` },
+    { word: "reporting", src: `${base}videos/reporting.mp4` },
+    { word: "research", src: `${base}videos/research.mp4` },
+] as const;
 
 export default function HowItWorks() {
     const [i, setI] = useState(0);
+    const [progress, setProgress] = useState(0);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+
+    const advance = useCallback(() => {
+        setI((x) => (x + 1) % SLIDES.length);
+        setProgress(0);
+    }, []);
+
+    const onTimeUpdate = useCallback(() => {
+        const v = videoRef.current;
+        if (!v || !v.duration) return;
+        setProgress(v.currentTime / v.duration);
+    }, []);
 
     useEffect(() => {
-        const id = setInterval(() => setI((x) => (x + 1) % SLIDES.length), ROTATE_MS);
-        return () => clearInterval(id);
-    }, []);
+        const v = videoRef.current;
+        if (!v) return;
+        v.currentTime = 0;
+        v.play().catch(() => {});
+    }, [i]);
 
     return (
         <section id="how" className="relative w-full bg-background overflow-hidden">
@@ -48,29 +68,54 @@ export default function HowItWorks() {
                             aria-hidden
                         >
                             {SLIDES.map((s) => (
-                                <span key={s} className="duri-revolver-word text-brand">
-                                    {s}
+                                <span key={s.word} className="duri-revolver-word text-brand">
+                                    {s.word}
                                 </span>
                             ))}
                         </span>
-                        <span className="sr-only">{SLIDES[i]}</span>
+                        <span className="sr-only">{SLIDES[i].word}</span>
                     </span>
                 </h2>
 
                 <div className="mt-12 md:mt-16 mx-auto max-w-[960px]">
-                    <div
-                        key={SLIDES[i]}
-                        className="duri-fade-up relative rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background-warm aspect-video flex items-center justify-center"
-                    >
-                        <div aria-hidden className="absolute inset-0 duri-grid-bg opacity-[0.18]" />
-                        <div className="relative flex flex-col items-center gap-2 text-center">
-                            <p className="text-[clamp(1.5rem,2.4vw,2rem)] leading-none tracking-[-0.02em] font-medium text-on-background capitalize">
-                                {SLIDES[i]}
-                            </p>
-                            <p className="text-[11px] uppercase tracking-[0.16em] text-on-background-secondary font-semibold">
-                                Preview, coming soon
-                            </p>
+                    <div className="relative rounded-[10px] overflow-hidden border-[1.5px] border-on-background bg-background-warm shadow-[0_28px_72px_-28px_rgba(0,50,32,0.22)]">
+                        <video
+                            key={SLIDES[i].word}
+                            ref={videoRef}
+                            src={SLIDES[i].src}
+                            autoPlay
+                            muted
+                            playsInline
+                            preload="auto"
+                            aria-hidden
+                            onEnded={advance}
+                            onTimeUpdate={onTimeUpdate}
+                            className="w-full block aspect-video object-cover"
+                        />
+                    </div>
+
+                    <div className="mt-5 flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-on-background-secondary">
+                            <span className="tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                            <span>/</span>
+                            <span className="tabular-nums">{String(SLIDES.length).padStart(2, "0")}</span>
                         </div>
+                        <div className="relative flex-1 h-[3px] rounded-full bg-divider overflow-hidden">
+                            <div
+                                className="absolute inset-y-0 left-0 bg-brand"
+                                style={{
+                                    width: `${Math.min(100, Math.max(0, progress * 100))}%`,
+                                    transition: "width 80ms linear",
+                                }}
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={advance}
+                            className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-background-secondary hover:text-on-background transition-colors duration-200 cursor-pointer"
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>

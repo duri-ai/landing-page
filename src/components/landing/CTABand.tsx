@@ -47,7 +47,7 @@ export default function CTABand() {
                         />
                         <button
                             type="submit"
-                            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xs text-[0.9rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant whitespace-nowrap"
+                            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xs text-[0.9rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant whitespace-nowrap cursor-pointer"
                         >
                             Book a demo
                             <ArrowRightIcon className="w-3.5 h-3.5" />

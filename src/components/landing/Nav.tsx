@@ -16,9 +16,8 @@ export default function Nav() {
 
     return (
         <nav
-            className={`sticky top-0 z-30 w-full bg-background min-w-xs transition-[border-color] duration-300 ${
-                scrolled ? "border-b border-divider" : "border-b border-transparent"
-            }`}
+            className={`sticky top-0 z-30 w-full bg-background min-w-xs transition-[border-color] duration-300 ${scrolled ? "border-b border-divider" : "border-b border-transparent"
+                }`}
         >
             <div className="mx-auto grid max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-6 px-4 py-3 md:px-8 md:py-4">
                 <Link to="/" aria-label="Duri home" className="inline-flex items-center gap-2">
@@ -26,7 +25,7 @@ export default function Nav() {
                         src={`${import.meta.env.BASE_URL}logos/d.svg`}
                         alt=""
                         aria-hidden
-                        className="h-6 w-6 rounded-[5px]"
+                        className="h-7 w-7 rounded-[5px]"
                     />
                     <span className="text-[1.25rem] font-bold tracking-[-0.03em] text-on-background leading-none">
                         Duri
@@ -46,7 +45,7 @@ export default function Nav() {
                     >
                         Privacy
                     </Link>
-                    <a
+                    {/* <a
                         href="https://www.reddit.com/r/Duri/"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -59,7 +58,7 @@ export default function Nav() {
                             className="h-[18px] w-[18px]"
                         />
                         <span className="hidden sm:inline">r/Duri</span>
-                    </a>
+                    </a> */}
                 </div>
 
                 <div className="inline-flex items-center justify-end gap-1 sm:gap-2">

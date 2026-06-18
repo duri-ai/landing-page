@@ -121,7 +121,7 @@ export default function Hero() {
                         onClick={() => track("start_now_web", { detected_os: isMac ? "mac" : "win" })}
                         className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border bg-background text-on-background border-divider-strong hover:border-on-background transition-colors duration-200 whitespace-nowrap sm:min-w-[190px]"
                     >
-                        Start now on web
+                        Get started on Web
                     </a>
                     <div className="relative" ref={downloadRef}>
                         <button
@@ -135,7 +135,7 @@ export default function Hero() {
                                 <img src={APPLE_LOGO} alt="" aria-hidden className="w-4 h-4 object-contain invert" />
                                 <img src={WINDOWS_LOGO} alt="" aria-hidden className="w-4 h-4 object-contain invert" />
                             </span>
-                            Download desktop app
+                            Download for Desktop
                             <ChevronDown
                                 aria-hidden
                                 className={`w-4 h-4 flex-none transition-transform duration-200 ${downloadOpen ? "rotate-180" : ""}`}

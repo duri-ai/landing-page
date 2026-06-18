@@ -61,6 +61,15 @@ export default function PricingPage() {
 
     const handleCta = (plan: "free" | "pro") => () => {
         track("pricing_cta_click", { plan, signed_in: Boolean(user) });
+        // TEMPORARY (Shopify App-Store review): Pro must charge through
+        // Shopify Billing, not Stripe. Send the Pro CTA to the backend
+        // Shopify install entry instead of the normal signup/account
+        // flow. Revert this branch to ship Stripe Pro again.
+        if (plan === "pro") {
+            const backend = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
+            window.location.href = `${backend}/shopify-billing/install`;
+            return;
+        }
         navigate(user ? "/account" : "/signup");
     };
 

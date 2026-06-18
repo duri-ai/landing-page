@@ -203,15 +203,11 @@ export default function AccountPage() {
 
     async function handleSubscribe() {
         if (!org) return;
-        setCheckoutLoading("subscribe");
-        const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch(
-            `${BACKEND}/stripe/subscribe?organization_id=${org.id}`,
-            { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } },
-        );
-        const data = await res.json().catch(() => null);
-        setCheckoutLoading(null);
-        if (data?.url) window.location.href = data.url;
+        // TEMPORARY (Shopify App-Store review): Pro must charge through
+        // Shopify Billing, not Stripe. Redirect the "Upgrade to Pro"
+        // button to the backend Shopify install entry. Revert this body
+        // to the Stripe /stripe/subscribe call to ship Stripe Pro again.
+        window.location.href = `${BACKEND}/shopify-billing/install`;
     }
 
     async function handleRecharge(amountUsd: number) {

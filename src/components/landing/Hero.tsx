@@ -35,7 +35,7 @@ export default function Hero() {
         <section className="relative w-full bg-background overflow-hidden">
             <div
                 aria-hidden
-                className="absolute inset-0 duri-grid-bg opacity-[0.18] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
+                className="absolute inset-0 duri-grid-bg opacity-[0.4] pointer-events-none"
             />
             <div
                 aria-hidden
@@ -53,7 +53,7 @@ export default function Hero() {
                         "linear-gradient(to bottom, transparent, var(--background) 80%)",
                 }}
             />
-            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 pt-10 sm:pt-24 md:pt-28 pb-16 md:pb-24">
+            <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 pt-10 sm:pt-14 pb-16 md:pb-24">
                 <div id="download" className="text-left sm:text-center">
                     <p className="text-sm sm:text-[clamp(1rem,1.35vw,1.2rem)] leading-[1.45] text-on-background-secondary max-w-[40ch] mx-0 sm:mx-auto text-balance">
                         Automate your business in plain language.

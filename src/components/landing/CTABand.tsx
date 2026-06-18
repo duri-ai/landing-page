@@ -18,7 +18,7 @@ export default function CTABand() {
     };
 
     return (
-        <section className="relative w-full bg-background border-t border-divider overflow-hidden">
+        <section id="talk-to-us" className="relative w-full bg-background border-t border-divider overflow-hidden scroll-mt-16 sm:scroll-mt-20">
             <div
                 aria-hidden
                 className="absolute inset-0 duri-grid-bg opacity-[0.12] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_75%)]"

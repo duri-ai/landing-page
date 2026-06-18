@@ -19,6 +19,7 @@ export default function Nav() {
     }, []);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMenuOpen(false);
     }, [location.pathname]);
 

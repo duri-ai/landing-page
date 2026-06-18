@@ -15,7 +15,8 @@
       "Bash(curl -s https://api.duri-ai.com/health)",
       "Bash(curl -s https://api.duri-ai.com/)",
       "mcp__supabase__execute_sql",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(git commit *)"
     ]
   }
 }

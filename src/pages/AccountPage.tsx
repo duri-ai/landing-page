@@ -1,9 +1,18 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+    ArrowRightIcon,
+    CheckIcon,
+    CopyIcon,
+    MonitorIcon,
+    SmartphoneIcon,
+} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
+
+const DESKTOP_URL = "https://duri-ai.com";
 
 type OrgMember = {
     user_id: string;
@@ -300,6 +309,8 @@ export default function AccountPage() {
             <Nav />
             <main className="min-h-[calc(100dvh-60px)] bg-background">
                 <div className="mx-auto max-w-[640px] px-4 md:px-8 py-14 md:py-20">
+                    <MobileDesktopNotice />
+
                     {/* Profile header */}
                     <div className="flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand text-on-brand text-lg font-medium select-none">
@@ -959,6 +970,64 @@ function MemberRow({ name, email, userId, badge }: { name?: string | null; email
             <span className="text-xs text-on-background-secondary border border-divider rounded-xs px-2 py-0.5 shrink-0">
                 {badge}
             </span>
+        </div>
+    );
+}
+
+function MobileDesktopNotice() {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(DESKTOP_URL);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // Clipboard may be unavailable (older browser / insecure context).
+            // Silently no-op — the URL is still visible in the chip for manual copy.
+        }
+    };
+
+    return (
+        <div
+            role="note"
+            className="sm:hidden duri-fade-up mb-9 rounded-[5px] border border-brand/25 bg-brand-soft p-4"
+        >
+            <div className="flex items-center gap-2 text-brand">
+                <SmartphoneIcon className="w-[14px] h-[14px]" strokeWidth={1.8} aria-hidden />
+                <ArrowRightIcon className="w-3 h-3 opacity-60" strokeWidth={2} aria-hidden />
+                <MonitorIcon className="w-4 h-4" strokeWidth={1.8} aria-hidden />
+            </div>
+            <p className="mt-2.5 text-[15px] font-semibold tracking-[-0.005em] text-on-background">
+                Duri runs on desktop
+            </p>
+            <p className="mt-1.5 text-[13px] leading-[1.55] text-on-background-secondary">
+                Account settings live here, but the app installs on macOS or Windows. Open this page on a desktop to download.
+            </p>
+            <button
+                type="button"
+                onClick={handleCopy}
+                aria-live="polite"
+                className="group mt-3.5 inline-flex items-center gap-2 rounded-[5px] border border-brand/30 bg-background hover:border-brand px-3 h-8 text-[12px] font-medium transition-colors duration-200 cursor-pointer"
+            >
+                <span className="text-on-background tabular-nums">duri-ai.com</span>
+                <span className="text-divider-strong group-hover:text-brand transition-colors duration-200" aria-hidden>
+                    ·
+                </span>
+                <span className="inline-flex items-center gap-1 text-brand">
+                    {copied ? (
+                        <>
+                            <CheckIcon className="w-3 h-3" strokeWidth={2.5} aria-hidden />
+                            Copied
+                        </>
+                    ) : (
+                        <>
+                            <CopyIcon className="w-3 h-3" strokeWidth={2} aria-hidden />
+                            Copy link
+                        </>
+                    )}
+                </span>
+            </button>
         </div>
     );
 }

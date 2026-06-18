@@ -104,7 +104,7 @@ export default function Nav() {
                             </button>
                             <a
                                 href="https://app.duri-ai.com"
-                                className="hidden sm:inline-flex items-center text-white bg-highlight hover:opacity-90 border border-highlight rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-opacity duration-200 cursor-pointer whitespace-nowrap"
+                                className="hidden sm:inline-flex items-center text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
                             >
                                 Start now
                             </a>

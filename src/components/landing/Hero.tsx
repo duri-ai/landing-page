@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PlayIcon } from "lucide-react";
+import { ChevronDown, PlayIcon } from "lucide-react";
 import { integrations } from "../../utils/marketingContent";
 import { track } from "../../utils/analytics";
 import HeroProductWindow from "./HeroProductWindow";
@@ -11,9 +11,12 @@ const APPLE_LOGO = `${base}misc_images/apple.png`;
 const WINDOWS_LOGO = `${base}misc_images/windows.png`;
 const MAC_DOWNLOAD = "https://releases.duri-ai.com/desktop/latest/Duri-latest-mac.dmg";
 const WIN_DOWNLOAD = "https://releases.duri-ai.com/desktop/latest/Duri-latest-win.exe";
+const APP_URL = "https://app.duri-ai.com";
 
 export default function Hero() {
     const [isMac, setIsMac] = useState(true);
+    const [downloadOpen, setDownloadOpen] = useState(false);
+    const downloadRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,6 +25,31 @@ export default function Hero() {
         if (/Win/i.test(ua)) setIsMac(false);
         else if (/Mac/i.test(ua) && !/(iPhone|iPad|iPod)/i.test(ua)) setIsMac(true);
     }, []);
+
+    useEffect(() => {
+        if (!downloadOpen) return;
+        const onPointerDown = (e: PointerEvent) => {
+            if (downloadRef.current && !downloadRef.current.contains(e.target as Node)) {
+                setDownloadOpen(false);
+            }
+        };
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setDownloadOpen(false);
+        };
+        document.addEventListener("pointerdown", onPointerDown);
+        window.addEventListener("keydown", onKey);
+        return () => {
+            document.removeEventListener("pointerdown", onPointerDown);
+            window.removeEventListener("keydown", onKey);
+        };
+    }, [downloadOpen]);
+
+    // Detected OS first in the desktop-download menu.
+    const downloads = [
+        { os: "mac", label: "Download for macOS", href: MAC_DOWNLOAD, logo: APPLE_LOGO },
+        { os: "win", label: "Download for Windows", href: WIN_DOWNLOAD, logo: WINDOWS_LOGO },
+    ];
+    const orderedDownloads = isMac ? downloads : [downloads[1], downloads[0]];
 
     const scrollToDemo = () => {
         track("book_demo_click", { source: "hero_mobile" });
@@ -89,27 +117,53 @@ export default function Hero() {
 
                 <div className="hidden sm:flex mt-11 flex-row items-center justify-center gap-3">
                     <a
-                        href={MAC_DOWNLOAD}
-                        onClick={() => track("download_app", { os: "mac", detected_os: isMac ? "mac" : "win" })}
-                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] ${isMac
-                            ? "bg-brand text-on-brand border-brand hover:bg-brand-variant"
-                            : "bg-background text-on-background border-divider-strong hover:border-on-background"
-                            }`}
+                        href={APP_URL}
+                        onClick={() => track("start_now_web", { detected_os: isMac ? "mac" : "win" })}
+                        className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border bg-background text-on-background border-divider-strong hover:border-on-background transition-colors duration-200 whitespace-nowrap sm:min-w-[190px]"
                     >
-                        <img src={APPLE_LOGO} alt="" aria-hidden className={`w-4 h-4 object-contain flex-none ${isMac ? "invert" : ""}`} />
-                        Download for macOS
+                        Start now on web
                     </a>
-                    <a
-                        href={WIN_DOWNLOAD}
-                        onClick={() => track("download_app", { os: "win", detected_os: isMac ? "mac" : "win" })}
-                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] ${!isMac
-                            ? "bg-brand text-on-brand border-brand hover:bg-brand-variant"
-                            : "bg-background text-on-background border-divider-strong hover:border-on-background"
-                            }`}
-                    >
-                        <img src={WINDOWS_LOGO} alt="" aria-hidden className={`w-4 h-4 object-contain flex-none ${!isMac ? "invert" : ""}`} />
-                        Download for Windows
-                    </a>
+                    <div className="relative" ref={downloadRef}>
+                        <button
+                            type="button"
+                            onClick={() => setDownloadOpen((o) => !o)}
+                            aria-haspopup="menu"
+                            aria-expanded={downloadOpen}
+                            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border bg-brand text-on-brand border-brand hover:bg-brand-variant transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] cursor-pointer"
+                        >
+                            <span className="flex items-center gap-1.5 flex-none">
+                                <img src={APPLE_LOGO} alt="" aria-hidden className="w-4 h-4 object-contain invert" />
+                                <img src={WINDOWS_LOGO} alt="" aria-hidden className="w-4 h-4 object-contain invert" />
+                            </span>
+                            Download desktop app
+                            <ChevronDown
+                                aria-hidden
+                                className={`w-4 h-4 flex-none transition-transform duration-200 ${downloadOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
+                        {downloadOpen && (
+                            <div
+                                role="menu"
+                                className="absolute left-0 right-0 top-full mt-2 bg-background border border-divider rounded-xs shadow-lg overflow-hidden z-20"
+                            >
+                                {orderedDownloads.map((d) => (
+                                    <a
+                                        key={d.os}
+                                        href={d.href}
+                                        role="menuitem"
+                                        onClick={() => {
+                                            track("download_app", { os: d.os, detected_os: isMac ? "mac" : "win" });
+                                            setDownloadOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2.5 text-[0.875rem] font-medium text-on-background hover:bg-brand-soft transition-colors duration-200 whitespace-nowrap"
+                                    >
+                                        <img src={d.logo} alt="" aria-hidden className="w-4 h-4 object-contain flex-none" />
+                                        {d.label}
+                                    </a>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="mt-12 sm:mt-16 mx-auto max-w-[960px]">

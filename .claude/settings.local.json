@@ -14,7 +14,8 @@
       "Bash(curl -s -o /dev/null -w \"HTTP=%{http_code}\\\\n\" https://api.duri-ai.com/health)",
       "Bash(curl -s https://api.duri-ai.com/health)",
       "Bash(curl -s https://api.duri-ai.com/)",
-      "mcp__supabase__execute_sql"
+      "mcp__supabase__execute_sql",
+      "Bash(npx tsc *)"
     ]
   }
 }

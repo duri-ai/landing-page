@@ -52,7 +52,11 @@ export default function Nav() {
     const mobileItems = [
         { to: "/pricing", label: "Pricing" },
         { to: "/privacy", label: "Privacy" },
-        ...(!loading && !user ? [{ to: "/login", label: "Sign in" }] : []),
+        ...(!loading
+            ? [user
+                ? { to: "/account", label: "My account" }
+                : { to: "/login", label: "Sign in to account" }]
+            : []),
     ];
 
     return (
@@ -90,40 +94,21 @@ export default function Nav() {
 
                 <div className="inline-flex items-center justify-end gap-1 sm:gap-2">
                     {!loading && (
-                        user ? (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={() => navigate("/account")}
-                                    className="inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
-                                >
-                                    Account
-                                </button>
-                                <a
-                                    href="https://app.duri-ai.com"
-                                    className="text-on-brand bg-brand hover:bg-brand-variant border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
-                                >
-                                    Go to app
-                                </a>
-                            </>
-                        ) : (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={() => navigate("/login")}
-                                    className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
-                                >
-                                    Sign in
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => navigate("/signup")}
-                                    className="text-on-brand bg-brand hover:bg-brand-variant border border-brand hover:border-brand-variant rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
-                                >
-                                    Get started
-                                </button>
-                            </>
-                        )
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => navigate(user ? "/account" : "/login")}
+                                className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
+                            >
+                                {user ? "My account" : "Sign in to account"}
+                            </button>
+                            <a
+                                href="https://app.duri-ai.com"
+                                className="hidden sm:inline-flex items-center text-white bg-highlight hover:opacity-90 border border-highlight rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-opacity duration-200 cursor-pointer whitespace-nowrap"
+                            >
+                                Start now
+                            </a>
+                        </>
                     )}
 
                     <button

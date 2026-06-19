@@ -21,6 +21,17 @@ export function track(name: string, params?: GtagParams): void {
 }
 
 /**
+ * Fire a GA4 event for an interaction that is about to unload the
+ * current document (outbound link, file download, location.href
+ * reassignment). Uses the sendBeacon transport so the event still
+ * ships if the page starts tearing down before the network call
+ * completes.
+ */
+export function trackOutbound(name: string, params?: GtagParams): void {
+    track(name, { ...params, transport_type: "beacon" });
+}
+
+/**
  * Fire a page_view manually. Needed because GA4's gtag('config', ...)
  * only fires page_view on the first document load; React Router
  * navigations are SPA-only and never re-trigger it.

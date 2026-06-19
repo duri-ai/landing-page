@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronDown, MonitorIcon, PlayIcon } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { integrations } from "../../utils/marketingContent";
-import { track } from "../../utils/analytics";
+import { track, trackOutbound } from "../../utils/analytics";
 import HeroProductWindow from "./HeroProductWindow";
 
 const base = import.meta.env.BASE_URL;
@@ -98,7 +98,7 @@ export default function Hero() {
                     {user ? (
                         <a
                             href={APP_URL}
-                            onClick={() => track("start_now_web", { source: "hero_mobile" })}
+                            onClick={() => trackOutbound("start_now_web", { source: "hero_mobile" })}
                             className="inline-flex items-center text-white bg-black hover:bg-[#1a1a1a] border border-black hover:border-[#1a1a1a] rounded-xs text-base leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
                         >
                             Open Duri
@@ -130,7 +130,7 @@ export default function Hero() {
                 <div className="hidden sm:flex mt-11 flex-row items-center justify-center gap-3">
                     <a
                         href={APP_URL}
-                        onClick={() => track("start_now_web", { detected_os: isMac ? "mac" : "win" })}
+                        onClick={() => trackOutbound("start_now_web", { detected_os: isMac ? "mac" : "win", source: "hero_desktop" })}
                         className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border bg-background text-on-background border-divider-strong hover:border-on-background transition-colors duration-200 whitespace-nowrap sm:min-w-[190px]"
                     >
                         Get started on Web
@@ -161,7 +161,7 @@ export default function Hero() {
                                         href={d.href}
                                         role="menuitem"
                                         onClick={() => {
-                                            track("download_app", { os: d.os, detected_os: isMac ? "mac" : "win" });
+                                            trackOutbound("download_app", { os: d.os, detected_os: isMac ? "mac" : "win" });
                                             setDownloadOpen(false);
                                         }}
                                         className="flex items-center gap-2 px-4 py-2.5 text-[0.875rem] font-medium text-on-background hover:bg-brand-soft transition-colors duration-200 whitespace-nowrap"

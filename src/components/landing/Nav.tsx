@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { trackOutbound } from "../../utils/analytics";
 
 export default function Nav() {
     const [scrolled, setScrolled] = useState(false);
@@ -104,6 +105,7 @@ export default function Nav() {
                             </button>
                             <a
                                 href="https://app.duri-ai.com"
+                                onClick={() => trackOutbound("start_now_web", { source: "nav" })}
                                 className="hidden sm:inline-flex items-center text-brand bg-background hover:text-on-brand hover:bg-brand border border-brand rounded-xs text-sm leading-5 px-3 sm:px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
                             >
                                 Start now

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
+import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
 
@@ -974,6 +975,7 @@ function MobileDesktopNotice() {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
+        track("desktop_link_copied", { source: "account_mobile_banner" });
         try {
             await navigator.clipboard.writeText(DESKTOP_URL);
             setCopied(true);

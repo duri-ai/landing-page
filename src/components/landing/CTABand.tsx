@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { track } from "../../utils/analytics";
+import { trackOutbound } from "../../utils/analytics";
 
 const CONTACT_EMAIL = "info@duri-ai.com";
 
@@ -9,7 +9,7 @@ export default function CTABand() {
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        track("book_demo_click", { source: "cta_band" });
+        trackOutbound("book_demo_click", { source: "cta_band" });
         const subject = encodeURIComponent("Book a demo");
         const body = encodeURIComponent(
             `Hi Duri team,\n\nI'd like to book a demo.\n\nReply to ${email}.`,

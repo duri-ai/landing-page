@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, PlayIcon } from "lucide-react";
+import { ChevronDown, MonitorIcon, PlayIcon } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 import { integrations } from "../../utils/marketingContent";
 import { track } from "../../utils/analytics";
 import HeroProductWindow from "./HeroProductWindow";
@@ -18,6 +19,7 @@ export default function Hero() {
     const [downloadOpen, setDownloadOpen] = useState(false);
     const downloadRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     useEffect(() => {
         const ua = navigator.userAgent;
@@ -93,13 +95,23 @@ export default function Hero() {
                 </div>
 
                 <div className="sm:hidden mt-7 flex flex-row items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => navigate("/signup")}
-                        className="inline-flex items-center text-white bg-black hover:bg-[#1a1a1a] border border-black hover:border-[#1a1a1a] rounded-xs text-base leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
-                    >
-                        Get started
-                    </button>
+                    {user ? (
+                        <a
+                            href={APP_URL}
+                            onClick={() => track("start_now_web", { source: "hero_mobile" })}
+                            className="inline-flex items-center text-white bg-black hover:bg-[#1a1a1a] border border-black hover:border-[#1a1a1a] rounded-xs text-base leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
+                        >
+                            Open Duri
+                        </a>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => navigate("/signup")}
+                            className="inline-flex items-center text-white bg-black hover:bg-[#1a1a1a] border border-black hover:border-[#1a1a1a] rounded-xs text-base leading-5 px-4 py-2 transition-colors duration-200 cursor-pointer whitespace-nowrap"
+                        >
+                            Get started
+                        </button>
+                    )}
                     <button
                         type="button"
                         onClick={scrollToDemo}
@@ -131,10 +143,7 @@ export default function Hero() {
                             aria-expanded={downloadOpen}
                             className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xs text-[0.875rem] font-semibold border bg-brand text-on-brand border-brand hover:bg-brand-variant transition-colors duration-200 whitespace-nowrap sm:min-w-[190px] cursor-pointer"
                         >
-                            <span className="flex items-center gap-1.5 flex-none">
-                                <img src={APPLE_LOGO} alt="" aria-hidden className="w-4 h-4 object-contain invert" />
-                                <img src={WINDOWS_LOGO} alt="" aria-hidden className="w-4 h-4 object-contain invert" />
-                            </span>
+                            <MonitorIcon className="w-4 h-4 flex-none" strokeWidth={1.8} aria-hidden />
                             Download for Desktop
                             <ChevronDown
                                 aria-hidden

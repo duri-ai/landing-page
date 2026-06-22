@@ -7,6 +7,7 @@ const POOL = [
     `${base}logos/third_party/m365.png`,
     `${base}logos/third_party/gmail.png`,
     `${base}logos/third_party/meta.png`,
+    `${base}logos/third_party/mailchimp.png`,
     `${base}logos/third_party/square.png`,
     `${base}logos/third_party/shopify-bag.svg`,
     `${base}logos/third_party/quickbooks-circle.svg`,

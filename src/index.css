@@ -33,6 +33,9 @@
   --color-divider: var(--divider);
   --color-divider-strong: var(--divider-strong);
   --color-highlight: var(--highlight);
+  --color-highlight-soft: var(--highlight-soft);
+  --color-surface: var(--surface);
+  --color-danger: var(--danger);
   --color-brand-dark: var(--brand-dark);
   --radius-xs: 5px;
   --radius-sm: 5px;
@@ -79,6 +82,9 @@
   --divider: #e6e4e2;
   --divider-strong: #d3cfc8;
   --highlight: #8f00ff;
+  --highlight-soft: #f1e6ff;
+  --surface: #fbfaf8;
+  --danger: #c0392b;
   --brand-dark: #00522e;
 }
 
@@ -478,6 +484,138 @@ html {
 
 @media (prefers-reduced-motion: reduce) {
   .duri-fade-up {
+    animation: none;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Forum (the /forum route group). Class-scoped so it never bleeds into
+   the marketing pages. Shared with the rendered post body + the TipTap
+   composer so the editor previews the published post exactly.
+   ────────────────────────────────────────────────────────────────── */
+@layer components {
+  .forum-prose {
+    color: var(--on-background);
+    font-size: 0.975rem;
+    line-height: 1.65;
+    word-break: break-word;
+  }
+  .forum-prose > * + * {
+    margin-top: 0.85em;
+  }
+  .forum-prose h1,
+  .forum-prose h2,
+  .forum-prose h3 {
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--on-background);
+  }
+  .forum-prose h1 {
+    font-size: 1.4rem;
+  }
+  .forum-prose h2 {
+    font-size: 1.2rem;
+  }
+  .forum-prose h3 {
+    font-size: 1.05rem;
+  }
+  .forum-prose a {
+    color: var(--brand-variant);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .forum-prose strong {
+    font-weight: 600;
+  }
+  .forum-prose ul,
+  .forum-prose ol {
+    padding-left: 1.4em;
+  }
+  .forum-prose ul {
+    list-style: disc;
+  }
+  .forum-prose ol {
+    list-style: decimal;
+  }
+  .forum-prose li::marker {
+    color: var(--on-background-secondary-variant);
+  }
+  .forum-prose blockquote {
+    border-left: 2px solid var(--divider-strong);
+    padding-left: 0.9em;
+    color: var(--on-background-secondary);
+  }
+  .forum-prose code {
+    font-family: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+    font-size: 0.85em;
+    background: var(--background-warm);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    padding: 0.1em 0.34em;
+  }
+  .forum-prose pre {
+    background: color-mix(in oklch, var(--on-background) 4%, transparent);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-xs);
+    padding: 0.85em 1em;
+    overflow-x: auto;
+  }
+  .forum-prose pre code {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font-size: 0.85em;
+  }
+  .forum-prose hr {
+    border: 0;
+    border-top: 1px solid var(--divider);
+  }
+
+  /* TipTap editor surface. */
+  .ProseMirror {
+    min-height: 11rem;
+    outline: none;
+  }
+  .ProseMirror:focus {
+    outline: none;
+  }
+  .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: var(--on-background-secondary-variant);
+  }
+}
+
+@layer utilities {
+  .forum-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-background-secondary);
+  }
+}
+
+@keyframes forum-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.forum-fade-up {
+  animation: forum-fade-up 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forum-fade-up {
     animation: none;
   }
 }

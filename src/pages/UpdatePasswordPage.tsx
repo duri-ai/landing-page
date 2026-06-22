@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { supabase } from "../utils/supabase";
+import { supabase } from "../../supabase/client";
 import Nav from "../components/landing/Nav";
 
 export default function UpdatePasswordPage() {

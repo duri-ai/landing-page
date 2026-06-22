@@ -50,7 +50,7 @@ export default function Nav() {
         };
     }, [menuOpen]);
 
-    const mobileItems = [
+    const mobileItems: { to: string; label: string }[] = [
         { to: "/pricing", label: "Pricing" },
         { to: "/privacy", label: "Privacy" },
         ...(!loading
@@ -168,7 +168,7 @@ export default function Nav() {
                             className={`group flex items-center justify-between px-4 md:px-8 py-3.5 text-on-background text-[0.95rem] leading-5 font-medium transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${menuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
                                 } ${i > 0 ? "border-t border-divider" : ""}`}
                         >
-                            <span className="transition-colors duration-200 group-hover:text-brand">
+                            <span className="inline-flex items-center gap-2 transition-colors duration-200 group-hover:text-brand">
                                 {item.label}
                             </span>
                             <span

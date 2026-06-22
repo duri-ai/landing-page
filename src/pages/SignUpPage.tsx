@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "../utils/supabase";
+import { supabase } from "../../supabase/client";
 import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 

@@ -36,14 +36,14 @@ const plans: Plan[] = [
     {
         id: "pro",
         name: "Pro",
-        price: "$15",
+        price: "$30",
         period: "/ month",
         tagline: "For organizations running real work on Duri.",
         features: [
             {
-                text: "20.00 in credits every month",
+                text: "40.00 in credits every month",
                 subs: [
-                    "15.00 plus a 5.00 bonus credit",
+                    "30.00 plus a 10.00 bonus credit",
                     "Recharge anytime, or turn on auto-reload",
                 ],
             },
@@ -66,7 +66,7 @@ export default function PricingPage() {
         // Shopify install entry instead of the normal signup/account
         // flow. Revert this branch to ship Stripe Pro again.
         if (plan === "pro") {
-            const backend = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
+            const backend = (import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
             window.location.href = `${backend}/shopify-billing/install`;
             return;
         }

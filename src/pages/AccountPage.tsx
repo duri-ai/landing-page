@@ -8,7 +8,7 @@ import {
     SmartphoneIcon,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { supabase } from "../utils/supabase";
+import { supabase } from "../../supabase/client";
 import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 import Footer from "../components/landing/Footer";
@@ -60,7 +60,7 @@ type UsageData = {
     days: number | null;
 };
 
-const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
+const BACKEND = (import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
 
 export default function AccountPage() {
     const { user, signOut, loading } = useAuth();
@@ -144,8 +144,9 @@ export default function AccountPage() {
                     filter: `id=eq.${org.credit_id}`,
                 },
                 (payload) => {
-                    const p = payload.new as { credit: number };
-                    setOrg((prev) => (prev ? { ...prev, credit_usd: p.credit } : prev));
+                    const p = payload.new as { credit: number; monthly_credit?: number };
+                    const total = p.credit + (p.monthly_credit ?? 0);
+                    setOrg((prev) => (prev ? { ...prev, credit_usd: total } : prev));
                 },
             )
             .subscribe();
@@ -564,7 +565,7 @@ function BillingPanel({
                 <div className="rounded-md border border-brand/30 bg-brand-soft p-4">
                     <p className="text-sm font-medium text-on-background">Upgrade to Pro</p>
                     <p className="mt-1 text-sm text-on-background-secondary leading-relaxed">
-                        Get 15.00 plus a 5.00 bonus credit every month.
+                        Get 30.00 plus a 10.00 bonus credit every month.
                     </p>
                     <button
                         type="button"
@@ -572,7 +573,7 @@ function BillingPanel({
                         onClick={onSubscribe}
                         className="mt-4 h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                        {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $15/mo"}
+                        {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $30/mo"}
                     </button>
                 </div>
             )}

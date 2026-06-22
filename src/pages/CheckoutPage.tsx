@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { supabase } from "../utils/supabase";
+import { supabase } from "../../supabase/client";
 import Nav from "../components/landing/Nav";
 
-const BACKEND = (import.meta.env.VITE_BACKEND_URL as string).replace(/\/+$/, "");
+const BACKEND = (import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
 
 export default function CheckoutPage() {
     const { user, loading } = useAuth();

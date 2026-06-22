@@ -12,6 +12,7 @@ export const integrations: Integration[] = [
     { name: "Clover", logo: `${base}logos/third_party/clover.svg` },
     { name: "Airtable", logo: `${base}logos/third_party/airtable.svg` },
     { name: "Notion", logo: `${base}logos/third_party/notion.svg` },
+    { name: "Mailchimp", logo: `${base}logos/third_party/mailchimp_w_text.svg` },
     { name: "Slack", logo: `${base}logos/third_party/slack.svg` },
 ];
 

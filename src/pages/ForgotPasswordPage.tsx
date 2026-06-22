@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../utils/supabase";
+import { supabase } from "../../supabase/client";
 import Nav from "../components/landing/Nav";
 
 export default function ForgotPasswordPage() {

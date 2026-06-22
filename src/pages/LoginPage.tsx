@@ -1,11 +1,20 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../utils/supabase";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { supabase } from "../../supabase/client";
 import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 
+/** Only allow same-origin path redirects (block protocol-relative // and absolute URLs). */
+function safeRedirect(value: string | null): string | null {
+    if (!value) return null;
+    if (!value.startsWith("/") || value.startsWith("//")) return null;
+    return value;
+}
+
 export default function LoginPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const redirectTo = safeRedirect(searchParams.get("redirect"));
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -16,7 +25,10 @@ export default function LoginPage() {
         track("login_started", { method: "google" });
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
-            options: { redirectTo: window.location.origin + "/onboarding" },
+            options: {
+                redirectTo:
+                    window.location.origin + (redirectTo ?? "/onboarding"),
+            },
         });
         if (error) setError(error.message);
     }
@@ -32,7 +44,7 @@ export default function LoginPage() {
             setError(error.message);
         } else {
             track("login_completed", { method: "email" });
-            navigate("/");
+            navigate(redirectTo ?? "/");
         }
     }
 

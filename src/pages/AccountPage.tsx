@@ -62,6 +62,11 @@ type UsageData = {
 
 const BACKEND = (import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
 
+// TEMP GATE — Shopify App-Store review. When true, the Pro upgrade routes
+// through Shopify Billing instead of Stripe. Set false to restore the
+// normal Stripe subscription flow. Flip back to true to re-enable Shopify.
+const SHOPIFY_BILLING_GATE = false;
+
 export default function AccountPage() {
     const { user, signOut, loading } = useAuth();
     const navigate = useNavigate();
@@ -205,11 +210,22 @@ export default function AccountPage() {
 
     async function handleSubscribe() {
         if (!org) return;
-        // TEMPORARY (Shopify App-Store review): Pro must charge through
-        // Shopify Billing, not Stripe. Redirect the "Upgrade to Pro"
-        // button to the backend Shopify install entry. Revert this body
-        // to the Stripe /stripe/subscribe call to ship Stripe Pro again.
-        window.location.href = `${BACKEND}/shopify-billing/install`;
+        // TEMP GATE — Shopify App-Store review: route Pro through Shopify
+        // Billing instead of Stripe. Disabled via SHOPIFY_BILLING_GATE;
+        // the normal Stripe subscription flow runs below when it's off.
+        if (SHOPIFY_BILLING_GATE) {
+            window.location.href = `${BACKEND}/shopify-billing/install`;
+            return;
+        }
+        setCheckoutLoading("subscribe");
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+            `${BACKEND}/stripe/subscribe?organization_id=${org.id}`,
+            { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } },
+        );
+        const data = await res.json().catch(() => null);
+        setCheckoutLoading(null);
+        if (data?.url) window.location.href = data.url;
     }
 
     async function handleRecharge(amountUsd: number) {

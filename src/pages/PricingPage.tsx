@@ -27,11 +27,11 @@ const plans: Plan[] = [
     {
         id: "free",
         name: "Free",
-        price: "5.00",
+        price: "10.00",
         period: "in credits",
         tagline: "Spin up your org and see what Duri can automate for you.",
         features: [
-            { text: "5.00 in credits to get you started" },
+            { text: "10.00 in credits to get you started" },
             { text: "Invite your team" },
             { text: "Credits shared across every member in the organization" },
         ],
@@ -41,14 +41,13 @@ const plans: Plan[] = [
     {
         id: "pro",
         name: "Pro",
-        price: "$30",
+        price: "$50",
         period: "/ month",
         tagline: "For organizations running real work on Duri.",
         features: [
             {
-                text: "40.00 in credits every month",
+                text: "50.00 in credits every month",
                 subs: [
-                    "30.00 plus a 10.00 bonus credit",
                     "Recharge anytime, or turn on auto-reload",
                 ],
             },

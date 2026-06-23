@@ -581,7 +581,7 @@ function BillingPanel({
                 <div className="rounded-md border border-brand/30 bg-brand-soft p-4">
                     <p className="text-sm font-medium text-on-background">Upgrade to Pro</p>
                     <p className="mt-1 text-sm text-on-background-secondary leading-relaxed">
-                        Get 30.00 plus a 10.00 bonus credit every month.
+                        Get 50.00 in credits every month.
                     </p>
                     <button
                         type="button"
@@ -589,7 +589,7 @@ function BillingPanel({
                         onClick={onSubscribe}
                         className="mt-4 h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                        {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $30/mo"}
+                        {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $50/mo"}
                     </button>
                 </div>
             )}

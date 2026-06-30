@@ -856,6 +856,8 @@ function SecondaryButton({
 }
 
 const USAGE_RANGES: { label: string; days: number | null }[] = [
+    { label: "Last 7 days", days: 7 },
+    { label: "Last 14 days", days: 14 },
     { label: "30d", days: 30 },
     { label: "60d", days: 60 },
     { label: "90d", days: 90 },

@@ -90,7 +90,7 @@ export default function Hero() {
                     </p>
                     <h1 className="mt-5 text-[clamp(2.5rem,6.4vw,5rem)] max-[375px]:text-[clamp(1.75rem,6.4vw,5rem)] leading-[1.02] tracking-[-0.028em] font-medium text-on-background max-w-[16ch] max-[375px]:max-w-none mx-0 sm:mx-auto text-balance">
                         An <span className="text-brand">AI workspace</span>
-                        <br className="hidden max-[375px]:inline" /> for small business.
+                        <br className="hidden max-[375px]:inline" /> for your business.
                     </h1>
                 </div>
 

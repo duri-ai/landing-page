@@ -72,10 +72,10 @@ export default function HeroProductWindow() {
                 <div className="grid grid-cols-[64px_1fr]">
                     <aside className="border-r border-divider bg-background-warm/70 flex flex-col items-center pt-4 pb-4 gap-2">
                         <img
-                            src={`${import.meta.env.BASE_URL}logos/mascot.png`}
+                            src={`${import.meta.env.BASE_URL}logos/d.svg`}
                             alt=""
                             aria-hidden
-                            className="w-8 h-8 rounded-xs object-contain"
+                            className="w-8 h-8 rounded-xs"
                         />
                         <div className="mt-3 flex flex-col items-center gap-2">
                             <SidebarIcon className="w-4 h-4 text-on-background-secondary" />
@@ -110,10 +110,10 @@ export default function HeroProductWindow() {
                                 <div className="duri-fade-up flex flex-col">
                                     <div className="mb-2 flex items-center gap-1.5">
                                         <img
-                                            src={`${import.meta.env.BASE_URL}logos/mascot.png`}
+                                            src={`${import.meta.env.BASE_URL}logos/d.svg`}
                                             alt=""
                                             aria-hidden
-                                            className="w-4 h-4 rounded-xs object-contain"
+                                            className="w-4 h-4 rounded-xs"
                                         />
                                         <span className="text-[12px] font-semibold text-on-background">Duri</span>
                                     </div>

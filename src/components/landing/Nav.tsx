@@ -68,10 +68,10 @@ export default function Nav() {
             <div className="mx-auto grid max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-6 px-4 py-3 md:px-8 md:py-4">
                 <Link to="/" aria-label="Duri home" className="inline-flex items-center gap-2">
                     <img
-                        src={`${import.meta.env.BASE_URL}logos/mascot.png`}
+                        src={`${import.meta.env.BASE_URL}logos/d.svg`}
                         alt=""
                         aria-hidden
-                        className="h-7 w-7 rounded-[5px] object-contain"
+                        className="h-7 w-7 rounded-[5px]"
                     />
                     <span className="text-[1.25rem] font-bold tracking-[-0.03em] text-on-background leading-none">
                         Duri

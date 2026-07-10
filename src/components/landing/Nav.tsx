@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { MessagesSquareIcon } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { trackOutbound } from "../../utils/analytics";
 
@@ -107,8 +108,9 @@ export default function Nav() {
                     <button
                         type="button"
                         onClick={goToDemo}
-                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
+                        className="hidden sm:inline-flex items-center gap-1.5 text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
                     >
+                        <MessagesSquareIcon className="w-4 h-4" aria-hidden />
                         Talk to us
                     </button>
                 </div>
@@ -218,6 +220,7 @@ export default function Nav() {
                             }`}
                     >
                         <span className="inline-flex items-center gap-2">
+                            <MessagesSquareIcon className="w-4 h-4" aria-hidden />
                             Talk to us
                         </span>
                         <span

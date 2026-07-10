@@ -8,7 +8,7 @@ function Eula() {
 
             <main className="max-w-3xl mx-auto px-[24px] py-[48px]">
                 <h1 className="text-3xl font-bold mb-[8px]">End-User License Agreement</h1>
-                <p className="text-on-background-secondary mb-[32px]">Last updated: June 16, 2026</p>
+                <p className="text-on-background-secondary mb-[32px]">Last updated: July 10, 2026</p>
 
                 <div className="space-y-[24px] text-[1rem] leading-relaxed">
                     <section>
@@ -71,7 +71,8 @@ function Eula() {
                             column level with a key we cannot read at rest, decrypted only inside the
                             running session that needs them, and never written to a log. See our{" "}
                             <Link to="/privacy" className="text-brand underline">Privacy Policy</Link>{" "}
-                            for details.
+                            for details, including how we handle Google user data under the Google API
+                            Services User Data Policy and its Limited Use requirements.
                         </p>
                     </section>
 
@@ -79,11 +80,13 @@ function Eula() {
                         <h2 className="text-xl font-semibold mb-[8px]">6. Data Ownership</h2>
                         <p>
                             You retain all ownership rights to your data. We do not claim ownership
-                            over any data you process through the Service. The agent reads your prompt,
-                            runs the task, and returns the result; the content of your conversations
-                            is not retained on our side, and any data the agent reads or writes
-                            through a conversation is encrypted alongside your third-party
-                            credentials and discarded when the session ends.
+                            over any data you process through the Service. We store conversation
+                            messages, session activity records, session state, associated files, and
+                            browser profile data as needed to provide and continue the Service. We
+                            delete that session data when you delete the session or after 30 days
+                            without activity. Separate systemic logs may be retained as described in
+                            our Privacy Policy. Deleting a session does not reverse actions already
+                            completed in a third-party service.
                         </p>
                     </section>
 

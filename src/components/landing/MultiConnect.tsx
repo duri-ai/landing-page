@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { integrations } from "../../utils/marketingContent";
 
 const base = import.meta.env.BASE_URL;
 
@@ -49,10 +48,10 @@ function DuriCenter() {
     return (
         <div className="flex items-center justify-center">
             <img
-                src={`${base}logos/d.svg`}
+                src={`${base}logos/duri_mascot.png`}
                 alt=""
                 aria-hidden
-                className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-[14px] drop-shadow-[0_10px_22px_rgba(0,50,32,0.18)]"
+                className="w-28 h-28 sm:w-36 sm:h-36 object-contain drop-shadow-[0_14px_28px_rgba(0,50,32,0.2)]"
             />
         </div>
     );
@@ -105,7 +104,7 @@ export default function MultiConnect() {
                     </div>
 
                     <div className="relative mx-auto max-w-[520px]">
-                        <div className="grid grid-cols-[auto_minmax(40px,80px)_auto_minmax(40px,80px)_auto] items-stretch gap-x-2 sm:gap-x-3">
+                        <div className="grid grid-cols-[auto_minmax(32px,72px)_128px_minmax(32px,72px)_auto] sm:grid-cols-[auto_minmax(40px,80px)_144px_minmax(40px,80px)_auto] items-stretch gap-x-2 sm:gap-x-3">
                             <div className="flex flex-col items-center gap-4 sm:gap-5">
                                 {leftIcons.map((src, idx) => (
                                     <IconCard key={`l-${idx}-${src}`} src={src} />
@@ -165,41 +164,6 @@ export default function MultiConnect() {
                                     <IconCard key={`r-${idx}-${src}`} src={src} />
                                 ))}
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-16 sm:mt-24 pt-12 border-t border-divider">
-                    <p className="text-center text-[11px] font-semibold tracking-[0.16em] uppercase text-on-background-secondary mb-6">
-                        Works with the tools your business runs on
-                    </p>
-                    <div className="relative w-full overflow-hidden">
-                        <div
-                            className="bg-[linear-gradient(to_right,var(--background-warm),transparent)] absolute inset-y-0 left-0 w-16 md:w-24 z-10 pointer-events-none"
-                            aria-hidden
-                        />
-                        <div
-                            className="bg-[linear-gradient(to_left,var(--background-warm),transparent)] absolute inset-y-0 right-0 w-16 md:w-24 z-10 pointer-events-none"
-                            aria-hidden
-                        />
-                        <div className="overflow-hidden">
-                            <div className="flex items-center w-max animate-logo-marquee" aria-hidden>
-                                {[...integrations, ...integrations, ...integrations, ...integrations].map((it, idx) => (
-                                    <div key={idx} className="flex-none flex items-center justify-center w-[120px] md:w-[140px] mr-10 md:mr-14">
-                                        <img
-                                            src={it.logo}
-                                            alt=""
-                                            className="w-full h-9 md:h-10 object-contain opacity-85"
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                            <ul className="sr-only">
-                                {integrations.map((it) => (
-                                    <li key={it.name}>{it.name}</li>
-                                ))}
-                            </ul>
                         </div>
                     </div>
                 </div>

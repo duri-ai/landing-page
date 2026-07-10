@@ -81,10 +81,10 @@ export default function Nav() {
             <div className="mx-auto grid max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-6 px-4 py-3 md:px-8 md:py-4">
                 <Link to="/" aria-label="Duri home" className="inline-flex items-center gap-2">
                     <img
-                        src={`${import.meta.env.BASE_URL}logos/d.svg`}
+                        src={`${import.meta.env.BASE_URL}logos/duri_mascot_tight.png`}
                         alt=""
                         aria-hidden
-                        className="h-7 w-7 rounded-[5px]"
+                        className="h-8 w-8 -my-1"
                     />
                     <span className="text-[1.25rem] font-bold tracking-[-0.03em] text-on-background leading-none">
                         Duri
@@ -109,7 +109,7 @@ export default function Nav() {
                         onClick={goToDemo}
                         className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
                     >
-                        Book a demo
+                        Talk to us
                     </button>
                 </div>
 
@@ -218,7 +218,7 @@ export default function Nav() {
                             }`}
                     >
                         <span className="inline-flex items-center gap-2">
-                            Book a demo
+                            Talk to us
                         </span>
                         <span
                             aria-hidden

@@ -60,6 +60,19 @@ export default function Nav() {
             : []),
     ];
 
+    const goToDemo = () => {
+        trackOutbound("book_demo_click", { source: "nav" });
+        setMenuOpen(false);
+        if (location.pathname === "/") {
+            document.getElementById("talk-to-us")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        } else {
+            navigate("/", { state: { scrollTo: "talk-to-us" } });
+        }
+    };
+
     return (
         <nav
             className={`sticky top-0 z-30 w-full bg-background min-w-xs transition-[border-color] duration-300 ${scrolled || menuOpen ? "border-b border-divider" : "border-b border-transparent"
@@ -91,6 +104,13 @@ export default function Nav() {
                     >
                         Privacy
                     </Link>
+                    <button
+                        type="button"
+                        onClick={goToDemo}
+                        className="hidden sm:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
+                    >
+                        Book a demo
+                    </button>
                 </div>
 
                 <div className="inline-flex items-center justify-end gap-1 sm:gap-2">
@@ -151,7 +171,7 @@ export default function Nav() {
                 ref={panelRef}
                 aria-hidden={!menuOpen}
                 className={`sm:hidden absolute top-full left-0 right-0 bg-background overflow-hidden transition-[max-height,opacity,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${menuOpen
-                    ? "max-h-[280px] opacity-100 border-b border-divider"
+                    ? "max-h-[360px] opacity-100 border-b border-divider"
                     : "max-h-0 opacity-0 border-b border-transparent pointer-events-none"
                     }`}
             >
@@ -187,6 +207,34 @@ export default function Nav() {
                             </span>
                         </Link>
                     ))}
+                    <button
+                        type="button"
+                        onClick={goToDemo}
+                        tabIndex={menuOpen ? 0 : -1}
+                        style={{
+                            transitionDelay: menuOpen ? `${60 + mobileItems.length * 50}ms` : "0ms",
+                        }}
+                        className={`group flex w-full items-center justify-between px-4 md:px-8 py-3.5 text-brand text-[0.95rem] leading-5 font-semibold border-t border-divider transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${menuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+                            }`}
+                    >
+                        <span className="inline-flex items-center gap-2">
+                            Book a demo
+                        </span>
+                        <span
+                            aria-hidden
+                            className="transition-transform duration-200 group-hover:translate-x-0.5"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path
+                                    d="M3 7h8m0 0L7.5 3.5M11 7L7.5 10.5"
+                                    stroke="currentColor"
+                                    strokeWidth="1.4"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                />
+                            </svg>
+                        </span>
+                    </button>
                 </div>
             </div>
         </nav>

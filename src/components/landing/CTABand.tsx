@@ -1,21 +1,35 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { trackOutbound } from "../../utils/analytics";
 
 const CONTACT_EMAIL = "info@duri-ai.com";
+const BACKEND = (import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
+
+type Status = "idle" | "sending" | "done" | "error";
 
 export default function CTABand() {
     const [email, setEmail] = useState("");
+    const [status, setStatus] = useState<Status>("idle");
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (status === "sending" || status === "done") return;
         trackOutbound("book_demo_click", { source: "cta_band" });
-        const subject = encodeURIComponent("Book a demo");
-        const body = encodeURIComponent(
-            `Hi Duri team,\n\nI'd like to book a demo.\n\nReply to ${email}.`,
-        );
-        window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+        setStatus("sending");
+        try {
+            const res = await fetch(`${BACKEND}/demo/request`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+            if (!res.ok) throw new Error("request failed");
+            setStatus("done");
+        } catch {
+            setStatus("error");
+        }
     };
+
+    const done = status === "done";
 
     return (
         <section id="talk-to-us" className="relative w-full bg-background border-t border-divider overflow-hidden scroll-mt-16 sm:scroll-mt-20">
@@ -42,26 +56,65 @@ export default function CTABand() {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            disabled={done || status === "sending"}
                             placeholder="Your email"
-                            className="flex-1 bg-background border border-divider-strong rounded-xs px-4 py-3 text-[0.95rem] text-on-background placeholder:text-on-background-secondary focus:border-on-background focus:outline-none transition-colors duration-200"
+                            className="flex-1 bg-background border border-divider-strong rounded-xs px-4 py-3 text-[0.95rem] text-on-background placeholder:text-on-background-secondary focus:border-on-background focus:outline-none transition-colors duration-200 disabled:opacity-60"
                         />
                         <button
                             type="submit"
-                            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xs text-[0.9rem] font-semibold border border-brand bg-brand text-on-brand transition-colors duration-200 hover:bg-brand-variant whitespace-nowrap cursor-pointer"
+                            disabled={status === "sending" || done}
+                            aria-live="polite"
+                            className={`relative inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xs text-[0.9rem] font-semibold border whitespace-nowrap transition-colors duration-500 sm:min-w-[168px] ${
+                                done
+                                    ? "border-brand bg-brand-soft text-brand cursor-default"
+                                    : "border-brand bg-brand text-on-brand hover:bg-brand-variant cursor-pointer"
+                            }`}
                         >
-                            Book a demo
-                            <ArrowRightIcon className="w-3.5 h-3.5" />
+                            <span
+                                className={`inline-flex items-center gap-2 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                                    done ? "opacity-0 -translate-y-1 pointer-events-none" : "opacity-100 translate-y-0"
+                                }`}
+                            >
+                                {status === "sending" ? "Sending" : "Book a demo"}
+                                <ArrowRightIcon className="w-3.5 h-3.5" />
+                            </span>
+                            <span
+                                className={`absolute inset-0 inline-flex items-center justify-center gap-2 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                                    done ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
+                                }`}
+                            >
+                                <CheckIcon className="w-4 h-4" strokeWidth={2.5} />
+                                Request received
+                            </span>
                         </button>
                     </form>
-                    <p className="mt-4 text-[12px] text-on-background-secondary">
-                        Or write directly to{" "}
-                        <a
-                            href={`mailto:${CONTACT_EMAIL}`}
-                            className="text-on-background underline underline-offset-2 hover:text-brand transition-colors"
-                        >
-                            {CONTACT_EMAIL}
-                        </a>
-                        .
+
+                    <p className="mt-4 text-[12px] text-on-background-secondary min-h-[1.25rem]">
+                        {done ? (
+                            <span className="text-brand">We'll be in touch shortly.</span>
+                        ) : status === "error" ? (
+                            <span className="text-danger">
+                                Something went wrong. Please write to{" "}
+                                <a
+                                    href={`mailto:${CONTACT_EMAIL}`}
+                                    className="underline underline-offset-2 hover:text-on-background transition-colors"
+                                >
+                                    {CONTACT_EMAIL}
+                                </a>
+                                .
+                            </span>
+                        ) : (
+                            <>
+                                Or write directly to{" "}
+                                <a
+                                    href={`mailto:${CONTACT_EMAIL}`}
+                                    className="text-on-background underline underline-offset-2 hover:text-brand transition-colors"
+                                >
+                                    {CONTACT_EMAIL}
+                                </a>
+                                .
+                            </>
+                        )}
                     </p>
                 </div>
             </div>

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, MonitorIcon, PlayIcon } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { integrations } from "../../utils/marketingContent";
 import { track, trackOutbound } from "../../utils/analytics";
 import HeroProductWindow from "./HeroProductWindow";
 
@@ -86,10 +85,10 @@ export default function Hero() {
             <div className="relative mx-auto max-w-[1100px] px-5 sm:px-6 md:px-8 pt-10 sm:pt-14 pb-16 md:pb-24">
                 <div id="download" className="text-left sm:text-center">
                     <p className="text-sm sm:text-[clamp(1rem,1.35vw,1.2rem)] leading-[1.45] text-on-background-secondary max-w-[40ch] mx-0 sm:mx-auto text-balance">
-                        Automate your business in plain language.
+                        Hand off your day-to-day operations to AI.
                     </p>
                     <h1 className="mt-5 text-[clamp(2.5rem,6.4vw,5rem)] max-[375px]:text-[clamp(1.75rem,6.4vw,5rem)] leading-[1.02] tracking-[-0.028em] font-medium text-on-background max-w-[16ch] max-[375px]:max-w-none mx-0 sm:mx-auto text-balance">
-                        An <span className="text-brand">AI workspace</span>
+                        AI <span className="text-brand">Automation</span>
                         <br className="hidden max-[375px]:inline" /> for your business.
                     </h1>
                 </div>
@@ -177,41 +176,6 @@ export default function Hero() {
 
                 <div className="mt-12 sm:mt-16 mx-auto max-w-[960px]">
                     <HeroProductWindow />
-                </div>
-
-                <div className="mt-12 sm:mt-16">
-                    <p className="text-center text-[11px] font-semibold tracking-[0.16em] uppercase text-on-background-secondary mb-6">
-                        Works with the tools your business runs on
-                    </p>
-                    <div className="relative w-full overflow-hidden">
-                        <div
-                            className="bg-[linear-gradient(to_right,var(--background),transparent)] absolute inset-y-0 left-0 w-16 md:w-24 z-10 pointer-events-none"
-                            aria-hidden
-                        />
-                        <div
-                            className="bg-[linear-gradient(to_left,var(--background),transparent)] absolute inset-y-0 right-0 w-16 md:w-24 z-10 pointer-events-none"
-                            aria-hidden
-                        />
-                        <div className="overflow-hidden">
-                            <div className="flex items-center w-max animate-logo-marquee" aria-hidden>
-                                {[...integrations, ...integrations, ...integrations, ...integrations].map((it, idx) => (
-                                    <div key={idx} className="flex-none flex items-center justify-center w-[120px] md:w-[140px] mr-10 md:mr-14">
-                                        <img
-                                            src={it.logo}
-                                            alt=""
-                                            className="w-full h-9 md:h-10 object-contain opacity-85"
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                            <ul className="sr-only">
-                                {integrations.map((it) => (
-                                    <li key={it.name}>{it.name}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>

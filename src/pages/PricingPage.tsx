@@ -13,7 +13,7 @@ type Feature = { text: string; subs?: string[] };
 const SHOPIFY_BILLING_GATE = false;
 
 type Plan = {
-    id: "free" | "pro";
+    id: "free" | "starter" | "pro";
     name: string;
     price: string;
     period: string;
@@ -27,15 +27,32 @@ const plans: Plan[] = [
     {
         id: "free",
         name: "Free",
-        price: "10.00",
-        period: "in credits",
+        price: "$0",
+        period: "/ month",
         tagline: "Spin up your org and see what Duri can automate for you.",
         features: [
-            { text: "10.00 in credits to get you started" },
-            { text: "Invite your team" },
+            { text: "$5.00 in credits to get you started" },
+            { text: "Up to 3 team members" },
             { text: "Credits shared across every member in the organization" },
         ],
         cta: "Get started for free",
+        highlighted: false,
+    },
+    {
+        id: "starter",
+        name: "Starter",
+        price: "$20",
+        period: "/ month",
+        tagline: "For small teams putting Duri to work.",
+        features: [
+            {
+                text: "$20.00 in credits every month",
+                subs: ["Recharge anytime, or turn on auto-reload"],
+            },
+            { text: "Up to 3 team members" },
+            { text: "Credits shared across every member in the organization" },
+        ],
+        cta: "Get started",
         highlighted: false,
     },
     {
@@ -46,12 +63,10 @@ const plans: Plan[] = [
         tagline: "For organizations running real work on Duri.",
         features: [
             {
-                text: "50.00 in credits every month",
-                subs: [
-                    "Recharge anytime, or turn on auto-reload",
-                ],
+                text: "$50.00 in credits every month",
+                subs: ["Recharge anytime, or turn on auto-reload"],
             },
-            { text: "Invite your team" },
+            { text: "Up to 10 team members" },
             { text: "Credits shared across every member in the organization" },
         ],
         cta: "Get started",
@@ -63,12 +78,12 @@ export default function PricingPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    const handleCta = (plan: "free" | "pro") => () => {
+    const handleCta = (plan: "free" | "starter" | "pro") => () => {
         track("pricing_cta_click", { plan, signed_in: Boolean(user) });
-        // TEMP GATE — Shopify App-Store review: route the Pro CTA through
+        // TEMP GATE — Shopify App-Store review: route the paid CTAs through
         // Shopify Billing instead of Stripe. Disabled via
         // SHOPIFY_BILLING_GATE; the normal flow runs below when it's off.
-        if (plan === "pro" && SHOPIFY_BILLING_GATE) {
+        if (plan !== "free" && SHOPIFY_BILLING_GATE) {
             const backend = (import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
             window.location.href = `${backend}/shopify-billing/install`;
             return;
@@ -103,8 +118,8 @@ export default function PricingPage() {
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-[820px] px-4 md:px-8 pb-24">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10">
+                <div className="mx-auto max-w-[1080px] px-4 md:px-8 pb-24">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10">
                         {plans.map((plan) => (
                             <div
                                 key={plan.id}

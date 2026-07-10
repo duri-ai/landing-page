@@ -35,6 +35,7 @@ type OrgData = {
     name: string;
     credit_id: number;
     credit_usd: number;
+    plan: "free" | "starter" | "pro";
     pro_plan_active: boolean;
     subscription_cancel_at: string | null;
     has_payment_method: boolean;
@@ -208,10 +209,10 @@ export default function AccountPage() {
         setInviteLoading(false);
     }
 
-    async function handleSubscribe() {
+    async function handleSubscribe(plan: "starter" | "pro" = "pro") {
         if (!org) return;
-        // TEMP GATE — Shopify App-Store review: route Pro through Shopify
-        // Billing instead of Stripe. Disabled via SHOPIFY_BILLING_GATE;
+        // TEMP GATE — Shopify App-Store review: route paid plans through
+        // Shopify Billing instead of Stripe. Disabled via SHOPIFY_BILLING_GATE;
         // the normal Stripe subscription flow runs below when it's off.
         if (SHOPIFY_BILLING_GATE) {
             window.location.href = `${BACKEND}/shopify-billing/install`;
@@ -220,12 +221,18 @@ export default function AccountPage() {
         setCheckoutLoading("subscribe");
         const { data: { session } } = await supabase.auth.getSession();
         const res = await fetch(
-            `${BACKEND}/stripe/subscribe?organization_id=${org.id}`,
+            `${BACKEND}/stripe/subscribe?organization_id=${org.id}&plan=${plan}`,
             { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } },
         );
         const data = await res.json().catch(() => null);
         setCheckoutLoading(null);
-        if (data?.url) window.location.href = data.url;
+        if (data?.url) {
+            window.location.href = data.url;
+        } else if (data?.changed) {
+            // In-place plan change (already subscribed): no redirect, just
+            // reflect the new plan + credit.
+            await refetchOrg();
+        }
     }
 
     async function handleRecharge(amountUsd: number) {
@@ -530,12 +537,13 @@ function BillingPanel({
     isAdmin: boolean;
     checkoutLoading: CheckoutKind;
     portalLoading: boolean;
-    onSubscribe: () => void;
+    onSubscribe: (plan: "starter" | "pro") => void;
     onManageSubscription: () => void;
     onOpenRecharge: () => void;
     onOpenAutoReload: () => void;
 }) {
     const isPro = org.pro_plan_active;
+    const planLabel = org.plan === "pro" ? "Pro" : org.plan === "starter" ? "Starter" : "Free";
     const isEnding = isPro && !!org.subscription_cancel_at;
     const endsOn = org.subscription_cancel_at
         ? new Date(org.subscription_cancel_at).toLocaleDateString(undefined, {
@@ -570,27 +578,43 @@ function BillingPanel({
                                     : "text-on-background-secondary bg-background border-divider"
                             }`}
                         >
-                            {isPro ? (isEnding ? `Pro · ends ${endsOn}` : "Pro") : "Free"}
+                            {isEnding ? `${planLabel} · ends ${endsOn}` : planLabel}
                         </span>
                     </div>
                 </div>
             </div>
 
-            {/* Free → upgrade pitch */}
-            {isAdmin && !isPro && (
+            {/* Upgrade options: Free -> Starter/Pro, Starter -> Pro */}
+            {isAdmin && org.plan !== "pro" && (
                 <div className="rounded-md border border-brand/30 bg-brand-soft p-4">
-                    <p className="text-sm font-medium text-on-background">Upgrade to Pro</p>
-                    <p className="mt-1 text-sm text-on-background-secondary leading-relaxed">
-                        Get 50.00 in credits every month.
+                    <p className="text-sm font-medium text-on-background">
+                        {org.plan === "starter" ? "Upgrade to Pro" : "Upgrade your plan"}
                     </p>
-                    <button
-                        type="button"
-                        disabled={checkoutLoading !== null}
-                        onClick={onSubscribe}
-                        className="mt-4 h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        {checkoutLoading === "subscribe" ? "Redirecting…" : "Upgrade to Pro · $50/mo"}
-                    </button>
+                    <p className="mt-1 text-sm text-on-background-secondary leading-relaxed">
+                        {org.plan === "starter"
+                            ? "Move to Pro for a larger monthly allowance. You're charged only the prorated difference."
+                            : "Get a monthly credit allowance for your whole team."}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                        {org.plan === "free" && (
+                            <button
+                                type="button"
+                                disabled={checkoutLoading !== null}
+                                onClick={() => onSubscribe("starter")}
+                                className="h-9 px-4 rounded-xs border border-brand bg-background text-brand text-sm font-medium hover:bg-brand-soft transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {checkoutLoading === "subscribe" ? "Redirecting…" : "Starter · $20/mo"}
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            disabled={checkoutLoading !== null}
+                            onClick={() => onSubscribe("pro")}
+                            className="h-9 px-4 rounded-xs border border-brand bg-brand text-on-brand text-sm font-medium hover:bg-brand-variant hover:border-brand-variant transition-colors duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            {checkoutLoading === "subscribe" ? "Redirecting…" : "Pro · $50/mo"}
+                        </button>
+                    </div>
                 </div>
             )}
 

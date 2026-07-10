@@ -39,7 +39,7 @@ export default function HowItWorks() {
     }, [i]);
 
     return (
-        <section id="how" className="relative w-full bg-background-warm overflow-hidden">
+        <section id="how" className="relative w-full bg-background border-t border-divider overflow-hidden">
             <div
                 aria-hidden
                 className="absolute -left-32 top-1/3 -translate-y-1/2 h-[480px] w-[480px] rounded-full pointer-events-none"

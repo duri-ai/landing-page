@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { integrations } from "../../utils/marketingContent";
 
 const base = import.meta.env.BASE_URL;
 
@@ -6,6 +7,19 @@ const POOL = [
     `${base}logos/third_party/google.svg`,
     `${base}logos/third_party/m365.png`,
     `${base}logos/third_party/gmail.png`,
+    `${base}logos/third_party/gsheets.png`,
+    `${base}logos/third_party/gdrive.png`,
+    `${base}logos/third_party/gcalendar.png`,
+    `${base}logos/third_party/gdocs.png`,
+    `${base}logos/third_party/gslides.png`,
+    `${base}logos/third_party/gforms.png`,
+    `${base}logos/third_party/gmeet.webp`,
+    `${base}logos/third_party/ms_excel.webp`,
+    `${base}logos/third_party/ms_outlook.webp`,
+    `${base}logos/third_party/ms_onedrive.webp`,
+    `${base}logos/third_party/ms_teams.webp`,
+    `${base}logos/third_party/ms_planner.webp`,
+    `${base}logos/third_party/ms_sharepoint.webp`,
     `${base}logos/third_party/meta.png`,
     `${base}logos/third_party/mailchimp.png`,
     `${base}logos/third_party/square.png`,
@@ -13,28 +27,11 @@ const POOL = [
     `${base}logos/third_party/quickbooks-circle.svg`,
 ];
 
-const MULTI_ACCOUNT = new Set([
-    `${base}logos/third_party/shopify-bag.svg`,
-    `${base}logos/third_party/quickbooks-circle.svg`,
-]);
-
 const SLOTS = 4;
 
 function randomSide(): string[] {
-    // 35% chance: pick a multi-account service and fill all 4 slots
-    if (Math.random() < 0.35) {
-        const multi = Array.from(MULTI_ACCOUNT);
-        const pick = multi[Math.floor(Math.random() * multi.length)];
-        return Array(SLOTS).fill(pick);
-    }
-    // Otherwise: 4 distinct non-multi services
-    const nonMulti = POOL.filter((p) => !MULTI_ACCOUNT.has(p));
-    const shuffled = [...nonMulti].sort(() => Math.random() - 0.5);
+    const shuffled = [...POOL].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, SLOTS);
-}
-
-function isMultiSide(side: string[]): boolean {
-    return side.length > 0 && side.every((s) => s === side[0]) && MULTI_ACCOUNT.has(side[0]);
 }
 
 function IconCard({ src }: { src: string }) {
@@ -74,8 +71,7 @@ export default function MultiConnect() {
         return () => window.clearInterval(id);
     }, []);
 
-    const leftIsMulti = isMultiSide(leftIcons);
-    const rightIsMulti = isMultiSide(rightIcons);
+    const lineStroke = "color-mix(in oklch, var(--on-background) 14%, transparent)";
 
     return (
         <section className="relative w-full bg-background-warm border-t border-divider overflow-hidden">
@@ -99,7 +95,7 @@ export default function MultiConnect() {
                             Connectors
                         </p>
                         <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.05] tracking-[-0.024em] font-medium text-on-background text-balance">
-                            Connect any data source, read and write in one place.
+                            Connect your apps. Let AI read and write across them.
                         </h2>
                         <p className="mt-5 text-[clamp(0.975rem,1.15vw,1.1rem)] leading-[1.55] text-on-background-secondary">
                             Three storefronts, two ad accounts, the books in another tab.
@@ -112,10 +108,7 @@ export default function MultiConnect() {
                         <div className="grid grid-cols-[auto_minmax(40px,80px)_auto_minmax(40px,80px)_auto] items-stretch gap-x-2 sm:gap-x-3">
                             <div className="flex flex-col items-center gap-4 sm:gap-5">
                                 {leftIcons.map((src, idx) => (
-                                    <IconCard
-                                        key={`l-${idx}-${src}-${leftIsMulti ? "m" : "s"}`}
-                                        src={src}
-                                    />
+                                    <IconCard key={`l-${idx}-${src}`} src={src} />
                                 ))}
                             </div>
 
@@ -131,12 +124,8 @@ export default function MultiConnect() {
                                         >
                                             <path
                                                 d={`M 0 ${y} Q 55 ${y} 100 50`}
-                                                stroke={
-                                                    leftIsMulti
-                                                        ? "color-mix(in oklch, var(--brand) 55%, transparent)"
-                                                        : "color-mix(in oklch, var(--on-background) 14%, transparent)"
-                                                }
-                                                strokeWidth={leftIsMulti ? 2 : 1.5}
+                                                stroke={lineStroke}
+                                                strokeWidth={1.5}
                                                 fill="none"
                                                 vectorEffect="non-scaling-stroke"
                                             />
@@ -161,12 +150,8 @@ export default function MultiConnect() {
                                         >
                                             <path
                                                 d={`M 0 50 Q 45 ${y} 100 ${y}`}
-                                                stroke={
-                                                    rightIsMulti
-                                                        ? "color-mix(in oklch, var(--brand) 55%, transparent)"
-                                                        : "color-mix(in oklch, var(--on-background) 14%, transparent)"
-                                                }
-                                                strokeWidth={rightIsMulti ? 2 : 1.5}
+                                                stroke={lineStroke}
+                                                strokeWidth={1.5}
                                                 fill="none"
                                                 vectorEffect="non-scaling-stroke"
                                             />
@@ -177,12 +162,44 @@ export default function MultiConnect() {
 
                             <div className="flex flex-col items-center gap-4 sm:gap-5">
                                 {rightIcons.map((src, idx) => (
-                                    <IconCard
-                                        key={`r-${idx}-${src}-${rightIsMulti ? "m" : "s"}`}
-                                        src={src}
-                                    />
+                                    <IconCard key={`r-${idx}-${src}`} src={src} />
                                 ))}
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-16 sm:mt-24 pt-12 border-t border-divider">
+                    <p className="text-center text-[11px] font-semibold tracking-[0.16em] uppercase text-on-background-secondary mb-6">
+                        Works with the tools your business runs on
+                    </p>
+                    <div className="relative w-full overflow-hidden">
+                        <div
+                            className="bg-[linear-gradient(to_right,var(--background-warm),transparent)] absolute inset-y-0 left-0 w-16 md:w-24 z-10 pointer-events-none"
+                            aria-hidden
+                        />
+                        <div
+                            className="bg-[linear-gradient(to_left,var(--background-warm),transparent)] absolute inset-y-0 right-0 w-16 md:w-24 z-10 pointer-events-none"
+                            aria-hidden
+                        />
+                        <div className="overflow-hidden">
+                            <div className="flex items-center w-max animate-logo-marquee" aria-hidden>
+                                {[...integrations, ...integrations, ...integrations, ...integrations].map((it, idx) => (
+                                    <div key={idx} className="flex-none flex items-center justify-center w-[120px] md:w-[140px] mr-10 md:mr-14">
+                                        <img
+                                            src={it.logo}
+                                            alt=""
+                                            className="w-full h-9 md:h-10 object-contain opacity-85"
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <ul className="sr-only">
+                                {integrations.map((it) => (
+                                    <li key={it.name}>{it.name}</li>
+                                ))}
+                            </ul>
                         </div>
                     </div>
                 </div>

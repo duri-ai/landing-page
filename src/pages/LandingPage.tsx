@@ -12,8 +12,8 @@ export default function LandingPage() {
             <Nav />
             <main>
                 <Hero />
-                <HowItWorks />
                 <Automation />
+                <HowItWorks />
                 <MultiConnect />
                 <CTABand />
             </main>

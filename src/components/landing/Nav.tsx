@@ -98,11 +98,7 @@ export default function Nav() {
     const mobileItems: { to: string; label: string }[] = [
         { to: "/pricing", label: "Pricing" },
         { to: "/privacy", label: "Privacy" },
-        ...(!loading
-            ? [user
-                ? { to: "/account", label: "My account" }
-                : { to: "/login", label: "Sign in to account" }]
-            : []),
+        ...(!loading && user ? [{ to: "/account", label: "My account" }] : []),
     ];
 
     const goToDemo = () => {
@@ -160,13 +156,13 @@ export default function Nav() {
                 </div>
 
                 <div className="inline-flex items-center justify-end gap-1.5">
-                    {!loading && (
+                    {!loading && user && (
                         <button
                             type="button"
-                            onClick={() => navigate(user ? "/account" : "/login")}
+                            onClick={() => navigate("/account")}
                             className="hidden xl:inline-flex items-center text-on-background-secondary hover:text-on-background text-sm leading-5 font-medium px-2 py-2 transition-colors duration-200 cursor-pointer"
                         >
-                            {user ? "My account" : "Sign in"}
+                            My account
                         </button>
                     )}
 

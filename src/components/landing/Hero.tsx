@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronDown, MonitorIcon, PlayIcon } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { track, trackOutbound } from "../../utils/analytics";
-import HeroProductWindow from "./HeroProductWindow";
+import HeroVideoCarousel from "./HeroVideoCarousel";
 
 const base = import.meta.env.BASE_URL;
 
@@ -175,7 +175,7 @@ export default function Hero() {
                 </div>
 
                 <div className="mt-12 sm:mt-16 mx-auto max-w-[960px]">
-                    <HeroProductWindow />
+                    <HeroVideoCarousel />
                 </div>
             </div>
         </section>

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 
 const VIDEOS = [
@@ -16,10 +16,79 @@ const VIDEOS = [
 
 type Direction = "forward" | "backward";
 
+type YouTubePlayer = {
+    mute: () => void;
+    playVideo: () => void;
+    stopVideo: () => void;
+};
+
+type YouTubePlayerEvent = {
+    target: YouTubePlayer;
+};
+
+type YouTubeStateEvent = YouTubePlayerEvent & {
+    data: number;
+};
+
+type YouTubeApi = {
+    Player: new (
+        element: HTMLIFrameElement,
+        options: {
+            events: {
+                onReady: (event: YouTubePlayerEvent) => void;
+                onStateChange: (event: YouTubeStateEvent) => void;
+            };
+        },
+    ) => YouTubePlayer;
+    PlayerState: {
+        ENDED: number;
+    };
+};
+
+declare global {
+    interface Window {
+        YT?: YouTubeApi;
+        onYouTubeIframeAPIReady?: () => void;
+    }
+}
+
+let youtubeApiPromise: Promise<YouTubeApi> | null = null;
+
+function loadYouTubeApi(): Promise<YouTubeApi> {
+    if (window.YT?.Player) return Promise.resolve(window.YT);
+    if (youtubeApiPromise) return youtubeApiPromise;
+
+    youtubeApiPromise = new Promise((resolve, reject) => {
+        const previousReady = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = () => {
+            previousReady?.();
+            if (window.YT?.Player) {
+                resolve(window.YT);
+            } else {
+                reject(new Error("YouTube iframe API loaded without a player constructor."));
+            }
+        };
+
+        if (document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) return;
+
+        const script = document.createElement("script");
+        script.src = "https://www.youtube.com/iframe_api";
+        script.async = true;
+        script.addEventListener("error", () => {
+            youtubeApiPromise = null;
+            reject(new Error("Unable to load the YouTube iframe API."));
+        });
+        document.head.appendChild(script);
+    });
+
+    return youtubeApiPromise;
+}
+
 export default function HeroVideoCarousel() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState<Direction>("forward");
     const touchStartX = useRef<number | null>(null);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
     const activeVideo = VIDEOS[activeIndex];
 
     const move = useCallback((step: number) => {
@@ -32,6 +101,51 @@ export default function HeroVideoCarousel() {
         setDirection(index > activeIndex ? "forward" : "backward");
         setActiveIndex(index);
     };
+
+    useEffect(() => {
+        const iframe = iframeRef.current;
+        if (!iframe) return;
+
+        let disposed = false;
+        let player: YouTubePlayer | undefined;
+
+        void loadYouTubeApi()
+            .then((youtube) => {
+                if (disposed || !iframe.isConnected) return;
+
+                player = new youtube.Player(iframe, {
+                    events: {
+                        onReady: (event) => {
+                            if (disposed) return;
+                            event.target.mute();
+                            event.target.playVideo();
+                        },
+                        onStateChange: (event) => {
+                            if (
+                                disposed ||
+                                event.data !== youtube.PlayerState.ENDED ||
+                                activeIndex >= VIDEOS.length - 1
+                            ) {
+                                return;
+                            }
+
+                            setDirection("forward");
+                            setActiveIndex(activeIndex + 1);
+                        },
+                    },
+                });
+            })
+            .catch((error: unknown) => {
+                if (!disposed) {
+                    console.warn("Automatic video advance is unavailable.", error);
+                }
+            });
+
+        return () => {
+            disposed = true;
+            player?.stopVideo();
+        };
+    }, [activeIndex]);
 
     return (
         <section
@@ -73,10 +187,12 @@ export default function HeroVideoCarousel() {
                         }
                     >
                         <iframe
+                            ref={iframeRef}
                             id={`hero-video-${activeVideo.id}`}
-                            src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?rel=0&playsinline=1`}
+                            src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=1&mute=1&enablejsapi=1&rel=0&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`}
                             title={`Duri demo: ${activeVideo.title}`}
                             className="h-full w-full border-0"
+                            loading="eager"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerPolicy="strict-origin-when-cross-origin"
                             allowFullScreen
@@ -105,7 +221,7 @@ export default function HeroVideoCarousel() {
                         <p className="mt-1 truncate text-[13px] font-medium text-on-background sm:text-[15px]">
                             {activeVideo.title}
                         </p>
-                        <div className="mt-2 flex items-center justify-between gap-3">
+                        <div className="mt-2 flex items-center gap-3">
                             <div className="flex items-center gap-1" aria-label="Choose a demo">
                                 {VIDEOS.map((video, index) => (
                                     <button
@@ -127,10 +243,6 @@ export default function HeroVideoCarousel() {
                                     </button>
                                 ))}
                             </div>
-                            <span className="text-[10px] font-semibold tabular-nums tracking-[0.1em] text-on-background-secondary">
-                                {String(activeIndex + 1).padStart(2, "0")} /{" "}
-                                {String(VIDEOS.length).padStart(2, "0")}
-                            </span>
                         </div>
                     </div>
 

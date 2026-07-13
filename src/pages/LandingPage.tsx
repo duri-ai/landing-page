@@ -30,10 +30,10 @@ export default function LandingPage() {
             <Nav />
             <main>
                 <Hero />
+                <CTABand />
                 <Automation />
                 <HowItWorks />
                 <MultiConnect />
-                <CTABand />
             </main>
             <Footer />
         </>

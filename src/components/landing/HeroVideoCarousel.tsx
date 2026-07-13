@@ -17,16 +17,11 @@ const VIDEOS = [
 type Direction = "forward" | "backward";
 
 type YouTubePlayer = {
-    mute: () => void;
-    playVideo: () => void;
     stopVideo: () => void;
 };
 
-type YouTubePlayerEvent = {
+type YouTubeStateEvent = {
     target: YouTubePlayer;
-};
-
-type YouTubeStateEvent = YouTubePlayerEvent & {
     data: number;
 };
 
@@ -35,7 +30,6 @@ type YouTubeApi = {
         element: HTMLIFrameElement,
         options: {
             events: {
-                onReady: (event: YouTubePlayerEvent) => void;
                 onStateChange: (event: YouTubeStateEvent) => void;
             };
         },
@@ -115,11 +109,6 @@ export default function HeroVideoCarousel() {
 
                 player = new youtube.Player(iframe, {
                     events: {
-                        onReady: (event) => {
-                            if (disposed) return;
-                            event.target.mute();
-                            event.target.playVideo();
-                        },
                         onStateChange: (event) => {
                             if (
                                 disposed ||
@@ -189,7 +178,7 @@ export default function HeroVideoCarousel() {
                         <iframe
                             ref={iframeRef}
                             id={`hero-video-${activeVideo.id}`}
-                            src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=1&mute=1&enablejsapi=1&rel=0&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`}
+                            src={`https://www.youtube-nocookie.com/embed/${activeVideo.id}?enablejsapi=1&rel=0&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`}
                             title={`Duri demo: ${activeVideo.title}`}
                             className="h-full w-full border-0"
                             loading="eager"

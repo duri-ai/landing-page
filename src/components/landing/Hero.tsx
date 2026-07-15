@@ -1,4 +1,4 @@
-import HeroVideoCarousel from "./HeroVideoCarousel";
+import HeroVideo from "./HeroVideo";
 
 export default function Hero() {
     return (
@@ -34,7 +34,7 @@ export default function Hero() {
                 </div>
 
                 <div className="mt-10 sm:mt-14 mx-auto max-w-[960px]">
-                    <HeroVideoCarousel />
+                    <HeroVideo />
                 </div>
             </div>
         </section>

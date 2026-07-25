@@ -23,8 +23,13 @@ export default function CheckoutPage() {
         redirected.current = true;
 
         (async () => {
+            // A refill needs an explicit amount, which this route doesn't
+            // carry, so it hands off to the Add credit flow on the account
+            // page rather than charging an assumed amount.
+            if (type === "refill") { navigate("/account"); return; }
+
             const { data: { session } } = await supabase.auth.getSession();
-            const url = `${BACKEND}/stripe/checkout?organization_id=${orgId}${type === "refill" ? "&type=refill" : ""}`;
+            const url = `${BACKEND}/stripe/subscribe?organization_id=${orgId}&plan=pro`;
             const res = await fetch(url, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -32,9 +37,6 @@ export default function CheckoutPage() {
 
             const data = await res.json().catch(() => null);
             if (data?.url) { window.location.href = data.url; return; }
-
-            const location = res.headers.get("location");
-            if (location) { window.location.href = location; return; }
 
             navigate("/account");
         })();

@@ -5,6 +5,8 @@ import { supabase } from "../../supabase/client";
 import { track } from "../utils/analytics";
 import Nav from "../components/landing/Nav";
 
+const BACKEND = (import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
+
 export default function OnboardingPage() {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
@@ -60,12 +62,22 @@ export default function OnboardingPage() {
         setSubmitting(true);
 
         try {
-            // SECURITY DEFINER RPC — creates token_balance + org + member atomically
-            const { data: result, error: rpcError } = await supabase
-                .rpc("create_organization", { org_name: companyName });
-            if (rpcError || !result) throw rpcError ?? new Error("Failed to create organization");
+            const { data: { session } } = await supabase.auth.getSession();
+            const res = await fetch(`${BACKEND}/organizations`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.access_token ?? ""}`,
+                },
+                body: JSON.stringify({ name: companyName }),
+            });
+            if (!res.ok) {
+                const result = await res.json().catch(() => ({}));
+                throw new Error(result.detail ?? result.error ?? "Failed to create organization");
+            }
 
-            const { organization_id, token_balance_id } = result as { organization_id: number; token_balance_id: number };
+            const result = (await res.json()) as { organization_id: number; credit_id: number };
+            const { organization_id, credit_id: token_balance_id } = result;
 
             // updateUser merges with existing user_metadata, so omitting
             // full_name when it's already set preserves the prior value.

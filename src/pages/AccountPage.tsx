@@ -177,31 +177,6 @@ export default function AccountPage() {
         });
     }, [user, navigate]);
 
-    // Supabase Realtime — live credit updates
-    useEffect(() => {
-        if (!org?.credit_id) return;
-
-        const channel = supabase
-            .channel("credit")
-            .on(
-                "postgres_changes",
-                {
-                    event: "UPDATE",
-                    schema: "public",
-                    table: "credits",
-                    filter: `id=eq.${org.credit_id}`,
-                },
-                (payload) => {
-                    const p = payload.new as { credit: number; monthly_credit?: number };
-                    const total = p.credit + (p.monthly_credit ?? 0);
-                    setOrg((prev) => (prev ? { ...prev, credit_usd: total } : prev));
-                },
-            )
-            .subscribe();
-
-        return () => { supabase.removeChannel(channel); };
-    }, [org?.credit_id]);
-
     if (loading) {
         return (
             <div className="flex min-h-dvh items-center justify-center bg-background">
